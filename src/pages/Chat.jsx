@@ -92,8 +92,10 @@ export default function Chat() {
 
   // Floating shapes
   const shapes = [
-    { size: 200, x: -50, y: "20%", opacity: 0.08 },
-    { size: 150, x: "80%", y: "60%", opacity: 0.06 },
+    { size: 250, x: -60, y: "15%", opacity: 0.1 },
+    { size: 200, x: "85%", y: "55%", opacity: 0.08 },
+    { size: 150, x: "70%", y: "10%", opacity: 0.06 },
+    { size: 180, x: "20%", y: "75%", opacity: 0.07 },
   ];
 
   return (
@@ -292,8 +294,8 @@ const styles = {
   floatingShape: {
     position: "absolute",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(212,165,116,0.5) 0%, rgba(245,230,163,0.3) 50%, transparent 70%)",
-    filter: "blur(30px)",
+    background: "radial-gradient(circle, rgba(212,165,116,0.4) 0%, rgba(245,230,163,0.25) 40%, transparent 70%)",
+    filter: "blur(40px)",
   },
   header: {
     display: "flex",
@@ -492,8 +494,8 @@ const styles = {
     flex: 1,
     padding: "14px 18px",
     borderRadius: "14px",
-    border: "2px solid rgba(255, 255, 255, 0.4)",
-    background: "rgba(255, 255, 255, 0.4)",
+    border: "2px solid rgba(212, 165, 116, 0.2)",
+    background: "rgba(255, 255, 255, 0.5)",
     fontSize: "15px",
     color: "#5D4E37",
     resize: "none",
@@ -502,6 +504,7 @@ const styles = {
     minHeight: "50px",
     maxHeight: "120px",
     transition: "all 0.2s",
+    boxShadow: "inset 0 2px 4px rgba(139, 119, 80, 0.05)",
   },
   sendBtn: {
     padding: "14px 28px",

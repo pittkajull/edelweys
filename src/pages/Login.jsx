@@ -37,9 +37,11 @@ export default function Login() {
 
   // Floating shapes
   const shapes = [
-    { size: 300, x: -50, y: -80, opacity: 0.15 },
-    { size: 200, x: "70%", y: "60%", opacity: 0.1 },
-    { size: 150, x: "20%", y: "70%", opacity: 0.12 },
+    { size: 350, x: -80, y: -100, opacity: 0.18 },
+    { size: 280, x: "75%", y: "55%", opacity: 0.15 },
+    { size: 200, x: "15%", y: "65%", opacity: 0.12 },
+    { size: 150, x: "85%", y: "15%", opacity: 0.1 },
+    { size: 180, x: "50%", y: "80%", opacity: 0.08 },
   ];
 
   return (
@@ -217,8 +219,8 @@ const styles = {
   floatingShape: {
     position: "absolute",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(212,165,116,0.4) 0%, rgba(245,230,163,0.2) 50%, transparent 70%)",
-    filter: "blur(40px)",
+    background: "radial-gradient(circle, rgba(212,165,116,0.5) 0%, rgba(245,230,163,0.3) 40%, transparent 70%)",
+    filter: "blur(50px)",
   },
   card: {
     background: "rgba(255, 255, 255, 0.35)",
@@ -297,11 +299,12 @@ const styles = {
     marginBottom: "8px",
   },
   inputWrapper: {
-    background: "rgba(255, 255, 255, 0.4)",
+    background: "rgba(255, 255, 255, 0.5)",
     borderRadius: "14px",
-    border: "2px solid rgba(255, 255, 255, 0.4)",
+    border: "2px solid rgba(212, 165, 116, 0.2)",
     padding: "4px 18px",
     transition: "all 0.3s ease",
+    boxShadow: "inset 0 2px 4px rgba(139, 119, 80, 0.05)",
   },
   input: {
     width: "100%",
@@ -309,7 +312,7 @@ const styles = {
     border: "none",
     background: "transparent",
     fontSize: "16px",
-    fontWeight: "600",
+    fontWeight: "500",
     color: "#5D4E37",
     outline: "none",
   },
