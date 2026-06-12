@@ -25,13 +25,14 @@ dist-ssr
 
 # Environment & Secrets (SENSITIVE - NEVER PUSH!)
 .env
-.env.*
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 .env.bak
-.env.example
+.env.development
+.env.test
+.env.production
 
 # API Keys & Credentials
 *.key
@@ -61,7 +62,9 @@ edelweys-backend/.env
 edelweys-backend/venv/
 edelweys-backend/__pycache__/
 edelweys-backend/*.pyc
-edelweys-backend/.env.*
+edelweys-backend/.env.local
+edelweys-backend/.env.development
+edelweys-backend/.env.production
 edelweys-backend/routers/__pycache__/
 
 # IDE & Editor
