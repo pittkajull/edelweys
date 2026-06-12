@@ -81,7 +81,6 @@ export default function Chat() {
     navigate("/login");
   };
 
-  // Format message with line breaks
   const formatMessage = (text) => {
     return text.split('\n').map((line, i) => (
       <span key={i}>
@@ -97,7 +96,7 @@ export default function Chat() {
       <div style={styles.header}>
         <div style={styles.headerLeft}>
           <div style={styles.avatar}>
-            <div style={styles.avatarIcon}>E</div>
+            <span style={styles.avatarText}>E</span>
           </div>
           <div>
             <p style={styles.headerName}>Edelweys</p>
@@ -139,7 +138,7 @@ export default function Chat() {
             >
               {msg.role === "assistant" && (
                 <div style={styles.botAvatar}>
-                  <div style={styles.botAvatarIcon}>E</div>
+                  <span style={styles.botAvatarText}>E</span>
                 </div>
               )}
               <div
@@ -152,7 +151,7 @@ export default function Chat() {
               </div>
               {msg.role === "user" && (
                 <div style={styles.userAvatar}>
-                  <div style={styles.userAvatarIcon}>U</div>
+                  <span style={styles.userAvatarText}>U</span>
                 </div>
               )}
             </motion.div>
@@ -169,7 +168,7 @@ export default function Chat() {
               exit={{ opacity: 0, y: -20 }}
             >
               <div style={styles.botAvatar}>
-                <div style={styles.botAvatarIcon}>E</div>
+                <span style={styles.botAvatarText}>E</span>
               </div>
               <div style={styles.typingBubble}>
                 <div style={styles.typingDots}>
@@ -214,7 +213,7 @@ export default function Chat() {
       <style>{`
         @keyframes bounce {
           0%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-8px); }
+          40% { transform: translateY(-6px); }
         }
         .bounce1 { animation: bounce 1.2s infinite 0s; }
         .bounce2 { animation: bounce 1.2s infinite 0.2s; }
@@ -230,7 +229,7 @@ const styles = {
     flexDirection: "column",
     height: "100vh",
     width: "100vw",
-    background: "linear-gradient(180deg, #fdf2f8 0%, #fce7f3 50%, #fdf2f8 100%)",
+    background: "#FAF8F5",
     position: "fixed",
     top: 0,
     left: 0,
@@ -244,8 +243,8 @@ const styles = {
     justifyContent: "space-between",
     padding: "16px 24px",
     background: "white",
-    borderBottom: "1px solid #f3f4f6",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.05)",
+    borderBottom: "1px solid #F0EBE3",
+    boxShadow: "0 1px 3px rgba(139, 119, 80, 0.05)",
     zIndex: 10,
   },
   headerLeft: {
@@ -256,21 +255,23 @@ const styles = {
   avatar: {
     width: "48px",
     height: "48px",
-    background: "linear-gradient(135deg, #ec4899 0%, #f472b6 100%)",
+    background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
     borderRadius: "14px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+    boxShadow: "0 2px 8px rgba(212, 165, 116, 0.3)",
   },
-  avatarIcon: {
+  avatarText: {
     fontSize: "20px",
-    fontWeight: "900",
+    fontWeight: "800",
     color: "white",
+    textShadow: "0 1px 2px rgba(0,0,0,0.1)",
   },
   headerName: {
     margin: 0,
     fontWeight: "700",
-    color: "#1f2937",
+    color: "#5D4E37",
     fontSize: "18px",
   },
   statusContainer: {
@@ -283,12 +284,12 @@ const styles = {
     width: "8px",
     height: "8px",
     borderRadius: "50%",
-    background: "#22c55e",
+    background: "#68D391",
   },
   headerStatus: {
     margin: 0,
     fontSize: "12px",
-    color: "#6b7280",
+    color: "#9C8B7A",
   },
   headerButtons: {
     display: "flex",
@@ -297,9 +298,9 @@ const styles = {
   dashBtn: {
     padding: "10px 18px",
     borderRadius: "10px",
-    border: "1px solid #e5e7eb",
+    border: "1px solid #E8DFD5",
     background: "white",
-    color: "#374151",
+    color: "#5D4E37",
     cursor: "pointer",
     fontSize: "14px",
     fontWeight: "600",
@@ -308,9 +309,9 @@ const styles = {
   logoutBtn: {
     padding: "10px 18px",
     borderRadius: "10px",
-    border: "1px solid #fecaca",
-    background: "#fef2f2",
-    color: "#dc2626",
+    border: "1px solid #FED7D7",
+    background: "#FFF5F5",
+    color: "#C53030",
     cursor: "pointer",
     fontSize: "14px",
     fontWeight: "600",
@@ -323,41 +324,44 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     gap: "16px",
+    background: "linear-gradient(180deg, #FFFEF7 0%, #FAF8F5 100%)",
   },
   messageWrapper: {
     display: "flex",
     alignItems: "flex-end",
     gap: "10px",
-    maxWidth: "80%",
+    maxWidth: "75%",
   },
   botAvatar: {
     width: "32px",
     height: "32px",
-    background: "linear-gradient(135deg, #ec4899 0%, #f472b6 100%)",
+    background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
     borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    boxShadow: "0 2px 6px rgba(212, 165, 116, 0.25)",
   },
-  botAvatarIcon: {
+  botAvatarText: {
     fontSize: "12px",
-    fontWeight: "900",
+    fontWeight: "800",
     color: "white",
   },
   userAvatar: {
     width: "32px",
     height: "32px",
-    background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+    background: "linear-gradient(135deg, #68D391 0%, #48BB78 100%)",
     borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    boxShadow: "0 2px 6px rgba(104, 211, 145, 0.25)",
   },
-  userAvatarIcon: {
+  userAvatarText: {
     fontSize: "12px",
-    fontWeight: "900",
+    fontWeight: "800",
     color: "white",
   },
   bubble: {
@@ -368,17 +372,18 @@ const styles = {
     wordBreak: "break-word",
   },
   userBubble: {
-    background: "linear-gradient(135deg, #ec4899 0%, #f472b6 100%)",
+    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
     color: "white",
     borderBottomRightRadius: "4px",
     marginLeft: "auto",
+    boxShadow: "0 2px 8px rgba(212, 165, 116, 0.25)",
   },
   botBubble: {
     background: "white",
-    color: "#1f2937",
+    color: "#5D4E37",
     borderBottomLeftRadius: "4px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-    border: "1px solid #f3f4f6",
+    boxShadow: "0 1px 4px rgba(139, 119, 80, 0.08)",
+    border: "1px solid #F0EBE3",
   },
   typingWrapper: {
     display: "flex",
@@ -390,8 +395,8 @@ const styles = {
     padding: "14px 18px",
     borderRadius: "18px",
     borderBottomLeftRadius: "4px",
-    boxShadow: "0 1px 3px rgba(0,0,0,0.08)",
-    border: "1px solid #f3f4f6",
+    boxShadow: "0 1px 4px rgba(139, 119, 80, 0.08)",
+    border: "1px solid #F0EBE3",
   },
   typingDots: {
     display: "flex",
@@ -401,12 +406,12 @@ const styles = {
     width: "8px",
     height: "8px",
     borderRadius: "50%",
-    background: "#d1d5db",
+    background: "#D4A574",
   },
   inputArea: {
     padding: "16px 24px 20px",
     background: "white",
-    borderTop: "1px solid #f3f4f6",
+    borderTop: "1px solid #F0EBE3",
   },
   inputContainer: {
     display: "flex",
@@ -415,12 +420,12 @@ const styles = {
   },
   textarea: {
     flex: 1,
-    padding: "14px 16px",
+    padding: "14px 18px",
     borderRadius: "12px",
-    border: "1px solid #e5e7eb",
-    background: "#f9fafb",
+    border: "1.5px solid #E8DFD5",
+    background: "#FAF8F5",
     fontSize: "15px",
-    color: "#1f2937",
+    color: "#5D4E37",
     resize: "none",
     outline: "none",
     fontFamily: "inherit",
@@ -432,17 +437,18 @@ const styles = {
     padding: "14px 24px",
     borderRadius: "12px",
     border: "none",
-    background: "linear-gradient(135deg, #ec4899 0%, #f472b6 100%)",
+    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
     color: "white",
     fontSize: "15px",
     fontWeight: "600",
     cursor: "pointer",
+    boxShadow: "0 2px 8px rgba(212, 165, 116, 0.25)",
     transition: "all 0.2s",
   },
   inputHint: {
     margin: "8px 0 0",
     fontSize: "12px",
-    color: "#9ca3af",
+    color: "#9C8B7A",
     textAlign: "center",
   },
 };

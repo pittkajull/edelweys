@@ -37,6 +37,13 @@ export default function Login() {
 
   return (
     <div style={styles.container}>
+      {/* Background decoration */}
+      <div style={styles.bgDecoration}>
+        <div style={styles.circle1} />
+        <div style={styles.circle2} />
+        <div style={styles.circle3} />
+      </div>
+
       <motion.div
         style={styles.card}
         initial={{ opacity: 0, y: 30 }}
@@ -49,7 +56,7 @@ export default function Login() {
             <span style={styles.logoText}>E</span>
           </div>
           <h1 style={styles.title}>Edelweys</h1>
-          <p style={styles.subtitle}>Masuk ke akun kamu</p>
+          <p style={styles.subtitle}>Health Companion</p>
         </div>
 
         {/* Error */}
@@ -79,7 +86,8 @@ export default function Login() {
               onBlur={() => setFocusedField(null)}
               style={{
                 ...styles.input,
-                borderColor: focusedField === "email" ? "#ec4899" : "#e5e7eb",
+                borderColor: focusedField === "email" ? "#D4A574" : "#E8DFD5",
+                background: focusedField === "email" ? "#FFFEF7" : "#FAF8F5",
               }}
               required
             />
@@ -96,7 +104,8 @@ export default function Login() {
               onBlur={() => setFocusedField(null)}
               style={{
                 ...styles.input,
-                borderColor: focusedField === "password" ? "#ec4899" : "#e5e7eb",
+                borderColor: focusedField === "password" ? "#D4A574" : "#E8DFD5",
+                background: focusedField === "password" ? "#FFFEF7" : "#FAF8F5",
               }}
               required
             />
@@ -129,59 +138,102 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(180deg, #fdf2f8 0%, #fce7f3 50%, #fdf2f8 100%)",
+    background: "linear-gradient(135deg, #FFFEF7 0%, #FFF8E7 50%, #FFFEF7 100%)",
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+    overflow: "hidden",
+  },
+  bgDecoration: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: "hidden",
+    pointerEvents: "none",
+  },
+  circle1: {
+    position: "absolute",
+    width: "400px",
+    height: "400px",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 70%)",
+    top: "-100px",
+    right: "-100px",
+  },
+  circle2: {
+    position: "absolute",
+    width: "300px",
+    height: "300px",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(255,215,0,0.06) 0%, transparent 70%)",
+    bottom: "-50px",
+    left: "-50px",
+  },
+  circle3: {
+    position: "absolute",
+    width: "200px",
+    height: "200px",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(212,165,116,0.08) 0%, transparent 70%)",
+    top: "50%",
+    left: "10%",
   },
   card: {
     background: "white",
-    borderRadius: "20px",
-    padding: "40px",
+    borderRadius: "24px",
+    padding: "48px 40px",
     width: "100%",
-    maxWidth: "400px",
-    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-    border: "1px solid #f3f4f6",
+    maxWidth: "420px",
+    boxShadow: "0 4px 24px rgba(139, 119, 80, 0.08)",
+    border: "1px solid #F0EBE3",
+    position: "relative",
+    zIndex: 10,
   },
   logoSection: {
     textAlign: "center",
-    marginBottom: "32px",
+    marginBottom: "36px",
   },
   logo: {
-    width: "64px",
-    height: "64px",
-    background: "linear-gradient(135deg, #ec4899 0%, #f472b6 100%)",
-    borderRadius: "16px",
+    width: "72px",
+    height: "72px",
+    background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
+    borderRadius: "20px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    margin: "0 auto 16px",
+    margin: "0 auto 20px",
+    boxShadow: "0 4px 16px rgba(212, 165, 116, 0.3)",
   },
   logoText: {
-    fontSize: "28px",
-    fontWeight: "900",
+    fontSize: "32px",
+    fontWeight: "800",
     color: "white",
+    textShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
   title: {
-    fontSize: "28px",
+    fontSize: "32px",
     fontWeight: "700",
-    color: "#1f2937",
+    color: "#5D4E37",
     margin: "0 0 8px",
+    letterSpacing: "-0.02em",
   },
   subtitle: {
     fontSize: "15px",
-    color: "#6b7280",
+    color: "#9C8B7A",
     margin: 0,
+    fontWeight: "500",
   },
   errorBox: {
-    background: "#fef2f2",
-    border: "1px solid #fecaca",
-    color: "#dc2626",
+    background: "#FFF5F5",
+    border: "1px solid #FED7D7",
+    color: "#C53030",
     padding: "12px 16px",
-    borderRadius: "10px",
+    borderRadius: "12px",
     fontSize: "14px",
     marginBottom: "20px",
     overflow: "hidden",
@@ -194,43 +246,44 @@ const styles = {
   inputGroup: {
     display: "flex",
     flexDirection: "column",
-    gap: "6px",
+    gap: "8px",
   },
   label: {
     fontSize: "14px",
     fontWeight: "600",
-    color: "#374151",
+    color: "#5D4E37",
   },
   input: {
-    padding: "12px 16px",
-    borderRadius: "10px",
-    border: "1px solid #e5e7eb",
-    background: "#f9fafb",
+    padding: "14px 18px",
+    borderRadius: "12px",
+    border: "1.5px solid #E8DFD5",
+    background: "#FAF8F5",
     fontSize: "15px",
-    color: "#1f2937",
+    color: "#5D4E37",
     outline: "none",
-    transition: "border-color 0.2s",
+    transition: "all 0.2s",
   },
   button: {
-    padding: "14px",
-    borderRadius: "10px",
+    padding: "16px",
+    borderRadius: "12px",
     border: "none",
-    background: "linear-gradient(135deg, #ec4899 0%, #f472b6 100%)",
+    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
     color: "white",
     fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
     marginTop: "8px",
-    transition: "opacity 0.2s",
+    boxShadow: "0 4px 12px rgba(212, 165, 116, 0.3)",
+    transition: "all 0.2s",
   },
   link: {
     textAlign: "center",
-    marginTop: "24px",
+    marginTop: "28px",
     fontSize: "14px",
-    color: "#6b7280",
+    color: "#9C8B7A",
   },
   linkBold: {
-    color: "#ec4899",
+    color: "#D4A574",
     fontWeight: "600",
     textDecoration: "none",
   },
