@@ -22,3 +22,90 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment & Secrets (SENSITIVE - NEVER PUSH!)
+.env
+.env.*
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.bak
+.env.example
+
+# API Keys & Credentials
+*.key
+*.pem
+*.p12
+*.pfx
+*.cert
+*.crt
+credentials.json
+service-account*.json
+*-credentials.json
+firebase-*.json
+supabase-*.json
+
+# Database & Backend
+*.db
+*.sqlite
+*.sqlite3
+*.sql
+supabase/
+backend/.env
+backend/venv/
+backend/__pycache__/
+backend/*.pyc
+backend/.env.*
+
+# IDE & Editor
+.vscode/settings.json
+.vscode/launch.json
+*.code-workspace
+.idea/
+*.iml
+.project
+.classpath
+.settings/
+
+# OS Generated
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv/
+env/
+ENV/
+.venv/
+.python-version
+
+# Build & Cache
+.eslintcache
+.npm/
+.yarn-integrity
+.cache/
+*.tsbuildinfo
+.vercel/
+.netlify/
+
+# Sensitive data files
+*.csv
+*.xls
+*.xlsx
+*.json.bak
+secrets/
+secrets.json
+config.json
+config.local.json
+
