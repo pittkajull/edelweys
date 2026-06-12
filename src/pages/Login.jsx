@@ -35,184 +35,89 @@ export default function Login() {
     }
   };
 
-  // Floating shapes for background animation
-  const shapes = Array.from({ length: 6 }, (_, i) => ({
-    id: i,
-    size: Math.random() * 100 + 50,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    duration: Math.random() * 20 + 15,
-  }));
-
   return (
     <div style={styles.container}>
-      {/* Animated Background */}
-      <div style={styles.bgContainer}>
-        {shapes.map((shape) => (
-          <motion.div
-            key={shape.id}
-            style={{
-              ...styles.floatingShape,
-              width: shape.size,
-              height: shape.size,
-              left: `${shape.x}%`,
-              top: `${shape.y}%`,
-            }}
-            animate={{
-              y: [0, -30, 0, 30, 0],
-              x: [0, 20, 0, -20, 0],
-              rotate: [0, 180, 360],
-            }}
-            transition={{
-              duration: shape.duration,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Main Card */}
       <motion.div
         style={styles.card}
-        initial={{ opacity: 0, y: 50, scale: 0.9 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
       >
-        {/* Logo & Title */}
-        <motion.div
-          style={styles.header}
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
-        >
-          <motion.div
-            style={styles.logoContainer}
-            animate={{ rotate: [0, 10, -10, 0] }}
-            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
-          >
-            <div style={styles.logoIcon}>E</div>
-          </motion.div>
+        {/* Logo */}
+        <div style={styles.logoSection}>
+          <div style={styles.logo}>
+            <span style={styles.logoText}>E</span>
+          </div>
           <h1 style={styles.title}>Edelweys</h1>
-          <p style={styles.subtitle}>Temen sehat kamu yang selalu ada!</p>
-        </motion.div>
+          <p style={styles.subtitle}>Masuk ke akun kamu</p>
+        </div>
 
-        {/* Error Message */}
+        {/* Error */}
         <AnimatePresence>
           {error && (
             <motion.div
-              style={styles.errorContainer}
+              style={styles.errorBox}
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: "auto" }}
               exit={{ opacity: 0, height: 0 }}
             >
-              <p style={styles.error}>{error}</p>
+              {error}
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Form */}
         <form onSubmit={handleLogin} style={styles.form}>
-          {/* Email Input */}
-          <motion.div
-            style={styles.inputGroup}
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3, duration: 0.4 }}
-          >
+          <div style={styles.inputGroup}>
             <label style={styles.label}>Email</label>
-            <div style={{
-              ...styles.inputWrapper,
-              borderColor: focusedField === "email" ? "#e91e8c" : "rgba(255,255,255,0.3)",
-              boxShadow: focusedField === "email" ? "0 0 20px rgba(233, 30, 140, 0.3)" : "none",
-            }}>
-              <input
-                type="email"
-                placeholder="email@domain.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onFocus={() => setFocusedField("email")}
-                onBlur={() => setFocusedField(null)}
-                style={styles.input}
-                required
-              />
-            </div>
-          </motion.div>
+            <input
+              type="email"
+              placeholder="email@domain.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setFocusedField("email")}
+              onBlur={() => setFocusedField(null)}
+              style={{
+                ...styles.input,
+                borderColor: focusedField === "email" ? "#ec4899" : "#e5e7eb",
+              }}
+              required
+            />
+          </div>
 
-          {/* Password Input */}
-          <motion.div
-            style={styles.inputGroup}
-            initial={{ opacity: 0, x: -30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4, duration: 0.4 }}
-          >
+          <div style={styles.inputGroup}>
             <label style={styles.label}>Password</label>
-            <div style={{
-              ...styles.inputWrapper,
-              borderColor: focusedField === "password" ? "#e91e8c" : "rgba(255,255,255,0.3)",
-              boxShadow: focusedField === "password" ? "0 0 20px rgba(233, 30, 140, 0.3)" : "none",
-            }}>
-              <input
-                type="password"
-                placeholder="••••••••"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onFocus={() => setFocusedField("password")}
-                onBlur={() => setFocusedField(null)}
-                style={styles.input}
-                required
-              />
-            </div>
-          </motion.div>
+            <input
+              type="password"
+              placeholder="Masukkan password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setFocusedField("password")}
+              onBlur={() => setFocusedField(null)}
+              style={{
+                ...styles.input,
+                borderColor: focusedField === "password" ? "#ec4899" : "#e5e7eb",
+              }}
+              required
+            />
+          </div>
 
-          {/* Submit Button */}
-          <motion.button
+          <button
             type="submit"
             style={styles.button}
-            whileHover={{ scale: 1.02, boxShadow: "0 10px 40px rgba(233, 30, 140, 0.4)" }}
-            whileTap={{ scale: 0.98 }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5, duration: 0.4 }}
             disabled={loading}
           >
-            {loading ? (
-              <motion.div
-                style={styles.loadingContainer}
-                animate={{ rotate: 360 }}
-                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-              >
-                <div style={styles.spinner} />
-              </motion.div>
-            ) : (
-              "Masuk"
-            )}
-          </motion.button>
+            {loading ? "Masuk..." : "Masuk"}
+          </button>
         </form>
 
-        {/* Register Link */}
-        <motion.p
-          style={styles.link}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.4 }}
-        >
+        <p style={styles.link}>
           Belum punya akun?{" "}
-          <Link to="/register" style={styles.linkHighlight}>
+          <Link to="/register" style={styles.linkBold}>
             Daftar di sini
           </Link>
-        </motion.p>
+        </p>
       </motion.div>
-
-      {/* Footer */}
-      <motion.p
-        style={styles.footer}
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8, duration: 0.4 }}
-      >
-        heyy yoww! Stay healthy, stay happy! 🌿
-      </motion.p>
     </div>
   );
 }
@@ -222,190 +127,111 @@ const styles = {
     height: "100vh",
     width: "100vw",
     display: "flex",
-    flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 25%, #e1bee7 50%, #f8bbd0 75%, #fce4ec 100%)",
-    backgroundSize: "400% 400%",
-    animation: "gradientShift 15s ease infinite",
-    padding: "20px",
+    background: "linear-gradient(180deg, #fdf2f8 0%, #fce7f3 50%, #fdf2f8 100%)",
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    overflow: "hidden",
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
-    margin: 0,
-  },
-  bgContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    overflow: "hidden",
-    pointerEvents: "none",
-  },
-  floatingShape: {
-    position: "absolute",
-    borderRadius: "50%",
-    background: "rgba(255, 255, 255, 0.1)",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(255, 255, 255, 0.2)",
   },
   card: {
-    background: "rgba(255, 255, 255, 0.3)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-    borderRadius: "28px",
-    padding: "40px 44px",
-    width: "100%",
-    maxWidth: "480px",
-    textAlign: "center",
-    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.15)",
-    border: "1px solid rgba(255, 255, 255, 0.4)",
-    position: "relative",
-    zIndex: 10,
-  },
-  header: {
-    marginBottom: "28px",
-  },
-  logoContainer: {
-    marginBottom: "12px",
-    display: "inline-block",
-  },
-  logoIcon: {
-    width: "70px",
-    height: "70px",
-    background: "linear-gradient(135deg, #e91e8c 0%, #f06292 100%)",
+    background: "white",
     borderRadius: "20px",
+    padding: "40px",
+    width: "100%",
+    maxWidth: "400px",
+    boxShadow: "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+    border: "1px solid #f3f4f6",
+  },
+  logoSection: {
+    textAlign: "center",
+    marginBottom: "32px",
+  },
+  logo: {
+    width: "64px",
+    height: "64px",
+    background: "linear-gradient(135deg, #ec4899 0%, #f472b6 100%)",
+    borderRadius: "16px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: "36px",
+    margin: "0 auto 16px",
+  },
+  logoText: {
+    fontSize: "28px",
     fontWeight: "900",
     color: "white",
-    boxShadow: "0 8px 25px rgba(233, 30, 140, 0.4)",
   },
   title: {
-    fontSize: "40px",
-    fontWeight: "800",
-    color: "#e91e8c",
+    fontSize: "28px",
+    fontWeight: "700",
+    color: "#1f2937",
     margin: "0 0 8px",
-    letterSpacing: "-0.03em",
-    textShadow: "0 4px 15px rgba(233, 30, 140, 0.4)",
   },
   subtitle: {
-    fontSize: "16px",
-    color: "rgba(255, 255, 255, 0.9)",
+    fontSize: "15px",
+    color: "#6b7280",
     margin: 0,
-    fontWeight: "500",
   },
-  errorContainer: {
-    marginBottom: "16px",
-    overflow: "hidden",
-  },
-  error: {
-    background: "rgba(239, 68, 68, 0.9)",
-    color: "white",
+  errorBox: {
+    background: "#fef2f2",
+    border: "1px solid #fecaca",
+    color: "#dc2626",
     padding: "12px 16px",
-    borderRadius: "12px",
+    borderRadius: "10px",
     fontSize: "14px",
-    fontWeight: "600",
-    margin: 0,
+    marginBottom: "20px",
+    overflow: "hidden",
   },
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "18px",
+    gap: "20px",
   },
   inputGroup: {
-    textAlign: "left",
+    display: "flex",
+    flexDirection: "column",
+    gap: "6px",
   },
   label: {
-    display: "block",
     fontSize: "14px",
-    fontWeight: "700",
-    color: "rgba(255, 255, 255, 0.9)",
-    marginBottom: "8px",
-  },
-  inputWrapper: {
-    display: "flex",
-    alignItems: "center",
-    background: "rgba(255, 255, 255, 0.25)",
-    borderRadius: "16px",
-    border: "2px solid rgba(255, 255, 255, 0.35)",
-    padding: "4px 18px",
-    transition: "all 0.3s ease",
+    fontWeight: "600",
+    color: "#374151",
   },
   input: {
-    flex: 1,
-    padding: "14px 0",
-    border: "none",
-    background: "transparent",
-    fontSize: "16px",
-    fontWeight: "600",
-    color: "white",
+    padding: "12px 16px",
+    borderRadius: "10px",
+    border: "1px solid #e5e7eb",
+    background: "#f9fafb",
+    fontSize: "15px",
+    color: "#1f2937",
     outline: "none",
+    transition: "border-color 0.2s",
   },
   button: {
-    padding: "16px 32px",
-    borderRadius: "16px",
+    padding: "14px",
+    borderRadius: "10px",
     border: "none",
-    background: "linear-gradient(135deg, #e91e8c 0%, #f06292 100%)",
+    background: "linear-gradient(135deg, #ec4899 0%, #f472b6 100%)",
     color: "white",
-    fontSize: "17px",
-    fontWeight: "800",
+    fontSize: "16px",
+    fontWeight: "600",
     cursor: "pointer",
     marginTop: "8px",
-    boxShadow: "0 6px 25px rgba(233, 30, 140, 0.35)",
-    transition: "all 0.3s ease",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loadingContainer: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  spinner: {
-    width: "24px",
-    height: "24px",
-    border: "3px solid rgba(255, 255, 255, 0.3)",
-    borderTopColor: "white",
-    borderRadius: "50%",
+    transition: "opacity 0.2s",
   },
   link: {
+    textAlign: "center",
     marginTop: "24px",
-    color: "rgba(255, 255, 255, 0.8)",
-    fontSize: "15px",
-    fontWeight: "500",
-  },
-  linkHighlight: {
-    color: "white",
-    fontWeight: "700",
-    textDecoration: "none",
-    borderBottom: "2px solid white",
-    paddingBottom: "2px",
-  },
-  footer: {
-    marginTop: "32px",
-    color: "rgba(255, 255, 255, 0.7)",
     fontSize: "14px",
-    fontWeight: "500",
-    zIndex: 10,
+    color: "#6b7280",
+  },
+  linkBold: {
+    color: "#ec4899",
+    fontWeight: "600",
+    textDecoration: "none",
   },
 };
-
-// Add keyframes animation
-const styleSheet = document.createElement("style");
-styleSheet.textContent = `
-  @keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-`;
-document.head.appendChild(styleSheet);
