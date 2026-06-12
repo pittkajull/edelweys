@@ -14,6 +14,9 @@ export default function Chat() {
   const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
   const [userId, setUserId] = useState(null);
+  const [profile, setProfile] = useState(null);
+  const [chatHistory, setChatHistory] = useState([]);
+  const [activeChat, setActiveChat] = useState(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -25,6 +28,13 @@ export default function Chat() {
         navigate("/login");
       } else {
         setUserId(session.user.id);
+        // Fetch profile
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("*")
+          .eq("id", session.user.id)
+          .single();
+        setProfile(prof);
       }
     };
     checkAuth();
@@ -33,6 +43,16 @@ export default function Chat() {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  const startNewChat = () => {
+    setMessages([
+      {
+        role: "assistant",
+        content: "Heyy yoww! Gimana kabarnya? Ada yang bisa Edelweys bantuin hari ini?",
+      },
+    ]);
+    setActiveChat(null);
+  };
 
   const sendMessage = async () => {
     if (!input.trim()) return;
@@ -95,88 +115,98 @@ export default function Chat() {
     ));
   };
 
-  // Floating shapes
-  const shapes = [
-    { size: 200, x: -50, y: "20%", opacity: 0.08 },
-    { size: 150, x: "80%", y: "60%", opacity: 0.06 },
+  // Dummy chat history for demo
+  const dummyHistory = [
+    { id: 1, title: "Tentang pola makan sehat", time: "2 jam lalu" },
+    { id: 2, title: "Tips olahraga rutin", time: "Kemarin" },
+    { id: 3, title: "Konsultasi tidur", time: "3 hari lalu" },
   ];
 
   return (
     <div style={styles.container}>
-      {/* Background */}
-      <div style={styles.bgContainer}>
-        {shapes.map((shape, i) => (
-          <motion.div
-            key={i}
-            style={{
-              ...styles.floatingShape,
-              width: shape.size,
-              height: shape.size,
-              left: shape.x,
-              top: shape.y,
-              opacity: shape.opacity,
-            }}
-            animate={{
-              y: [0, -15, 0, 15, 0],
-              x: [0, 10, 0, -10, 0],
-            }}
-            transition={{
-              duration: 20 + i * 5,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        ))}
-      </div>
-
-      {/* Header */}
-      <motion.div
-        style={styles.header}
-        initial={{ opacity: 0, y: -30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        <div style={styles.headerLeft}>
-          <div style={styles.avatar}>
-            <span style={styles.avatarText}>E</span>
+      {/* Sidebar */}
+      <div style={styles.sidebar}>
+        {/* Logo */}
+        <div style={styles.sidebarHeader}>
+          <div style={styles.logo}>
+            <span style={styles.logoText}>E</span>
           </div>
-          <div>
-            <p style={styles.headerName}>Edelweys</p>
-            <div style={styles.statusContainer}>
-              <div style={styles.statusDot} />
-              <p style={styles.headerStatus}>Online</p>
+          <span style={styles.logoTitle}>Edelweys</span>
+        </div>
+
+        {/* New Chat Button */}
+        <button onClick={startNewChat} style={styles.newChatBtn}>
+          <span style={styles.newChatIcon}>+</span>
+          Obrolan Baru
+        </button>
+
+        {/* Chat History */}
+        <div style={styles.historySection}>
+          <p style={styles.historyLabel}>Riwayat Obrolan</p>
+          {dummyHistory.map((chat) => (
+            <div
+              key={chat.id}
+              style={{
+                ...styles.historyItem,
+                background: activeChat === chat.id ? "rgba(212, 165, 116, 0.15)" : "transparent",
+              }}
+              onClick={() => setActiveChat(chat.id)}
+            >
+              <p style={styles.historyTitle}>{chat.title}</p>
+              <p style={styles.historyTime}>{chat.time}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Bottom Section */}
+        <div style={styles.sidebarBottom}>
+          <div style={styles.profileSection}>
+            <div style={styles.profileAvatar}>
+              <span style={styles.profileAvatarText}>
+                {profile?.full_name?.charAt(0) || "U"}
+              </span>
+            </div>
+            <div style={styles.profileInfo}>
+              <p style={styles.profileName}>{profile?.full_name || "User"}</p>
+              <p style={styles.profileEmail}>{profile?.username || "user"}</p>
             </div>
           </div>
-        </div>
-        <div style={styles.headerButtons}>
-          <button
-            onClick={() => navigate("/dashboard")}
-            style={styles.dashBtn}
-          >
-            Dashboard
-          </button>
-          <button
-            onClick={handleLogout}
-            style={styles.logoutBtn}
-          >
+          <button onClick={handleLogout} style={styles.logoutBtn}>
             Logout
           </button>
         </div>
-      </motion.div>
+      </div>
 
-      {/* Messages */}
-      <div style={styles.messages}>
-        <AnimatePresence>
+      {/* Main Chat Area */}
+      <div style={styles.mainChat}>
+        {/* Header */}
+        <div style={styles.chatHeader}>
+          <div style={styles.chatHeaderLeft}>
+            <div style={styles.chatAvatar}>
+              <span style={styles.chatAvatarText}>E</span>
+            </div>
+            <div>
+              <p style={styles.chatName}>Edelweys</p>
+              <div style={styles.statusContainer}>
+                <div style={styles.statusDot} />
+                <p style={styles.statusText}>Online</p>
+              </div>
+            </div>
+          </div>
+          <button onClick={() => navigate("/dashboard")} style={styles.dashBtn}>
+            Dashboard
+          </button>
+        </div>
+
+        {/* Messages */}
+        <div style={styles.messages}>
           {messages.map((msg, i) => (
-            <motion.div
+            <div
               key={i}
               style={{
-                ...styles.messageWrapper,
+                ...styles.messageRow,
                 justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
               }}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3 }}
             >
               {msg.role === "assistant" && (
                 <div style={styles.botAvatar}>
@@ -196,71 +226,66 @@ export default function Chat() {
                   <span style={styles.userAvatarText}>U</span>
                 </div>
               )}
-            </motion.div>
+            </div>
           ))}
-        </AnimatePresence>
 
-        {/* Typing Indicator */}
-        <AnimatePresence>
-          {isTyping && (
-            <motion.div
-              style={styles.typingWrapper}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-            >
-              <div style={styles.botAvatar}>
-                <span style={styles.botAvatarText}>E</span>
-              </div>
-              <div style={styles.typingBubble}>
-                <div style={styles.typingDots}>
-                  <div style={styles.dot} className="bounce1" />
-                  <div style={styles.dot} className="bounce2" />
-                  <div style={styles.dot} className="bounce3" />
+          {/* Typing Indicator */}
+          <AnimatePresence>
+            {isTyping && (
+              <motion.div
+                style={styles.messageRow}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+              >
+                <div style={styles.botAvatar}>
+                  <span style={styles.botAvatarText}>E</span>
                 </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <div style={styles.typingBubble}>
+                  <div style={styles.typingDots}>
+                    <div style={styles.dot} className="bounce1" />
+                    <div style={styles.dot} className="bounce2" />
+                    <div style={styles.dot} className="bounce3" />
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-        <div ref={bottomRef} />
-      </div>
-
-      {/* Input Area */}
-      <motion.div
-        style={styles.inputArea}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.2 }}
-      >
-        <div style={styles.inputContainer}>
-          <textarea
-            ref={inputRef}
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={handleKeyDown}
-            placeholder="Ketik pesanmu di sini..."
-            style={styles.textarea}
-            rows={1}
-          />
-          <button
-            onClick={sendMessage}
-            style={{
-              ...styles.sendBtn,
-              opacity: input.trim() ? 1 : 0.5,
-            }}
-            disabled={loading || !input.trim()}
-          >
-            {loading ? "..." : "Kirim"}
-          </button>
+          <div ref={bottomRef} />
         </div>
-        <p style={styles.inputHint}>Tekan Enter untuk kirim</p>
-      </motion.div>
+
+        {/* Input Area */}
+        <div style={styles.inputArea}>
+          <div style={styles.inputContainer}>
+            <textarea
+              ref={inputRef}
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
+              placeholder="Ketik pesanmu di sini..."
+              style={styles.textarea}
+              rows={1}
+            />
+            <button
+              onClick={sendMessage}
+              style={{
+                ...styles.sendBtn,
+                opacity: input.trim() ? 1 : 0.4,
+              }}
+              disabled={loading || !input.trim()}
+            >
+              {loading ? "..." : "Kirim"}
+            </button>
+          </div>
+          <p style={styles.inputHint}>Tekan Enter untuk kirim</p>
+        </div>
+      </div>
 
       <style>{`
         @keyframes bounce {
           0%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-6px); }
+          40% { transform: translateY(-4px); }
         }
         .bounce1 { animation: bounce 1.2s infinite 0s; }
         .bounce2 { animation: bounce 1.2s infinite 0.2s; }
@@ -273,7 +298,6 @@ export default function Chat() {
 const styles = {
   container: {
     display: "flex",
-    flexDirection: "column",
     height: "100vh",
     width: "100vw",
     background: "linear-gradient(135deg, #FFF8E7 0%, #FFFEF7 50%, #FFF5E1 100%)",
@@ -282,44 +306,30 @@ const styles = {
     left: 0,
     right: 0,
     bottom: 0,
-    overflow: "hidden",
-    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+    fontFamily: "'DM Sans', system-ui, sans-serif",
   },
-  bgContainer: {
-    position: "absolute",
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    overflow: "hidden",
-    pointerEvents: "none",
-  },
-  floatingShape: {
-    position: "absolute",
-    borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(212,165,116,0.5) 0%, rgba(245,230,163,0.3) 50%, transparent 70%)",
-    filter: "blur(30px)",
-  },
-  header: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    padding: "16px 24px",
+
+  // Sidebar Styles
+  sidebar: {
+    width: "280px",
     background: "rgba(255, 255, 255, 0.4)",
     backdropFilter: "blur(20px)",
     WebkitBackdropFilter: "blur(20px)",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.5)",
-    boxShadow: "0 4px 20px rgba(139, 119, 80, 0.08)",
-    zIndex: 10,
+    borderRight: "1px solid rgba(255, 255, 255, 0.5)",
+    display: "flex",
+    flexDirection: "column",
+    boxShadow: "4px 0 20px rgba(139, 119, 80, 0.08)",
   },
-  headerLeft: {
+  sidebarHeader: {
     display: "flex",
     alignItems: "center",
     gap: "12px",
+    padding: "20px",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.5)",
   },
-  avatar: {
-    width: "50px",
-    height: "50px",
+  logo: {
+    width: "44px",
+    height: "44px",
     background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
     borderRadius: "14px",
     display: "flex",
@@ -327,17 +337,170 @@ const styles = {
     justifyContent: "center",
     boxShadow: "0 4px 12px rgba(212, 165, 116, 0.35)",
   },
-  avatarText: {
-    fontSize: "22px",
-    fontWeight: "900",
+  logoText: {
+    fontSize: "20px",
+    fontWeight: "800",
     color: "white",
-    textShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
-  headerName: {
+  logoTitle: {
+    fontSize: "18px",
+    fontWeight: "700",
+    color: "#5D4E37",
+  },
+  newChatBtn: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    margin: "16px 20px",
+    padding: "12px 16px",
+    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
+    border: "none",
+    borderRadius: "12px",
+    color: "white",
+    fontSize: "14px",
+    fontWeight: "600",
+    cursor: "pointer",
+    boxShadow: "0 4px 12px rgba(212, 165, 116, 0.3)",
+    fontFamily: "inherit",
+  },
+  newChatIcon: {
+    fontSize: "18px",
+    fontWeight: "700",
+  },
+  historySection: {
+    flex: 1,
+    overflowY: "auto",
+    padding: "0 12px",
+  },
+  historyLabel: {
+    fontSize: "11px",
+    fontWeight: "600",
+    color: "#9C8B7A",
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+    padding: "8px 8px 12px",
+    margin: 0,
+  },
+  historyItem: {
+    padding: "12px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    marginBottom: "4px",
+    transition: "background 0.2s",
+  },
+  historyTitle: {
+    fontSize: "13px",
+    fontWeight: "500",
+    color: "#5D4E37",
+    margin: "0 0 4px",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  historyTime: {
+    fontSize: "11px",
+    color: "#9C8B7A",
+    margin: 0,
+  },
+  sidebarBottom: {
+    padding: "16px 20px",
+    borderTop: "1px solid rgba(255, 255, 255, 0.5)",
+    background: "rgba(255, 255, 255, 0.3)",
+  },
+  profileSection: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    marginBottom: "12px",
+  },
+  profileAvatar: {
+    width: "40px",
+    height: "40px",
+    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
+    borderRadius: "12px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  profileAvatarText: {
+    fontSize: "16px",
+    fontWeight: "700",
+    color: "white",
+  },
+  profileInfo: {
+    flex: 1,
+    overflow: "hidden",
+  },
+  profileName: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: "#5D4E37",
+    margin: 0,
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+  },
+  profileEmail: {
+    fontSize: "12px",
+    color: "#9C8B7A",
+    margin: 0,
+  },
+  logoutBtn: {
+    width: "100%",
+    padding: "10px",
+    background: "rgba(197, 48, 48, 0.1)",
+    border: "1px solid rgba(197, 48, 48, 0.2)",
+    borderRadius: "10px",
+    color: "#C53030",
+    fontSize: "13px",
+    fontWeight: "500",
+    cursor: "pointer",
+    fontFamily: "inherit",
+  },
+
+  // Main Chat Styles
+  mainChat: {
+    flex: 1,
+    display: "flex",
+    flexDirection: "column",
+    overflow: "hidden",
+  },
+  chatHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    padding: "14px 24px",
+    background: "rgba(255, 255, 255, 0.4)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.5)",
+    boxShadow: "0 4px 20px rgba(139, 119, 80, 0.08)",
+  },
+  chatHeaderLeft: {
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+  },
+  chatAvatar: {
+    width: "44px",
+    height: "44px",
+    background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
+    borderRadius: "14px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 4px 12px rgba(212, 165, 116, 0.35)",
+  },
+  chatAvatarText: {
+    fontSize: "18px",
+    fontWeight: "800",
+    color: "white",
+  },
+  chatName: {
     margin: 0,
     fontWeight: "700",
     color: "#5D4E37",
-    fontSize: "18px",
+    fontSize: "16px",
   },
   statusContainer: {
     display: "flex",
@@ -352,40 +515,25 @@ const styles = {
     background: "#68D391",
     boxShadow: "0 0 8px rgba(104, 211, 145, 0.5)",
   },
-  headerStatus: {
+  statusText: {
     margin: 0,
     fontSize: "12px",
     color: "#9C8B7A",
-    fontWeight: "500",
-  },
-  headerButtons: {
-    display: "flex",
-    gap: "8px",
   },
   dashBtn: {
     padding: "10px 18px",
-    borderRadius: "12px",
+    borderRadius: "10px",
     border: "1px solid rgba(212, 165, 116, 0.3)",
     background: "rgba(255, 255, 255, 0.4)",
     color: "#5D4E37",
     cursor: "pointer",
-    fontSize: "14px",
-    fontWeight: "600",
+    fontSize: "13px",
+    fontWeight: "500",
     backdropFilter: "blur(10px)",
-    transition: "all 0.2s",
+    fontFamily: "inherit",
   },
-  logoutBtn: {
-    padding: "10px 18px",
-    borderRadius: "12px",
-    border: "1px solid rgba(197, 48, 48, 0.2)",
-    background: "rgba(254, 215, 215, 0.4)",
-    color: "#C53030",
-    cursor: "pointer",
-    fontSize: "14px",
-    fontWeight: "600",
-    backdropFilter: "blur(10px)",
-    transition: "all 0.2s",
-  },
+
+  // Messages Styles
   messages: {
     flex: 1,
     overflowY: "auto",
@@ -394,15 +542,15 @@ const styles = {
     flexDirection: "column",
     gap: "16px",
   },
-  messageWrapper: {
+  messageRow: {
     display: "flex",
     alignItems: "flex-end",
     gap: "10px",
-    maxWidth: "75%",
+    maxWidth: "70%",
   },
   botAvatar: {
-    width: "36px",
-    height: "36px",
+    width: "32px",
+    height: "32px",
     background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
     borderRadius: "10px",
     display: "flex",
@@ -417,8 +565,8 @@ const styles = {
     color: "white",
   },
   userAvatar: {
-    width: "36px",
-    height: "36px",
+    width: "32px",
+    height: "32px",
     background: "linear-gradient(135deg, #68D391 0%, #48BB78 100%)",
     borderRadius: "10px",
     display: "flex",
@@ -435,7 +583,7 @@ const styles = {
   bubble: {
     padding: "14px 18px",
     borderRadius: "18px",
-    fontSize: "15px",
+    fontSize: "14px",
     lineHeight: "1.6",
     wordBreak: "break-word",
   },
@@ -454,11 +602,7 @@ const styles = {
     borderBottomLeftRadius: "4px",
     boxShadow: "0 4px 15px rgba(139, 119, 80, 0.08)",
     border: "1px solid rgba(255, 255, 255, 0.5)",
-  },
-  typingWrapper: {
-    display: "flex",
-    alignItems: "flex-end",
-    gap: "10px",
+    textAlign: "left",
   },
   typingBubble: {
     background: "rgba(255, 255, 255, 0.6)",
@@ -481,6 +625,8 @@ const styles = {
     background: "#D4A574",
     boxShadow: "0 2px 6px rgba(212, 165, 116, 0.4)",
   },
+
+  // Input Area Styles
   inputArea: {
     padding: "16px 24px 20px",
     background: "rgba(255, 255, 255, 0.4)",
@@ -499,32 +645,32 @@ const styles = {
     borderRadius: "14px",
     border: "2px solid rgba(255, 255, 255, 0.4)",
     background: "rgba(255, 255, 255, 0.4)",
-    fontSize: "15px",
+    fontSize: "14px",
     color: "#5D4E37",
     resize: "none",
     outline: "none",
     fontFamily: "inherit",
-    minHeight: "50px",
+    minHeight: "48px",
     maxHeight: "120px",
     transition: "all 0.2s",
   },
   sendBtn: {
-    padding: "14px 28px",
+    padding: "14px 24px",
     borderRadius: "14px",
     border: "none",
     background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
     color: "white",
-    fontSize: "15px",
-    fontWeight: "700",
+    fontSize: "14px",
+    fontWeight: "600",
     cursor: "pointer",
     boxShadow: "0 4px 15px rgba(212, 165, 116, 0.35)",
     transition: "all 0.2s",
+    fontFamily: "inherit",
   },
   inputHint: {
     margin: "8px 0 0",
-    fontSize: "12px",
+    fontSize: "11px",
     color: "#9C8B7A",
     textAlign: "center",
-    fontWeight: "500",
   },
 };
