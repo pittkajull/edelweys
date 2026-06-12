@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
 
 export default function Chat() {
   const [messages, setMessages] = useState([
@@ -10,7 +11,9 @@ export default function Chat() {
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isTyping, setIsTyping] = useState(false);
   const bottomRef = useRef(null);
+  const inputRef = useRef(null);
   const navigate = useNavigate();
 
   const userId = localStorage.getItem("user_id");
@@ -33,6 +36,7 @@ export default function Chat() {
     setMessages(newMessages);
     setInput("");
     setLoading(true);
+    setIsTyping(true);
 
     try {
       const history = newMessages.slice(0, -1).map((m) => ({
@@ -51,8 +55,10 @@ export default function Chat() {
       });
 
       const data = await res.json();
+      setIsTyping(false);
       setMessages([...newMessages, { role: "assistant", content: data.reply }]);
     } catch (err) {
+      setIsTyping(false);
       setMessages([
         ...newMessages,
         { role: "assistant", content: "Aduh, Edelweys lagi error nih 😢 Coba lagi ya!" },
@@ -75,66 +81,199 @@ export default function Chat() {
     navigate("/login");
   };
 
+  // Floating shapes for background
+  const shapes = Array.from({ length: 4 }, (_, i) => ({
+    id: i,
+    size: Math.random() * 80 + 40,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    duration: Math.random() * 20 + 15,
+  }));
+
   return (
     <div style={styles.container}>
+      {/* Animated Background */}
+      <div style={styles.bgContainer}>
+        {shapes.map((shape) => (
+          <motion.div
+            key={shape.id}
+            style={{
+              ...styles.floatingShape,
+              width: shape.size,
+              height: shape.size,
+              left: `${shape.x}%`,
+              top: `${shape.y}%`,
+            }}
+            animate={{
+              y: [0, -20, 0, 20, 0],
+              x: [0, 15, 0, -15, 0],
+            }}
+            transition={{
+              duration: shape.duration,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        ))}
+      </div>
+
       {/* Header */}
-      <div style={styles.header}>
+      <motion.div
+        style={styles.header}
+        initial={{ opacity: 0, y: -50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+      >
         <div style={styles.headerLeft}>
-          <span style={styles.avatar}>🌸</span>
+          <motion.div
+            style={styles.avatar}
+            animate={{ rotate: [0, 10, -10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+          >
+            🌸
+          </motion.div>
           <div>
             <p style={styles.headerName}>Edelweys</p>
-            <p style={styles.headerStatus}>● Online</p>
+            <div style={styles.statusContainer}>
+              <motion.div
+                style={styles.statusDot}
+                animate={{ scale: [1, 1.2, 1] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+              />
+              <p style={styles.headerStatus}>Online</p>
+            </div>
           </div>
         </div>
-        <div style={{ display: "flex", gap: 8 }}>
-          <button onClick={() => navigate("/dashboard")} style={styles.dashBtn}>
+        <div style={styles.headerButtons}>
+          <motion.button
+            onClick={() => navigate("/dashboard")}
+            style={styles.dashBtn}
+            whileHover={{ scale: 1.05, backgroundColor: "#4CAF7D" }}
+            whileTap={{ scale: 0.95 }}
+          >
             📊 Dashboard
-          </button>
-          <button onClick={handleLogout} style={styles.logoutBtn}>
+          </motion.button>
+          <motion.button
+            onClick={handleLogout}
+            style={styles.logoutBtn}
+            whileHover={{ scale: 1.05, backgroundColor: "#EF4444" }}
+            whileTap={{ scale: 0.95 }}
+          >
             Logout
-          </button>
+          </motion.button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Messages */}
       <div style={styles.messages}>
-        {messages.map((msg, i) => (
-          <div
-            key={i}
-            style={{
-              ...styles.bubble,
-              alignSelf: msg.role === "user" ? "flex-end" : "flex-start",
-              background: msg.role === "user" ? "#e91e8c" : "white",
-              color: msg.role === "user" ? "white" : "#333",
-            }}
-          >
-            {msg.content}
-          </div>
-        ))}
+        <AnimatePresence>
+          {messages.map((msg, i) => (
+            <motion.div
+              key={i}
+              style={{
+                ...styles.messageWrapper,
+                justifyContent: msg.role === "user" ? "flex-end" : "flex-start",
+              }}
+              initial={{ opacity: 0, y: 20, scale: 0.9 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              transition={{ duration: 0.3 }}
+            >
+              {msg.role === "assistant" && (
+                <div style={styles.botAvatar}>🌸</div>
+              )}
+              <motion.div
+                style={{
+                  ...styles.bubble,
+                  ...(msg.role === "user" ? styles.userBubble : styles.botBubble),
+                }}
+                whileHover={{ scale: 1.02 }}
+              >
+                {msg.content}
+              </motion.div>
+              {msg.role === "user" && (
+                <div style={styles.userAvatar}>👤</div>
+              )}
+            </motion.div>
+          ))}
+        </AnimatePresence>
 
-        {loading && (
-          <div style={{ ...styles.bubble, alignSelf: "flex-start", background: "white", color: "#aaa" }}>
-            Edelweys lagi ngetik... ✍️
-          </div>
-        )}
+        {/* Typing Indicator */}
+        <AnimatePresence>
+          {isTyping && (
+            <motion.div
+              style={styles.typingWrapper}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+            >
+              <div style={styles.botAvatar}>🌸</div>
+              <div style={styles.typingBubble}>
+                <div style={styles.typingDots}>
+                  <motion.div
+                    style={styles.dot}
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0 }}
+                  />
+                  <motion.div
+                    style={styles.dot}
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }}
+                  />
+                  <motion.div
+                    style={styles.dot}
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }}
+                  />
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         <div ref={bottomRef} />
       </div>
 
-      {/* Input */}
-      <div style={styles.inputArea}>
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={handleKeyDown}
-          placeholder="Ketik pesanmu di sini... (Enter untuk kirim)"
-          style={styles.textarea}
-          rows={1}
-        />
-        <button onClick={sendMessage} style={styles.sendBtn} disabled={loading}>
-          {loading ? "..." : "Kirim"}
-        </button>
-      </div>
+      {/* Input Area */}
+      <motion.div
+        style={styles.inputArea}
+        initial={{ opacity: 0, y: 50 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5, delay: 0.3 }}
+      >
+        <div style={styles.inputContainer}>
+          <textarea
+            ref={inputRef}
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ketik pesanmu di sini... 💭"
+            style={styles.textarea}
+            rows={1}
+          />
+          <motion.button
+            onClick={sendMessage}
+            style={{
+              ...styles.sendBtn,
+              opacity: input.trim() ? 1 : 0.5,
+            }}
+            whileHover={input.trim() ? { scale: 1.1, boxShadow: "0 6px 25px rgba(233, 30, 140, 0.4)" } : {}}
+            whileTap={input.trim() ? { scale: 0.9 } : {}}
+            disabled={loading || !input.trim()}
+          >
+            {loading ? (
+              <motion.div
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              >
+                ⏳
+              </motion.div>
+            ) : (
+              "🚀"
+            )}
+          </motion.button>
+        </div>
+        <p style={styles.inputHint}>Tekan Enter untuk kirim, Shift + Enter untuk baris baru</p>
+      </motion.div>
     </div>
   );
 }
@@ -144,87 +283,237 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     height: "100vh",
-    background: "#fce4ec",
-    maxWidth: "800px",
+    background: "linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #fce4ec 100%)",
+    maxWidth: "900px",
     margin: "0 auto",
+    position: "relative",
+    overflow: "hidden",
+    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+  },
+  bgContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: "hidden",
+    pointerEvents: "none",
+  },
+  floatingShape: {
+    position: "absolute",
+    borderRadius: "50%",
+    background: "rgba(255, 255, 255, 0.15)",
+    backdropFilter: "blur(10px)",
+    border: "1px solid rgba(255, 255, 255, 0.2)",
   },
   header: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "1rem 1.5rem",
-    background: "white",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
+    padding: "16px 24px",
+    background: "rgba(255, 255, 255, 0.25)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.3)",
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.05)",
+    position: "relative",
+    zIndex: 10,
   },
   headerLeft: {
     display: "flex",
     alignItems: "center",
-    gap: "0.75rem",
+    gap: "12px",
   },
-  avatar: { fontSize: "2rem" },
-  headerName: { margin: 0, fontWeight: "bold", color: "#e91e8c", fontSize: "1.1rem" },
-  headerStatus: { margin: 0, fontSize: "0.75rem", color: "#4caf50" },
-  logoutBtn: {
-    padding: "0.4rem 1rem",
-    borderRadius: "8px",
-    border: "1px solid #e91e8c",
-    background: "white",
+  avatar: {
+    fontSize: "36px",
+    width: "50px",
+    height: "50px",
+    background: "rgba(255, 255, 255, 0.3)",
+    borderRadius: "16px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerName: {
+    margin: 0,
+    fontWeight: "800",
     color: "#e91e8c",
-    cursor: "pointer",
-    fontSize: "0.85rem",
+    fontSize: "20px",
+    letterSpacing: "-0.02em",
+  },
+  statusContainer: {
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
+  },
+  statusDot: {
+    width: "8px",
+    height: "8px",
+    borderRadius: "50%",
+    background: "#4CAF7D",
+  },
+  headerStatus: {
+    margin: 0,
+    fontSize: "12px",
+    color: "#4CAF7D",
+    fontWeight: "600",
+  },
+  headerButtons: {
+    display: "flex",
+    gap: "8px",
   },
   dashBtn: {
-    padding: "0.4rem 1rem",
-    borderRadius: "8px",
-    border: "1px solid #4CAF7D",
-    background: "white",
+    padding: "10px 16px",
+    borderRadius: "12px",
+    border: "2px solid #4CAF7D",
+    background: "rgba(76, 175, 125, 0.1)",
     color: "#4CAF7D",
     cursor: "pointer",
-    fontSize: "0.85rem",
-    fontWeight: "bold",
+    fontSize: "14px",
+    fontWeight: "700",
+    transition: "all 0.2s ease",
+  },
+  logoutBtn: {
+    padding: "10px 16px",
+    borderRadius: "12px",
+    border: "2px solid #EF4444",
+    background: "rgba(239, 68, 68, 0.1)",
+    color: "#EF4444",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "700",
+    transition: "all 0.2s ease",
   },
   messages: {
     flex: 1,
     overflowY: "auto",
-    padding: "1.5rem",
+    padding: "24px",
     display: "flex",
     flexDirection: "column",
-    gap: "0.75rem",
+    gap: "16px",
+    position: "relative",
+    zIndex: 10,
+  },
+  messageWrapper: {
+    display: "flex",
+    alignItems: "flex-end",
+    gap: "8px",
+  },
+  botAvatar: {
+    fontSize: "24px",
+    width: "36px",
+    height: "36px",
+    background: "rgba(255, 255, 255, 0.4)",
+    borderRadius: "12px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  userAvatar: {
+    fontSize: "24px",
+    width: "36px",
+    height: "36px",
+    background: "rgba(233, 30, 140, 0.2)",
+    borderRadius: "12px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
   },
   bubble: {
     maxWidth: "70%",
-    padding: "0.75rem 1rem",
-    borderRadius: "16px",
-    fontSize: "0.95rem",
-    lineHeight: "1.5",
-    boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+    padding: "14px 18px",
+    borderRadius: "20px",
+    fontSize: "15px",
+    lineHeight: "1.6",
     whiteSpace: "pre-wrap",
+    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.08)",
+  },
+  userBubble: {
+    background: "linear-gradient(135deg, #e91e8c 0%, #f06292 100%)",
+    color: "white",
+    borderBottomRightRadius: "4px",
+  },
+  botBubble: {
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    color: "#333",
+    borderBottomLeftRadius: "4px",
+  },
+  typingWrapper: {
+    display: "flex",
+    alignItems: "flex-end",
+    gap: "8px",
+  },
+  typingBubble: {
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    padding: "14px 20px",
+    borderRadius: "20px",
+    borderBottomLeftRadius: "4px",
+    boxShadow: "0 4px 15px rgba(0, 0, 0, 0.08)",
+  },
+  typingDots: {
+    display: "flex",
+    gap: "4px",
+  },
+  dot: {
+    width: "8px",
+    height: "8px",
+    borderRadius: "50%",
+    background: "#e91e8c",
   },
   inputArea: {
+    padding: "16px 24px 24px",
+    background: "rgba(255, 255, 255, 0.25)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderTop: "1px solid rgba(255, 255, 255, 0.3)",
+    position: "relative",
+    zIndex: 10,
+  },
+  inputContainer: {
     display: "flex",
-    gap: "0.75rem",
-    padding: "1rem 1.5rem",
-    background: "white",
-    boxShadow: "0 -2px 8px rgba(0,0,0,0.06)",
+    gap: "12px",
+    alignItems: "flex-end",
   },
   textarea: {
     flex: 1,
-    padding: "0.75rem 1rem",
-    borderRadius: "12px",
-    border: "1px solid #ddd",
-    fontSize: "0.95rem",
+    padding: "14px 18px",
+    borderRadius: "16px",
+    border: "2px solid rgba(255, 255, 255, 0.4)",
+    background: "rgba(255, 255, 255, 0.3)",
+    fontSize: "15px",
+    fontWeight: "500",
+    color: "#333",
     resize: "none",
     outline: "none",
     fontFamily: "inherit",
+    minHeight: "50px",
+    maxHeight: "120px",
+    transition: "all 0.2s ease",
   },
   sendBtn: {
-    padding: "0.75rem 1.5rem",
-    borderRadius: "12px",
+    width: "50px",
+    height: "50px",
+    borderRadius: "16px",
     border: "none",
-    background: "#e91e8c",
+    background: "linear-gradient(135deg, #e91e8c 0%, #f06292 100%)",
     color: "white",
-    fontWeight: "bold",
+    fontSize: "20px",
     cursor: "pointer",
-    fontSize: "0.95rem",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 4px 15px rgba(233, 30, 140, 0.3)",
+    transition: "all 0.2s ease",
+  },
+  inputHint: {
+    margin: "8px 0 0",
+    fontSize: "12px",
+    color: "rgba(255, 255, 255, 0.6)",
+    textAlign: "center",
+    fontWeight: "500",
   },
 };
