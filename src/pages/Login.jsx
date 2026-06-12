@@ -25,7 +25,7 @@ export default function Login() {
 
       localStorage.setItem("token", data.access_token);
       localStorage.setItem("user_id", data.user_id);
-      navigate("/chat");
+      navigate("/dashboard");
     } catch (err) {
       setError(err.message);
     } finally {
