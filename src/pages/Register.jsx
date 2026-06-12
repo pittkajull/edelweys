@@ -41,6 +41,13 @@ export default function Register() {
     }
   };
 
+  // Floating shapes
+  const shapes = [
+    { size: 350, x: -80, y: -100, opacity: 0.12 },
+    { size: 250, x: "75%", y: "50%", opacity: 0.1 },
+    { size: 180, x: "15%", y: "65%", opacity: 0.15 },
+  ];
+
   const inputFields = [
     { name: "full_name", label: "Nama Lengkap", placeholder: "John Doe", type: "text" },
     { name: "username", label: "Username", placeholder: "johndoe", type: "text" },
@@ -50,27 +57,52 @@ export default function Register() {
 
   return (
     <div style={styles.container}>
-      {/* Background decoration */}
-      <div style={styles.bgDecoration}>
-        <div style={styles.circle1} />
-        <div style={styles.circle2} />
-        <div style={styles.circle3} />
+      {/* Animated Background */}
+      <div style={styles.bgContainer}>
+        {shapes.map((shape, i) => (
+          <motion.div
+            key={i}
+            style={{
+              ...styles.floatingShape,
+              width: shape.size,
+              height: shape.size,
+              left: typeof shape.x === "number" ? shape.x : shape.x,
+              top: typeof shape.y === "number" ? shape.y : shape.y,
+              opacity: shape.opacity,
+            }}
+            animate={{
+              y: [0, -20, 0, 20, 0],
+              x: [0, 15, 0, -15, 0],
+            }}
+            transition={{
+              duration: 15 + i * 5,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        ))}
       </div>
 
+      {/* Main Card */}
       <motion.div
         style={styles.card}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
       >
         {/* Logo */}
-        <div style={styles.logoSection}>
+        <motion.div
+          style={styles.logoSection}
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.2 }}
+        >
           <div style={styles.logo}>
             <span style={styles.logoText}>E</span>
           </div>
           <h1 style={styles.title}>Edelweys</h1>
           <p style={styles.subtitle}>Buat akun baru</p>
-        </div>
+        </motion.div>
 
         {/* Error */}
         <AnimatePresence>
@@ -88,42 +120,60 @@ export default function Register() {
 
         {/* Form */}
         <form onSubmit={handleRegister} style={styles.form}>
-          {inputFields.map((field) => (
-            <div key={field.name} style={styles.inputGroup}>
+          {inputFields.map((field, index) => (
+            <motion.div
+              key={field.name}
+              style={styles.inputGroup}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3 + index * 0.1 }}
+            >
               <label style={styles.label}>{field.label}</label>
-              <input
-                name={field.name}
-                type={field.type}
-                placeholder={field.placeholder}
-                value={form[field.name]}
-                onChange={handleChange}
-                onFocus={() => setFocusedField(field.name)}
-                onBlur={() => setFocusedField(null)}
-                style={{
-                  ...styles.input,
-                  borderColor: focusedField === field.name ? "#D4A574" : "#E8DFD5",
-                  background: focusedField === field.name ? "#FFFEF7" : "#FAF8F5",
-                }}
-                required
-              />
-            </div>
+              <div style={{
+                ...styles.inputWrapper,
+                borderColor: focusedField === field.name ? "#D4A574" : "rgba(255,255,255,0.4)",
+                boxShadow: focusedField === field.name ? "0 0 20px rgba(212, 165, 116, 0.3)" : "none",
+              }}>
+                <input
+                  name={field.name}
+                  type={field.type}
+                  placeholder={field.placeholder}
+                  value={form[field.name]}
+                  onChange={handleChange}
+                  onFocus={() => setFocusedField(field.name)}
+                  onBlur={() => setFocusedField(null)}
+                  style={styles.input}
+                  required
+                />
+              </div>
+            </motion.div>
           ))}
 
-          <button
+          <motion.button
             type="submit"
             style={styles.button}
+            whileHover={{ scale: 1.02, boxShadow: "0 10px 40px rgba(212, 165, 116, 0.4)" }}
+            whileTap={{ scale: 0.98 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.7 }}
             disabled={loading}
           >
             {loading ? "Mendaftar..." : "Daftar"}
-          </button>
+          </motion.button>
         </form>
 
-        <p style={styles.link}>
+        <motion.p
+          style={styles.link}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
           Sudah punya akun?{" "}
           <Link to="/login" style={styles.linkBold}>
             Masuk di sini
           </Link>
-        </p>
+        </motion.p>
       </motion.div>
     </div>
   );
@@ -136,16 +186,18 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(135deg, #FFFEF7 0%, #FFF8E7 50%, #FFFEF7 100%)",
+    background: "linear-gradient(135deg, #FFF8E7 0%, #FFFEF7 25%, #FFF5E1 50%, #FFFEF7 75%, #FFF8E7 100%)",
+    backgroundSize: "400% 400%",
+    animation: "gradientShift 15s ease infinite",
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
     overflow: "hidden",
+    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
   },
-  bgDecoration: {
+  bgContainer: {
     position: "absolute",
     top: 0,
     left: 0,
@@ -154,135 +206,138 @@ const styles = {
     overflow: "hidden",
     pointerEvents: "none",
   },
-  circle1: {
+  floatingShape: {
     position: "absolute",
-    width: "400px",
-    height: "400px",
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(255,215,0,0.08) 0%, transparent 70%)",
-    top: "-100px",
-    right: "-100px",
-  },
-  circle2: {
-    position: "absolute",
-    width: "300px",
-    height: "300px",
-    borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(255,215,0,0.06) 0%, transparent 70%)",
-    bottom: "-50px",
-    left: "-50px",
-  },
-  circle3: {
-    position: "absolute",
-    width: "200px",
-    height: "200px",
-    borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(212,165,116,0.08) 0%, transparent 70%)",
-    top: "50%",
-    left: "10%",
+    background: "radial-gradient(circle, rgba(212,165,116,0.4) 0%, rgba(245,230,163,0.2) 50%, transparent 70%)",
+    filter: "blur(40px)",
   },
   card: {
-    background: "white",
-    borderRadius: "24px",
-    padding: "40px",
+    background: "rgba(255, 255, 255, 0.35)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderRadius: "28px",
+    padding: "44px 40px",
     width: "100%",
-    maxWidth: "420px",
-    boxShadow: "0 4px 24px rgba(139, 119, 80, 0.08)",
-    border: "1px solid #F0EBE3",
+    maxWidth: "440px",
+    textAlign: "center",
+    boxShadow: "0 25px 50px -12px rgba(139, 119, 80, 0.15), 0 8px 20px rgba(212, 165, 116, 0.1)",
+    border: "1px solid rgba(255, 255, 255, 0.5)",
     position: "relative",
     zIndex: 10,
   },
   logoSection: {
-    textAlign: "center",
     marginBottom: "28px",
   },
   logo: {
-    width: "72px",
-    height: "72px",
+    width: "80px",
+    height: "80px",
     background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
-    borderRadius: "20px",
+    borderRadius: "24px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     margin: "0 auto 20px",
-    boxShadow: "0 4px 16px rgba(212, 165, 116, 0.3)",
+    boxShadow: "0 10px 30px rgba(212, 165, 116, 0.4), 0 4px 12px rgba(245, 230, 163, 0.3)",
   },
   logoText: {
-    fontSize: "32px",
-    fontWeight: "800",
+    fontSize: "36px",
+    fontWeight: "900",
     color: "white",
-    textShadow: "0 2px 4px rgba(0,0,0,0.1)",
+    textShadow: "0 2px 8px rgba(0,0,0,0.15)",
   },
   title: {
-    fontSize: "32px",
-    fontWeight: "700",
+    fontSize: "36px",
+    fontWeight: "800",
     color: "#5D4E37",
     margin: "0 0 8px",
-    letterSpacing: "-0.02em",
+    letterSpacing: "-0.03em",
+    textShadow: "0 2px 10px rgba(93, 78, 55, 0.1)",
   },
   subtitle: {
-    fontSize: "15px",
+    fontSize: "16px",
     color: "#9C8B7A",
     margin: 0,
     fontWeight: "500",
   },
   errorBox: {
-    background: "#FFF5F5",
-    border: "1px solid #FED7D7",
+    background: "rgba(254, 215, 215, 0.9)",
+    backdropFilter: "blur(10px)",
+    border: "1px solid rgba(252, 165, 165, 0.5)",
     color: "#C53030",
-    padding: "12px 16px",
-    borderRadius: "12px",
+    padding: "14px 18px",
+    borderRadius: "14px",
     fontSize: "14px",
+    fontWeight: "500",
     marginBottom: "20px",
     overflow: "hidden",
+    boxShadow: "0 4px 12px rgba(197, 48, 48, 0.1)",
   },
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "16px",
+    gap: "18px",
   },
   inputGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
+    textAlign: "left",
   },
   label: {
+    display: "block",
     fontSize: "14px",
-    fontWeight: "600",
+    fontWeight: "700",
     color: "#5D4E37",
+    marginBottom: "8px",
+  },
+  inputWrapper: {
+    background: "rgba(255, 255, 255, 0.4)",
+    borderRadius: "14px",
+    border: "2px solid rgba(255, 255, 255, 0.4)",
+    padding: "4px 18px",
+    transition: "all 0.3s ease",
   },
   input: {
-    padding: "12px 16px",
-    borderRadius: "12px",
-    border: "1.5px solid #E8DFD5",
-    background: "#FAF8F5",
-    fontSize: "15px",
+    width: "100%",
+    padding: "13px 0",
+    border: "none",
+    background: "transparent",
+    fontSize: "16px",
+    fontWeight: "600",
     color: "#5D4E37",
     outline: "none",
-    transition: "all 0.2s",
   },
   button: {
-    padding: "14px",
-    borderRadius: "12px",
+    padding: "18px 32px",
+    borderRadius: "16px",
     border: "none",
     background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
     color: "white",
-    fontSize: "16px",
-    fontWeight: "600",
+    fontSize: "18px",
+    fontWeight: "700",
     cursor: "pointer",
     marginTop: "8px",
-    boxShadow: "0 4px 12px rgba(212, 165, 116, 0.3)",
-    transition: "all 0.2s",
+    boxShadow: "0 8px 25px rgba(212, 165, 116, 0.4)",
+    transition: "all 0.3s ease",
   },
   link: {
-    textAlign: "center",
     marginTop: "24px",
-    fontSize: "14px",
     color: "#9C8B7A",
+    fontSize: "15px",
+    fontWeight: "500",
   },
   linkBold: {
     color: "#D4A574",
-    fontWeight: "600",
+    fontWeight: "700",
     textDecoration: "none",
   },
 };
+
+// Add keyframes
+const styleSheet = document.createElement("style");
+styleSheet.textContent = `
+  @keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+`;
+document.head.appendChild(styleSheet);

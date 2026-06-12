@@ -90,10 +90,47 @@ export default function Chat() {
     ));
   };
 
+  // Floating shapes
+  const shapes = [
+    { size: 200, x: -50, y: "20%", opacity: 0.08 },
+    { size: 150, x: "80%", y: "60%", opacity: 0.06 },
+  ];
+
   return (
     <div style={styles.container}>
+      {/* Background */}
+      <div style={styles.bgContainer}>
+        {shapes.map((shape, i) => (
+          <motion.div
+            key={i}
+            style={{
+              ...styles.floatingShape,
+              width: shape.size,
+              height: shape.size,
+              left: shape.x,
+              top: shape.y,
+              opacity: shape.opacity,
+            }}
+            animate={{
+              y: [0, -15, 0, 15, 0],
+              x: [0, 10, 0, -10, 0],
+            }}
+            transition={{
+              duration: 20 + i * 5,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          />
+        ))}
+      </div>
+
       {/* Header */}
-      <div style={styles.header}>
+      <motion.div
+        style={styles.header}
+        initial={{ opacity: 0, y: -30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4 }}
+      >
         <div style={styles.headerLeft}>
           <div style={styles.avatar}>
             <span style={styles.avatarText}>E</span>
@@ -120,7 +157,7 @@ export default function Chat() {
             Logout
           </button>
         </div>
-      </div>
+      </motion.div>
 
       {/* Messages */}
       <div style={styles.messages}>
@@ -185,7 +222,12 @@ export default function Chat() {
       </div>
 
       {/* Input Area */}
-      <div style={styles.inputArea}>
+      <motion.div
+        style={styles.inputArea}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.2 }}
+      >
         <div style={styles.inputContainer}>
           <textarea
             ref={inputRef}
@@ -208,7 +250,7 @@ export default function Chat() {
           </button>
         </div>
         <p style={styles.inputHint}>Tekan Enter untuk kirim</p>
-      </div>
+      </motion.div>
 
       <style>{`
         @keyframes bounce {
@@ -229,22 +271,40 @@ const styles = {
     flexDirection: "column",
     height: "100vh",
     width: "100vw",
-    background: "#FAF8F5",
+    background: "linear-gradient(135deg, #FFF8E7 0%, #FFFEF7 50%, #FFF5E1 100%)",
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
+    overflow: "hidden",
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+  },
+  bgContainer: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    overflow: "hidden",
+    pointerEvents: "none",
+  },
+  floatingShape: {
+    position: "absolute",
+    borderRadius: "50%",
+    background: "radial-gradient(circle, rgba(212,165,116,0.5) 0%, rgba(245,230,163,0.3) 50%, transparent 70%)",
+    filter: "blur(30px)",
   },
   header: {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
     padding: "16px 24px",
-    background: "white",
-    borderBottom: "1px solid #F0EBE3",
-    boxShadow: "0 1px 3px rgba(139, 119, 80, 0.05)",
+    background: "rgba(255, 255, 255, 0.4)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderBottom: "1px solid rgba(255, 255, 255, 0.5)",
+    boxShadow: "0 4px 20px rgba(139, 119, 80, 0.08)",
     zIndex: 10,
   },
   headerLeft: {
@@ -253,20 +313,20 @@ const styles = {
     gap: "12px",
   },
   avatar: {
-    width: "48px",
-    height: "48px",
+    width: "50px",
+    height: "50px",
     background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
     borderRadius: "14px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    boxShadow: "0 2px 8px rgba(212, 165, 116, 0.3)",
+    boxShadow: "0 4px 12px rgba(212, 165, 116, 0.35)",
   },
   avatarText: {
-    fontSize: "20px",
-    fontWeight: "800",
+    fontSize: "22px",
+    fontWeight: "900",
     color: "white",
-    textShadow: "0 1px 2px rgba(0,0,0,0.1)",
+    textShadow: "0 2px 4px rgba(0,0,0,0.1)",
   },
   headerName: {
     margin: 0,
@@ -285,11 +345,13 @@ const styles = {
     height: "8px",
     borderRadius: "50%",
     background: "#68D391",
+    boxShadow: "0 0 8px rgba(104, 211, 145, 0.5)",
   },
   headerStatus: {
     margin: 0,
     fontSize: "12px",
     color: "#9C8B7A",
+    fontWeight: "500",
   },
   headerButtons: {
     display: "flex",
@@ -297,24 +359,26 @@ const styles = {
   },
   dashBtn: {
     padding: "10px 18px",
-    borderRadius: "10px",
-    border: "1px solid #E8DFD5",
-    background: "white",
+    borderRadius: "12px",
+    border: "1px solid rgba(212, 165, 116, 0.3)",
+    background: "rgba(255, 255, 255, 0.4)",
     color: "#5D4E37",
     cursor: "pointer",
     fontSize: "14px",
     fontWeight: "600",
+    backdropFilter: "blur(10px)",
     transition: "all 0.2s",
   },
   logoutBtn: {
     padding: "10px 18px",
-    borderRadius: "10px",
-    border: "1px solid #FED7D7",
-    background: "#FFF5F5",
+    borderRadius: "12px",
+    border: "1px solid rgba(197, 48, 48, 0.2)",
+    background: "rgba(254, 215, 215, 0.4)",
     color: "#C53030",
     cursor: "pointer",
     fontSize: "14px",
     fontWeight: "600",
+    backdropFilter: "blur(10px)",
     transition: "all 0.2s",
   },
   messages: {
@@ -324,7 +388,6 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     gap: "16px",
-    background: "linear-gradient(180deg, #FFFEF7 0%, #FAF8F5 100%)",
   },
   messageWrapper: {
     display: "flex",
@@ -333,34 +396,34 @@ const styles = {
     maxWidth: "75%",
   },
   botAvatar: {
-    width: "32px",
-    height: "32px",
+    width: "36px",
+    height: "36px",
     background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
     borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    boxShadow: "0 2px 6px rgba(212, 165, 116, 0.25)",
+    boxShadow: "0 3px 10px rgba(212, 165, 116, 0.3)",
   },
   botAvatarText: {
-    fontSize: "12px",
+    fontSize: "14px",
     fontWeight: "800",
     color: "white",
   },
   userAvatar: {
-    width: "32px",
-    height: "32px",
+    width: "36px",
+    height: "36px",
     background: "linear-gradient(135deg, #68D391 0%, #48BB78 100%)",
     borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    boxShadow: "0 2px 6px rgba(104, 211, 145, 0.25)",
+    boxShadow: "0 3px 10px rgba(104, 211, 145, 0.3)",
   },
   userAvatarText: {
-    fontSize: "12px",
+    fontSize: "14px",
     fontWeight: "800",
     color: "white",
   },
@@ -376,14 +439,16 @@ const styles = {
     color: "white",
     borderBottomRightRadius: "4px",
     marginLeft: "auto",
-    boxShadow: "0 2px 8px rgba(212, 165, 116, 0.25)",
+    boxShadow: "0 4px 15px rgba(212, 165, 116, 0.3)",
   },
   botBubble: {
-    background: "white",
+    background: "rgba(255, 255, 255, 0.6)",
+    backdropFilter: "blur(15px)",
+    WebkitBackdropFilter: "blur(15px)",
     color: "#5D4E37",
     borderBottomLeftRadius: "4px",
-    boxShadow: "0 1px 4px rgba(139, 119, 80, 0.08)",
-    border: "1px solid #F0EBE3",
+    boxShadow: "0 4px 15px rgba(139, 119, 80, 0.08)",
+    border: "1px solid rgba(255, 255, 255, 0.5)",
   },
   typingWrapper: {
     display: "flex",
@@ -391,27 +456,32 @@ const styles = {
     gap: "10px",
   },
   typingBubble: {
-    background: "white",
+    background: "rgba(255, 255, 255, 0.6)",
+    backdropFilter: "blur(15px)",
+    WebkitBackdropFilter: "blur(15px)",
     padding: "14px 18px",
     borderRadius: "18px",
     borderBottomLeftRadius: "4px",
-    boxShadow: "0 1px 4px rgba(139, 119, 80, 0.08)",
-    border: "1px solid #F0EBE3",
+    boxShadow: "0 4px 15px rgba(139, 119, 80, 0.08)",
+    border: "1px solid rgba(255, 255, 255, 0.5)",
   },
   typingDots: {
     display: "flex",
-    gap: "4px",
+    gap: "5px",
   },
   dot: {
     width: "8px",
     height: "8px",
     borderRadius: "50%",
     background: "#D4A574",
+    boxShadow: "0 2px 6px rgba(212, 165, 116, 0.4)",
   },
   inputArea: {
     padding: "16px 24px 20px",
-    background: "white",
-    borderTop: "1px solid #F0EBE3",
+    background: "rgba(255, 255, 255, 0.4)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderTop: "1px solid rgba(255, 255, 255, 0.5)",
   },
   inputContainer: {
     display: "flex",
@@ -421,28 +491,28 @@ const styles = {
   textarea: {
     flex: 1,
     padding: "14px 18px",
-    borderRadius: "12px",
-    border: "1.5px solid #E8DFD5",
-    background: "#FAF8F5",
+    borderRadius: "14px",
+    border: "2px solid rgba(255, 255, 255, 0.4)",
+    background: "rgba(255, 255, 255, 0.4)",
     fontSize: "15px",
     color: "#5D4E37",
     resize: "none",
     outline: "none",
     fontFamily: "inherit",
-    minHeight: "48px",
+    minHeight: "50px",
     maxHeight: "120px",
-    transition: "border-color 0.2s",
+    transition: "all 0.2s",
   },
   sendBtn: {
-    padding: "14px 24px",
-    borderRadius: "12px",
+    padding: "14px 28px",
+    borderRadius: "14px",
     border: "none",
     background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
     color: "white",
     fontSize: "15px",
-    fontWeight: "600",
+    fontWeight: "700",
     cursor: "pointer",
-    boxShadow: "0 2px 8px rgba(212, 165, 116, 0.25)",
+    boxShadow: "0 4px 15px rgba(212, 165, 116, 0.35)",
     transition: "all 0.2s",
   },
   inputHint: {
@@ -450,5 +520,6 @@ const styles = {
     fontSize: "12px",
     color: "#9C8B7A",
     textAlign: "center",
+    fontWeight: "500",
   },
 };
