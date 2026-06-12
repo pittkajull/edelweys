@@ -51,10 +51,10 @@ export default function Register() {
   }));
 
   const inputFields = [
-    { name: "full_name", label: "Nama Lengkap", icon: "👤", placeholder: "John Doe", type: "text" },
-    { name: "username", label: "Username", icon: "✨", placeholder: "johndoe", type: "text" },
-    { name: "email", label: "Email", icon: "📧", placeholder: "email@domain.com", type: "email" },
-    { name: "password", label: "Password", icon: "🔒", placeholder: "••••••••", type: "password" },
+    { name: "full_name", label: "Nama Lengkap", placeholder: "John Doe", type: "text" },
+    { name: "username", label: "Username", placeholder: "johndoe", type: "text" },
+    { name: "email", label: "Email", placeholder: "email@domain.com", type: "email" },
+    { name: "password", label: "Password", placeholder: "••••••••", type: "password" },
   ];
 
   return (
@@ -104,7 +104,7 @@ export default function Register() {
             animate={{ rotate: [0, 10, -10, 0] }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
           >
-            🌸
+            <div style={styles.logoIcon}>E</div>
           </motion.div>
           <h1 style={styles.title}>Edelweys</h1>
           <p style={styles.subtitle}>Daftar & mulai perjalanan sehatmu!</p>
@@ -140,7 +140,6 @@ export default function Register() {
                 borderColor: focusedField === field.name ? "#e91e8c" : "rgba(255,255,255,0.3)",
                 boxShadow: focusedField === field.name ? "0 0 20px rgba(233, 30, 140, 0.3)" : "none",
               }}>
-                <span style={styles.inputIcon}>{field.icon}</span>
                 <input
                   name={field.name}
                   type={field.type}
@@ -176,7 +175,7 @@ export default function Register() {
                 <div style={styles.spinner} />
               </motion.div>
             ) : (
-              "Daftar Sekarang 🚀"
+              "Daftar Sekarang"
             )}
           </motion.button>
         </form>
@@ -263,9 +262,21 @@ const styles = {
     marginBottom: "28px",
   },
   logoContainer: {
-    fontSize: "60px",
     marginBottom: "12px",
     display: "inline-block",
+  },
+  logoIcon: {
+    width: "70px",
+    height: "70px",
+    background: "linear-gradient(135deg, #e91e8c 0%, #f06292 100%)",
+    borderRadius: "20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "36px",
+    fontWeight: "900",
+    color: "white",
+    boxShadow: "0 8px 25px rgba(233, 30, 140, 0.4)",
   },
   title: {
     fontSize: "40px",
@@ -317,10 +328,6 @@ const styles = {
     border: "2px solid rgba(255, 255, 255, 0.35)",
     padding: "4px 18px",
     transition: "all 0.3s ease",
-  },
-  inputIcon: {
-    fontSize: "20px",
-    marginRight: "12px",
   },
   input: {
     flex: 1,

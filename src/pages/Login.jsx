@@ -91,7 +91,7 @@ export default function Login() {
             animate={{ rotate: [0, 10, -10, 0] }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
           >
-            🌸
+            <div style={styles.logoIcon}>E</div>
           </motion.div>
           <h1 style={styles.title}>Edelweys</h1>
           <p style={styles.subtitle}>Temen sehat kamu yang selalu ada!</p>
@@ -126,7 +126,6 @@ export default function Login() {
               borderColor: focusedField === "email" ? "#e91e8c" : "rgba(255,255,255,0.3)",
               boxShadow: focusedField === "email" ? "0 0 20px rgba(233, 30, 140, 0.3)" : "none",
             }}>
-              <span style={styles.inputIcon}>📧</span>
               <input
                 type="email"
                 placeholder="email@domain.com"
@@ -153,7 +152,6 @@ export default function Login() {
               borderColor: focusedField === "password" ? "#e91e8c" : "rgba(255,255,255,0.3)",
               boxShadow: focusedField === "password" ? "0 0 20px rgba(233, 30, 140, 0.3)" : "none",
             }}>
-              <span style={styles.inputIcon}>🔒</span>
               <input
                 type="password"
                 placeholder="••••••••"
@@ -187,7 +185,7 @@ export default function Login() {
                 <div style={styles.spinner} />
               </motion.div>
             ) : (
-              "Masuk 🚀"
+              "Masuk"
             )}
           </motion.button>
         </form>
@@ -274,9 +272,21 @@ const styles = {
     marginBottom: "28px",
   },
   logoContainer: {
-    fontSize: "60px",
     marginBottom: "12px",
     display: "inline-block",
+  },
+  logoIcon: {
+    width: "70px",
+    height: "70px",
+    background: "linear-gradient(135deg, #e91e8c 0%, #f06292 100%)",
+    borderRadius: "20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "36px",
+    fontWeight: "900",
+    color: "white",
+    boxShadow: "0 8px 25px rgba(233, 30, 140, 0.4)",
   },
   title: {
     fontSize: "40px",
@@ -328,10 +338,6 @@ const styles = {
     border: "2px solid rgba(255, 255, 255, 0.35)",
     padding: "4px 18px",
     transition: "all 0.3s ease",
-  },
-  inputIcon: {
-    fontSize: "20px",
-    marginRight: "12px",
   },
   input: {
     flex: 1,

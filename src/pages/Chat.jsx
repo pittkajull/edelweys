@@ -6,7 +6,7 @@ export default function Chat() {
   const [messages, setMessages] = useState([
     {
       role: "assistant",
-      content: "Heyy yoww! 👋🌸 Gimana kabarnya? Ada yang bisa Edelweys bantuin hari ini?",
+      content: "Heyy yoww! Gimana kabarnya? Ada yang bisa Edelweys bantuin hari ini?",
     },
   ]);
   const [input, setInput] = useState("");
@@ -61,7 +61,7 @@ export default function Chat() {
       setIsTyping(false);
       setMessages([
         ...newMessages,
-        { role: "assistant", content: "Aduh, Edelweys lagi error nih 😢 Coba lagi ya!" },
+        { role: "assistant", content: "Aduh, Edelweys lagi error nih. Coba lagi ya!" },
       ]);
     } finally {
       setLoading(false);
@@ -130,7 +130,7 @@ export default function Chat() {
             animate={{ rotate: [0, 10, -10, 0] }}
             transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
           >
-            🌸
+            <div style={styles.avatarIcon}>E</div>
           </motion.div>
           <div>
             <p style={styles.headerName}>Edelweys</p>
@@ -151,7 +151,7 @@ export default function Chat() {
             whileHover={{ scale: 1.05, backgroundColor: "#4CAF7D" }}
             whileTap={{ scale: 0.95 }}
           >
-            📊 Dashboard
+            Dashboard
           </motion.button>
           <motion.button
             onClick={handleLogout}
@@ -179,7 +179,7 @@ export default function Chat() {
               transition={{ duration: 0.3 }}
             >
               {msg.role === "assistant" && (
-                <div style={styles.botAvatar}>🌸</div>
+                <div style={styles.botAvatar}><div style={styles.botAvatarIcon}>E</div></div>
               )}
               <motion.div
                 style={{
@@ -191,7 +191,7 @@ export default function Chat() {
                 {msg.content}
               </motion.div>
               {msg.role === "user" && (
-                <div style={styles.userAvatar}>👤</div>
+                <div style={styles.userAvatar}><div style={styles.userAvatarIcon}>U</div></div>
               )}
             </motion.div>
           ))}
@@ -206,7 +206,7 @@ export default function Chat() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
             >
-              <div style={styles.botAvatar}>🌸</div>
+              <div style={styles.botAvatar}><div style={styles.botAvatarIcon}>E</div></div>
               <div style={styles.typingBubble}>
                 <div style={styles.typingDots}>
                   <motion.div
@@ -246,7 +246,7 @@ export default function Chat() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ketik pesanmu di sini... 💭"
+            placeholder="Ketik pesanmu di sini..."
             style={styles.textarea}
             rows={1}
           />
@@ -265,10 +265,10 @@ export default function Chat() {
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               >
-                ⏳
+                <div style={styles.spinner} />
               </motion.div>
             ) : (
-              "🚀"
+              "Kirim"
             )}
           </motion.button>
         </div>
@@ -330,7 +330,6 @@ const styles = {
     gap: "12px",
   },
   avatar: {
-    fontSize: "36px",
     width: "60px",
     height: "60px",
     background: "rgba(255, 255, 255, 0.3)",
@@ -338,6 +337,18 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
+  },
+  avatarIcon: {
+    width: "50px",
+    height: "50px",
+    background: "linear-gradient(135deg, #e91e8c 0%, #f06292 100%)",
+    borderRadius: "14px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "24px",
+    fontWeight: "900",
+    color: "white",
   },
   headerName: {
     margin: 0,
@@ -408,7 +419,6 @@ const styles = {
     gap: "8px",
   },
   botAvatar: {
-    fontSize: "24px",
     width: "36px",
     height: "36px",
     background: "rgba(255, 255, 255, 0.4)",
@@ -418,8 +428,19 @@ const styles = {
     justifyContent: "center",
     flexShrink: 0,
   },
+  botAvatarIcon: {
+    width: "28px",
+    height: "28px",
+    background: "linear-gradient(135deg, #e91e8c 0%, #f06292 100%)",
+    borderRadius: "8px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "14px",
+    fontWeight: "900",
+    color: "white",
+  },
   userAvatar: {
-    fontSize: "24px",
     width: "36px",
     height: "36px",
     background: "rgba(233, 30, 140, 0.2)",
@@ -428,6 +449,18 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+  },
+  userAvatarIcon: {
+    width: "28px",
+    height: "28px",
+    background: "linear-gradient(135deg, #4CAF7D 0%, #38A169 100%)",
+    borderRadius: "8px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    fontSize: "14px",
+    fontWeight: "900",
+    color: "white",
   },
   bubble: {
     maxWidth: "70%",
@@ -512,13 +545,21 @@ const styles = {
     border: "none",
     background: "linear-gradient(135deg, #e91e8c 0%, #f06292 100%)",
     color: "white",
-    fontSize: "24px",
+    fontSize: "16px",
+    fontWeight: "700",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     boxShadow: "0 6px 25px rgba(233, 30, 140, 0.35)",
     transition: "all 0.2s ease",
+  },
+  spinner: {
+    width: "20px",
+    height: "20px",
+    border: "3px solid rgba(255, 255, 255, 0.3)",
+    borderTopColor: "white",
+    borderRadius: "50%",
   },
   inputHint: {
     margin: "10px 0 0",
