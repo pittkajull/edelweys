@@ -210,7 +210,8 @@ export default function Register() {
 
 const styles = {
   container: {
-    minHeight: "100vh",
+    height: "100vh",
+    width: "100vw",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -219,9 +220,14 @@ const styles = {
     backgroundSize: "400% 400%",
     animation: "gradientShift 15s ease infinite",
     padding: "20px",
-    position: "relative",
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
     overflow: "hidden",
     fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
+    margin: 0,
   },
   bgContainer: {
     position: "absolute",
