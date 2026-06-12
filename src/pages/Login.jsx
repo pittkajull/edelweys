@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "../services/supabase";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -16,20 +17,16 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:8000/auth/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Login gagal");
+      if (error) throw error;
 
-      localStorage.setItem("token", data.access_token);
-      localStorage.setItem("user_id", data.user_id);
       navigate("/dashboard");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Login gagal");
     } finally {
       setLoading(false);
     }

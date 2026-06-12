@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "../services/supabase";
 
 export default function Register() {
   const [form, setForm] = useState({
@@ -24,18 +25,28 @@ export default function Register() {
     setError("");
 
     try {
-      const res = await fetch("http://localhost:8000/auth/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
+      // Register with Supabase Auth
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
       });
 
-      const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || "Registrasi gagal");
+      if (authError) throw authError;
+
+      // Insert profile data
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .insert({
+          id: authData.user.id,
+          username: form.username,
+          full_name: form.full_name,
+        });
+
+      if (profileError) throw profileError;
 
       navigate("/login");
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Registrasi gagal");
     } finally {
       setLoading(false);
     }

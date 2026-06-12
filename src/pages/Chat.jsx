@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import { supabase } from "../services/supabase";
 
 export default function Chat() {
   const [messages, setMessages] = useState([
@@ -12,16 +13,21 @@ export default function Chat() {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [isTyping, setIsTyping] = useState(false);
+  const [userId, setUserId] = useState(null);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
-  const userId = localStorage.getItem("user_id");
-
   useEffect(() => {
-    if (!localStorage.getItem("token")) {
-      navigate("/login");
-    }
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/login");
+      } else {
+        setUserId(session.user.id);
+      }
+    };
+    checkAuth();
   }, []);
 
   useEffect(() => {
@@ -75,9 +81,8 @@ export default function Chat() {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("user_id");
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate("/login");
   };
 
