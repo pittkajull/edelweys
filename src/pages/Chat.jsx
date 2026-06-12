@@ -16,7 +16,10 @@ export default function Chat() {
   const [userId, setUserId] = useState(null);
   const [profile, setProfile] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
-  const [activeChat, setActiveChat] = useState(null);
+  const [activeChatId, setActiveChatId] = useState(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [showProfileEdit, setShowProfileEdit] = useState(false);
+  const [editForm, setEditForm] = useState({ full_name: "", username: "" });
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -28,13 +31,13 @@ export default function Chat() {
         navigate("/login");
       } else {
         setUserId(session.user.id);
-        // Fetch profile
         const { data: prof } = await supabase
           .from("profiles")
           .select("*")
           .eq("id", session.user.id)
           .single();
         setProfile(prof);
+        setEditForm({ full_name: prof?.full_name || "", username: prof?.username || "" });
       }
     };
     checkAuth();
@@ -45,13 +48,41 @@ export default function Chat() {
   }, [messages]);
 
   const startNewChat = () => {
+    // Save current chat to history if there are messages beyond initial
+    if (messages.length > 1) {
+      const firstUserMsg = messages.find(m => m.role === "user");
+      const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) : "Obrolan baru";
+      const newHistory = {
+        id: Date.now(),
+        title: title,
+        messages: [...messages],
+        time: "Baru saja",
+      };
+      setChatHistory(prev => [newHistory, ...prev]);
+    }
+    // Start fresh
     setMessages([
       {
         role: "assistant",
         content: "Heyy yoww! Gimana kabarnya? Ada yang bisa Edelweys bantuin hari ini?",
       },
     ]);
-    setActiveChat(null);
+    setActiveChatId(null);
+  };
+
+  const loadChat = (chat) => {
+    // Save current chat if needed
+    if (messages.length > 1 && activeChatId !== chat.id) {
+      const existingIndex = chatHistory.findIndex(c => c.id === activeChatId);
+      if (existingIndex >= 0) {
+        const updated = [...chatHistory];
+        updated[existingIndex].messages = [...messages];
+        setChatHistory(updated);
+      }
+    }
+    // Load selected chat
+    setMessages(chat.messages);
+    setActiveChatId(chat.id);
   };
 
   const sendMessage = async () => {
@@ -106,6 +137,18 @@ export default function Chat() {
     navigate("/login");
   };
 
+  const handleSaveProfile = async () => {
+    const { error } = await supabase
+      .from("profiles")
+      .update({ full_name: editForm.full_name, username: editForm.username })
+      .eq("id", userId);
+
+    if (!error) {
+      setProfile({ ...profile, ...editForm });
+      setShowProfileEdit(false);
+    }
+  };
+
   const formatMessage = (text) => {
     return text.split('\n').map((line, i) => (
       <span key={i}>
@@ -115,73 +158,88 @@ export default function Chat() {
     ));
   };
 
-  // Dummy chat history for demo
-  const dummyHistory = [
-    { id: 1, title: "Tentang pola makan sehat", time: "2 jam lalu" },
-    { id: 2, title: "Tips olahraga rutin", time: "Kemarin" },
-    { id: 3, title: "Konsultasi tidur", time: "3 hari lalu" },
-  ];
-
   return (
     <div style={styles.container}>
       {/* Sidebar */}
-      <div style={styles.sidebar}>
-        {/* Logo */}
-        <div style={styles.sidebarHeader}>
-          <div style={styles.logo}>
-            <span style={styles.logoText}>E</span>
-          </div>
-          <span style={styles.logoTitle}>Edelweys</span>
-        </div>
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            style={styles.sidebar}
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 280, opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ duration: 0.3 }}
+          >
+            <div style={styles.sidebarContent}>
+              {/* Logo */}
+              <div style={styles.sidebarHeader}>
+                <div style={styles.logo}>
+                  <span style={styles.logoText}>E</span>
+                </div>
+                <span style={styles.logoTitle}>Edelweys</span>
+              </div>
 
-        {/* New Chat Button */}
-        <button onClick={startNewChat} style={styles.newChatBtn}>
-          <span style={styles.newChatIcon}>+</span>
-          Obrolan Baru
-        </button>
+              {/* New Chat Button */}
+              <button onClick={startNewChat} style={styles.newChatBtn}>
+                <span style={styles.newChatIcon}>+</span>
+                Obrolan Baru
+              </button>
 
-        {/* Chat History */}
-        <div style={styles.historySection}>
-          <p style={styles.historyLabel}>Riwayat Obrolan</p>
-          {dummyHistory.map((chat) => (
-            <div
-              key={chat.id}
-              style={{
-                ...styles.historyItem,
-                background: activeChat === chat.id ? "rgba(212, 165, 116, 0.15)" : "transparent",
-              }}
-              onClick={() => setActiveChat(chat.id)}
-            >
-              <p style={styles.historyTitle}>{chat.title}</p>
-              <p style={styles.historyTime}>{chat.time}</p>
-            </div>
-          ))}
-        </div>
+              {/* Chat History */}
+              <div style={styles.historySection}>
+                {chatHistory.length > 0 && (
+                  <p style={styles.historyLabel}>Riwayat Obrolan</p>
+                )}
+                {chatHistory.map((chat) => (
+                  <div
+                    key={chat.id}
+                    style={{
+                      ...styles.historyItem,
+                      background: activeChatId === chat.id ? "rgba(212, 165, 116, 0.15)" : "transparent",
+                    }}
+                    onClick={() => loadChat(chat)}
+                  >
+                    <p style={styles.historyTitle}>{chat.title}</p>
+                    <p style={styles.historyTime}>{chat.time}</p>
+                  </div>
+                ))}
+              </div>
 
-        {/* Bottom Section */}
-        <div style={styles.sidebarBottom}>
-          <div style={styles.profileSection}>
-            <div style={styles.profileAvatar}>
-              <span style={styles.profileAvatarText}>
-                {profile?.full_name?.charAt(0) || "U"}
-              </span>
+              {/* Bottom Section */}
+              <div style={styles.sidebarBottom}>
+                <div
+                  style={styles.profileSection}
+                  onClick={() => setShowProfileEdit(true)}
+                >
+                  <div style={styles.profileAvatar}>
+                    <span style={styles.profileAvatarText}>
+                      {profile?.full_name?.charAt(0) || "U"}
+                    </span>
+                  </div>
+                  <div style={styles.profileInfo}>
+                    <p style={styles.profileName}>{profile?.full_name || "User"}</p>
+                    <p style={styles.profileEmail}>Klik untuk edit profile</p>
+                  </div>
+                </div>
+                <button onClick={handleLogout} style={styles.logoutBtn}>
+                  Logout
+                </button>
+              </div>
             </div>
-            <div style={styles.profileInfo}>
-              <p style={styles.profileName}>{profile?.full_name || "User"}</p>
-              <p style={styles.profileEmail}>{profile?.username || "user"}</p>
-            </div>
-          </div>
-          <button onClick={handleLogout} style={styles.logoutBtn}>
-            Logout
-          </button>
-        </div>
-      </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Main Chat Area */}
       <div style={styles.mainChat}>
         {/* Header */}
         <div style={styles.chatHeader}>
           <div style={styles.chatHeaderLeft}>
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} style={styles.menuBtn}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 12h18M3 6h18M3 18h18" />
+              </svg>
+            </button>
             <div style={styles.chatAvatar}>
               <span style={styles.chatAvatarText}>E</span>
             </div>
@@ -282,6 +340,64 @@ export default function Chat() {
         </div>
       </div>
 
+      {/* Profile Edit Modal */}
+      <AnimatePresence>
+        {showProfileEdit && (
+          <motion.div
+            style={styles.modalOverlay}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setShowProfileEdit(false)}
+          >
+            <motion.div
+              style={styles.modal}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h3 style={styles.modalTitle}>Edit Profile</h3>
+
+              <div style={styles.modalField}>
+                <label style={styles.modalLabel}>Nama Lengkap</label>
+                <input
+                  type="text"
+                  value={editForm.full_name}
+                  onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
+                  style={styles.modalInput}
+                />
+              </div>
+
+              <div style={styles.modalField}>
+                <label style={styles.modalLabel}>Username</label>
+                <input
+                  type="text"
+                  value={editForm.username}
+                  onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
+                  style={styles.modalInput}
+                />
+              </div>
+
+              <div style={styles.modalActions}>
+                <button
+                  onClick={() => setShowProfileEdit(false)}
+                  style={styles.modalCancelBtn}
+                >
+                  Batal
+                </button>
+                <button
+                  onClick={handleSaveProfile}
+                  style={styles.modalSaveBtn}
+                >
+                  Simpan
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <style>{`
         @keyframes bounce {
           0%, 80%, 100% { transform: translateY(0); }
@@ -307,18 +423,24 @@ const styles = {
     right: 0,
     bottom: 0,
     fontFamily: "'DM Sans', system-ui, sans-serif",
+    overflow: "hidden",
   },
 
   // Sidebar Styles
   sidebar: {
-    width: "280px",
+    height: "100%",
     background: "rgba(255, 255, 255, 0.4)",
     backdropFilter: "blur(20px)",
     WebkitBackdropFilter: "blur(20px)",
     borderRight: "1px solid rgba(255, 255, 255, 0.5)",
+    overflow: "hidden",
+    flexShrink: 0,
+  },
+  sidebarContent: {
+    width: "280px",
+    height: "100%",
     display: "flex",
     flexDirection: "column",
-    boxShadow: "4px 0 20px rgba(139, 119, 80, 0.08)",
   },
   sidebarHeader: {
     display: "flex",
@@ -412,6 +534,10 @@ const styles = {
     alignItems: "center",
     gap: "12px",
     marginBottom: "12px",
+    padding: "8px",
+    borderRadius: "10px",
+    cursor: "pointer",
+    transition: "background 0.2s",
   },
   profileAvatar: {
     width: "40px",
@@ -436,12 +562,9 @@ const styles = {
     fontWeight: "600",
     color: "#5D4E37",
     margin: 0,
-    whiteSpace: "nowrap",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
   },
   profileEmail: {
-    fontSize: "12px",
+    fontSize: "11px",
     color: "#9C8B7A",
     margin: 0,
   },
@@ -464,6 +587,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
+    minWidth: 0,
   },
   chatHeader: {
     display: "flex",
@@ -480,6 +604,19 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "12px",
+  },
+  menuBtn: {
+    width: "36px",
+    height: "36px",
+    borderRadius: "10px",
+    border: "1px solid rgba(212, 165, 116, 0.3)",
+    background: "rgba(255, 255, 255, 0.4)",
+    color: "#5D4E37",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    transition: "all 0.2s",
   },
   chatAvatar: {
     width: "44px",
@@ -672,5 +809,84 @@ const styles = {
     fontSize: "11px",
     color: "#9C8B7A",
     textAlign: "center",
+  },
+
+  // Modal Styles
+  modalOverlay: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: "rgba(0, 0, 0, 0.3)",
+    backdropFilter: "blur(4px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1000,
+  },
+  modal: {
+    background: "white",
+    borderRadius: "20px",
+    padding: "32px",
+    width: "100%",
+    maxWidth: "400px",
+    boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+  },
+  modalTitle: {
+    fontSize: "20px",
+    fontWeight: "700",
+    color: "#1A1A1A",
+    margin: "0 0 24px",
+  },
+  modalField: {
+    marginBottom: "20px",
+  },
+  modalLabel: {
+    display: "block",
+    fontSize: "13px",
+    fontWeight: "500",
+    color: "#374151",
+    marginBottom: "8px",
+  },
+  modalInput: {
+    width: "100%",
+    padding: "12px 16px",
+    borderRadius: "10px",
+    border: "1.5px solid #E8E4DF",
+    background: "#FAFAF8",
+    fontSize: "15px",
+    color: "#1A1A1A",
+    outline: "none",
+    fontFamily: "inherit",
+    boxSizing: "border-box",
+  },
+  modalActions: {
+    display: "flex",
+    gap: "12px",
+    justifyContent: "flex-end",
+    marginTop: "24px",
+  },
+  modalCancelBtn: {
+    padding: "10px 20px",
+    borderRadius: "10px",
+    border: "1px solid #E8E4DF",
+    background: "white",
+    color: "#374151",
+    fontSize: "14px",
+    fontWeight: "500",
+    cursor: "pointer",
+    fontFamily: "inherit",
+  },
+  modalSaveBtn: {
+    padding: "10px 20px",
+    borderRadius: "10px",
+    border: "none",
+    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
+    color: "white",
+    fontSize: "14px",
+    fontWeight: "500",
+    cursor: "pointer",
+    fontFamily: "inherit",
   },
 };
