@@ -152,12 +152,20 @@ export default function Chat() {
   };
 
   const formatMessage = (text) => {
-    return text.split('\n').map((line, i) => (
-      <span key={i}>
-        {line}
-        {i < text.split('\n').length - 1 && <br />}
-      </span>
-    ));
+    // Parse markdown bold (**text**) and other formatting
+    const parts = text.split(/(\*\*[^*]+\*\*)/g);
+    return parts.map((part, i) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={i} style={{ fontWeight: 700 }}>{part.slice(2, -2)}</strong>;
+      }
+      // Handle line breaks
+      return part.split('\n').map((line, j) => (
+        <span key={`${i}-${j}`}>
+          {line}
+          {j < part.split('\n').length - 1 && <br />}
+        </span>
+      ));
+    });
   };
 
   return (
@@ -215,11 +223,17 @@ export default function Chat() {
                   </div>
                   <div style={styles.profileInfo}>
                     <p style={styles.profileName}>{profile?.full_name || "Guest"}</p>
+                    {userId && <p style={styles.profileHint}>Klik untuk edit</p>}
                   </div>
                 </div>
                 {userId && (
                   <button onClick={handleLogout} style={styles.logoutBtn}>
                     Logout
+                  </button>
+                )}
+                {!userId && (
+                  <button onClick={() => navigate("/login")} style={styles.loginBtn}>
+                    Login
                   </button>
                 )}
               </div>
@@ -239,7 +253,7 @@ export default function Chat() {
               </svg>
             </button>
             <div style={styles.chatAvatar}>E</div>
-            <div>
+            <div style={styles.chatHeaderInfo}>
               <p style={styles.chatName}>Edelweys</p>
               <p style={styles.statusText}>● Online</p>
             </div>
@@ -512,6 +526,11 @@ const styles = {
     color: COLORS.white,
     margin: 0,
   },
+  profileHint: {
+    fontSize: "11px",
+    color: "#7A9B76",
+    margin: "2px 0 0",
+  },
   logoutBtn: {
     width: "100%",
     padding: "8px",
@@ -519,6 +538,17 @@ const styles = {
     border: "none",
     borderRadius: "8px",
     color: "#FCA5A5",
+    fontSize: "12px",
+    fontWeight: "500",
+    cursor: "pointer",
+  },
+  loginBtn: {
+    width: "100%",
+    padding: "8px",
+    background: COLORS.greenSage,
+    border: "none",
+    borderRadius: "8px",
+    color: COLORS.white,
     fontSize: "12px",
     fontWeight: "500",
     cursor: "pointer",
@@ -544,6 +574,11 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "12px",
+  },
+  chatHeaderInfo: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "2px",
   },
   menuBtn: {
     width: "32px",
@@ -574,11 +609,13 @@ const styles = {
     fontWeight: "700",
     color: COLORS.textPrimary,
     fontSize: "15px",
+    lineHeight: "1.2",
   },
   statusText: {
     margin: 0,
     fontSize: "11px",
     color: COLORS.greenSage,
+    lineHeight: "1.2",
   },
   dashBtn: {
     padding: "8px 16px",
