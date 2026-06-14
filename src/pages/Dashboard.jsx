@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../services/supabase";
 import { motion, AnimatePresence } from "framer-motion";
+import logo from "../assets/edelweys.png";
 import {
   LineChart,
   Line,
@@ -374,7 +375,9 @@ export default function Dashboard() {
                 {/* Saran Edelweys */}
                 <div style={styles.saranCard}>
                   <div style={styles.saranHeader}>
-                    <div style={styles.saranAvatar}>E</div>
+                    <div style={styles.saranAvatar}>
+                      <img src={logo} alt="E" style={{ width: "18px", height: "18px" }} />
+                    </div>
                     <span style={styles.saranLabel}>SARAN EDELWEYS</span>
                   </div>
                   <p style={styles.saranText}>

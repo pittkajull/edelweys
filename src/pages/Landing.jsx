@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import logo from "../assets/edelweys.png";
 
 const COLORS = {
   bgMain: "#EEEEE9",
@@ -53,7 +54,9 @@ export default function Landing() {
       {/* Navbar */}
       <nav style={styles.navbar}>
         <div style={styles.navContent}>
-          <div style={styles.navLogo}>✦ Edelweys</div>
+          <div style={styles.navLogo}>
+            <img src={logo} alt="Edelweys" style={{ height: "28px" }} />
+          </div>
           <motion.button
             onClick={() => navigate("/register")}
             style={styles.navCta}
@@ -249,7 +252,7 @@ export default function Landing() {
       {/* Footer */}
       <footer style={styles.footer}>
         <div style={styles.footerContent}>
-          <div style={styles.footerLogo}>✦ Edelweys</div>
+          <img src={logo} alt="Edelweys" style={{ height: "32px", marginBottom: "12px" }} />
           <p style={styles.footerText}>
             Health companion yang selalu ada untuk kamu.
           </p>

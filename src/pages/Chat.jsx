@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../services/supabase";
+import logo from "../assets/edelweys.png";
 
 const COLORS = {
   bgMain: "#EEEEE9",
@@ -183,7 +184,7 @@ export default function Chat() {
             <div style={styles.sidebarContent}>
               {/* Logo */}
               <div style={styles.sidebarHeader}>
-                <span style={styles.logoText}>✦ Edelweys</span>
+                <img src={logo} alt="Edelweys" style={{ height: "24px" }} />
               </div>
 
               {/* New Chat Button */}
@@ -252,7 +253,9 @@ export default function Chat() {
                 <path d="M3 12h18M3 6h18M3 18h18" />
               </svg>
             </button>
-            <div style={styles.chatAvatar}>E</div>
+            <div style={styles.chatAvatar}>
+              <img src={logo} alt="E" style={{ width: "24px", height: "24px" }} />
+            </div>
             <div style={styles.chatHeaderInfo}>
               <p style={styles.chatName}>Edelweys</p>
               <p style={styles.statusText}>● Online</p>
@@ -274,7 +277,9 @@ export default function Chat() {
               }}
             >
               {msg.role === "assistant" && (
-                <div style={styles.botAvatar}>E</div>
+                <div style={styles.botAvatar}>
+                  <img src={logo} alt="E" style={{ width: "18px", height: "18px" }} />
+                </div>
               )}
               <div
                 style={{
@@ -299,7 +304,9 @@ export default function Chat() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
               >
-                <div style={styles.botAvatar}>E</div>
+                <div style={styles.botAvatar}>
+                  <img src={logo} alt="E" style={{ width: "18px", height: "18px" }} />
+                </div>
                 <div style={styles.typingBubble}>
                   <div style={styles.typingDots}>
                     <div style={styles.dot} className="bounce1" />

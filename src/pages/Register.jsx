@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../services/supabase";
+import logo from "../assets/edelweys.png";
 
 const COLORS = {
   bgMain: "#EEEEE9",
@@ -80,7 +81,7 @@ export default function Register() {
       >
         {/* Logo */}
         <div style={styles.logoSection}>
-          <div style={styles.logo}>E</div>
+          <img src={logo} alt="Edelweys" style={{ height: "48px", marginBottom: "16px" }} />
           <h1 style={styles.title}>Edelweys</h1>
           <p style={styles.subtitle}>Buat akun baru</p>
         </div>
