@@ -22,35 +22,40 @@ export default function Landing() {
     {
       title: "Chat Kesehatan",
       desc: "Tanya apa aja soal kesehatan, Edelweys jawab dengan friendly!",
-      icon: "💬",
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+        </svg>
+      ),
     },
     {
       title: "Dashboard Harian",
       desc: "Pantau berat badan, tekanan darah, dan kebiasaan sehari-hari.",
-      icon: "📊",
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M18 20V10M12 20V4M6 20v-6" />
+        </svg>
+      ),
     },
     {
       title: "Tips Personal",
       desc: "Dapatkan saran kesehatan yang disesuaikan dengan data kamu.",
-      icon: "✨",
+      icon: (
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+        </svg>
+      ),
     },
   ];
 
-  const testimonials = [
-    { name: "Rina S.", text: "Suka banget sama Edelweys! Jawabannya friendly dan gampang dipahami.", stars: 5 },
-    { name: "Budi K.", text: "Dashboard-nya membantu banget buat track pola makan dan olahraga.", stars: 5 },
-    { name: "Maya L.", text: "Akhirnya ada chatbot kesehatan yang nggak kaku dan judgemental!", stars: 5 },
-  ];
-
   return (
-    <div style={styles.container}>
+    <div style={styles.page}>
       {/* Navbar */}
       <nav style={styles.navbar}>
         <div style={styles.navContent}>
           <div style={styles.navLogo}>✦ Edelweys</div>
           <div style={styles.navLinks}>
             <a href="#features" style={styles.navLink}>Fitur</a>
-            <a href="#testimonials" style={styles.navLink}>Testimoni</a>
           </div>
           <motion.button
             onClick={() => navigate("/register")}
@@ -193,6 +198,7 @@ export default function Landing() {
                 initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 transition={{ delay: i * 0.1 }}
+                whileHover={{ y: -5 }}
               >
                 <div style={styles.featureIcon}>{f.icon}</div>
                 <h3 style={styles.featureTitle}>{f.title}</h3>
@@ -203,41 +209,44 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials Section */}
-      <section id="testimonials" style={styles.testimonials}>
-        <div style={styles.testimonialsContent}>
-          <motion.p
-            style={styles.sectionTag}
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-          >
-            APA KATA MEREKA
-          </motion.p>
-          <motion.h2
-            style={styles.sectionTitle}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-          >
-            Testimoni Pengguna
-          </motion.h2>
-          <div style={styles.testimonialsGrid}>
-            {testimonials.map((t, i) => (
-              <motion.div
-                key={i}
-                style={styles.testimonialCard}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.1 }}
-              >
-                <div style={styles.testimonialStars}>
-                  {"★".repeat(t.stars)}
-                </div>
-                <p style={styles.testimonialText}>"{t.text}"</p>
-                <p style={styles.testimonialName}>{t.name}</p>
-              </motion.div>
-            ))}
-          </div>
-        </div>
+      {/* Big Text Section */}
+      <section style={styles.bigText}>
+        <motion.h2
+          style={styles.bigTextTitle}
+          initial={{ opacity: 0, scale: 0.95 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+        >
+          HEALTHY IS{" "}
+          <span style={styles.bigTextHighlight}>EASY</span>{" "}
+          WHEN YOU HAVE THE RIGHT COMPANION
+        </motion.h2>
+      </section>
+
+      {/* CTA Section */}
+      <section style={styles.ctaSection}>
+        <motion.h2
+          style={styles.ctaTitle}
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+        >
+          Siap Mulai Perjalanan Sehatmu?
+        </motion.h2>
+        <motion.p
+          style={styles.ctaSubtitle}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          transition={{ delay: 0.2 }}
+        >
+          Bergabung dengan ribuan pengguna yang sudah merasakan manfaatnya
+        </motion.p>
+        <motion.button
+          onClick={() => navigate("/register")}
+          style={styles.ctaButton}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Daftar Sekarang - Gratis! ✦
+        </motion.button>
       </section>
 
       {/* Footer */}
@@ -261,8 +270,7 @@ export default function Landing() {
 }
 
 const styles = {
-  container: {
-    minHeight: "100vh",
+  page: {
     background: COLORS.bgMain,
     fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
   },
@@ -313,7 +321,7 @@ const styles = {
 
   // Hero
   hero: {
-    padding: "80px 24px 120px",
+    padding: "100px 24px 140px",
     textAlign: "center",
     position: "relative",
     overflow: "hidden",
@@ -336,45 +344,46 @@ const styles = {
     marginBottom: "24px",
   },
   heroTitle: {
-    fontSize: "56px",
+    fontSize: "64px",
     fontWeight: "800",
     color: COLORS.textPrimary,
-    lineHeight: "1.1",
-    margin: "0 0 20px",
+    lineHeight: "1.05",
+    margin: "0 0 24px",
     letterSpacing: "-0.03em",
   },
   heroHighlight: {
     color: COLORS.greenSage,
   },
   heroSubtitle: {
-    fontSize: "18px",
+    fontSize: "20px",
     color: COLORS.textSecondary,
     lineHeight: "1.6",
-    margin: "0 0 32px",
+    margin: "0 0 40px",
   },
   heroButtons: {
     display: "flex",
-    gap: "12px",
+    gap: "16px",
     justifyContent: "center",
     flexWrap: "wrap",
   },
   heroCta: {
-    padding: "14px 28px",
+    padding: "16px 32px",
     borderRadius: "99px",
     border: "none",
     background: COLORS.greenDeep,
     color: COLORS.white,
-    fontSize: "16px",
+    fontSize: "18px",
     fontWeight: "600",
     cursor: "pointer",
+    boxShadow: "0 8px 24px rgba(30, 51, 25, 0.25)",
   },
   heroSecondary: {
-    padding: "14px 28px",
+    padding: "16px 32px",
     borderRadius: "99px",
     border: `2px solid ${COLORS.greenSage}`,
     background: COLORS.white,
     color: COLORS.greenSage,
-    fontSize: "16px",
+    fontSize: "18px",
     fontWeight: "600",
     cursor: "pointer",
   },
@@ -416,7 +425,7 @@ const styles = {
 
   // Features
   features: {
-    padding: "80px 24px",
+    padding: "100px 24px",
     background: COLORS.white,
   },
   featuresContent: {
@@ -433,11 +442,11 @@ const styles = {
     marginBottom: "12px",
   },
   sectionTitle: {
-    fontSize: "36px",
+    fontSize: "42px",
     fontWeight: "800",
     color: COLORS.textPrimary,
     textAlign: "center",
-    margin: "0 0 48px",
+    margin: "0 0 56px",
     letterSpacing: "-0.02em",
   },
   featuresGrid: {
@@ -448,17 +457,25 @@ const styles = {
   featureCard: {
     background: COLORS.bgMain,
     borderRadius: "12px",
-    padding: "32px",
+    padding: "36px 32px",
+    transition: "all 0.3s ease",
   },
   featureIcon: {
-    fontSize: "32px",
-    marginBottom: "16px",
+    width: "56px",
+    height: "56px",
+    borderRadius: "16px",
+    background: COLORS.greenSage,
+    color: COLORS.white,
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: "20px",
   },
   featureTitle: {
-    fontSize: "18px",
+    fontSize: "20px",
     fontWeight: "700",
     color: COLORS.textPrimary,
-    margin: "0 0 10px",
+    margin: "0 0 12px",
   },
   featureDesc: {
     fontSize: "15px",
@@ -467,41 +484,53 @@ const styles = {
     margin: 0,
   },
 
-  // Testimonials
-  testimonials: {
-    padding: "80px 24px",
+  // Big Text
+  bigText: {
+    padding: "100px 24px",
+    background: COLORS.greenDeep,
+    textAlign: "center",
+  },
+  bigTextTitle: {
+    fontSize: "48px",
+    fontWeight: "800",
+    color: COLORS.white,
+    lineHeight: "1.2",
+    maxWidth: "900px",
+    margin: "0 auto",
+    letterSpacing: "-0.02em",
+  },
+  bigTextHighlight: {
+    color: COLORS.greenLight,
+  },
+
+  // CTA
+  ctaSection: {
+    padding: "100px 24px",
+    textAlign: "center",
     background: COLORS.bgMain,
   },
-  testimonialsContent: {
-    maxWidth: "1100px",
-    margin: "0 auto",
-  },
-  testimonialsGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-    gap: "24px",
-  },
-  testimonialCard: {
-    background: COLORS.white,
-    borderRadius: "12px",
-    padding: "32px",
-  },
-  testimonialStars: {
-    fontSize: "18px",
-    color: "#F59E0B",
-    marginBottom: "16px",
-  },
-  testimonialText: {
-    fontSize: "15px",
+  ctaTitle: {
+    fontSize: "42px",
+    fontWeight: "800",
     color: COLORS.textPrimary,
-    lineHeight: "1.7",
     margin: "0 0 16px",
+    letterSpacing: "-0.02em",
   },
-  testimonialName: {
-    fontSize: "14px",
-    fontWeight: "600",
+  ctaSubtitle: {
+    fontSize: "18px",
     color: COLORS.textSecondary,
-    margin: 0,
+    margin: "0 0 36px",
+  },
+  ctaButton: {
+    padding: "18px 40px",
+    borderRadius: "99px",
+    border: "none",
+    background: COLORS.greenSage,
+    color: COLORS.white,
+    fontSize: "18px",
+    fontWeight: "700",
+    cursor: "pointer",
+    boxShadow: "0 8px 24px rgba(107, 145, 98, 0.35)",
   },
 
   // Footer
