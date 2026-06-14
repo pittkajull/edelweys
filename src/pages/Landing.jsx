@@ -54,9 +54,6 @@ export default function Landing() {
       <nav style={styles.navbar}>
         <div style={styles.navContent}>
           <div style={styles.navLogo}>✦ Edelweys</div>
-          <div style={styles.navLinks}>
-            <a href="#features" style={styles.navLink}>Fitur</a>
-          </div>
           <motion.button
             onClick={() => navigate("/register")}
             style={styles.navCta}
