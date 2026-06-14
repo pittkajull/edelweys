@@ -396,17 +396,42 @@ export default function Dashboard() {
 
                 {/* Saran Edelweys */}
                 <div style={saranCard}>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "16px" }}>
                     <img src={logo} alt="E" style={{ width: "28px", height: "28px", borderRadius: "8px" }} />
                     <span style={{ fontSize: "11px", fontWeight: "600", color: COLORS.greenSage, letterSpacing: "0.08em" }}>SARAN EDELWEYS</span>
                   </div>
-                  <p style={{ fontSize: "14px", color: COLORS.borderLight, lineHeight: "1.6", margin: 0 }}>
-                    {latest.water_glasses < 8
-                      ? "Jangan lupa minum air putih yang cukup ya! Target 8 gelas sehari."
-                      : latest.exercise_minutes < 30
-                        ? "Coba tambah waktu olahragamu minimal 30 menit sehari ya!"
-                        : "Kamu udah doing great! Pertahankan pola hidup sehatmu! 💪"}
-                  </p>
+                  <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
+                    {latest.water_glasses < 8 && (
+                      <div style={tipItem}>
+                        <span>💧</span>
+                        <p style={tipText}>Minum air putih yang cukup! Target 8 gelas sehari. Saat ini baru {latest.water_glasses ?? 0} gelas.</p>
+                      </div>
+                    )}
+                    {latest.exercise_minutes < 30 && (
+                      <div style={tipItem}>
+                        <span>🏃</span>
+                        <p style={tipText}>Coba tambah waktu olahraga minimal 30 menit sehari. Saat ini baru {latest.exercise_minutes ?? 0} menit.</p>
+                      </div>
+                    )}
+                    {latest.sleep_hours < 7 && (
+                      <div style={tipItem}>
+                        <span>😴</span>
+                        <p style={tipText}>Tidurmu kurang! Target 7-8 jam sehari. Saat ini baru {latest.sleep_hours ?? 0} jam.</p>
+                      </div>
+                    )}
+                    {latest.coffee_cups > 3 && (
+                      <div style={tipItem}>
+                        <span>☕</span>
+                        <p style={tipText}>Kopimu kebanyakan! Batasi max 3 cangkir sehari. Saat ini {latest.coffee_cups ?? 0} cangkir.</p>
+                      </div>
+                    )}
+                    {latest.water_glasses >= 8 && latest.exercise_minutes >= 30 && latest.sleep_hours >= 7 && latest.coffee_cups <= 3 && (
+                      <div style={tipItem}>
+                        <span>💪</span>
+                        <p style={tipText}>Kamu udah doing great! Pertahankan pola hidup sehatmu!</p>
+                      </div>
+                    )}
+                  </div>
                 </div>
 
                 <button onClick={() => setActiveTab("input")} style={styles.greenBtn}>
@@ -737,6 +762,22 @@ const saranCard = {
   ...glassCard,
   background: COLORS.greenDeep,
   border: "none",
+};
+
+const tipItem = {
+  display: "flex",
+  alignItems: "flex-start",
+  gap: "10px",
+  padding: "10px 12px",
+  background: "rgba(255,255,255,0.08)",
+  borderRadius: "10px",
+};
+
+const tipText = {
+  fontSize: "13px",
+  color: COLORS.borderLight,
+  lineHeight: "1.5",
+  margin: 0,
 };
 
 const sectionLabel = {

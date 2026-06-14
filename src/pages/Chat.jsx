@@ -112,6 +112,20 @@ export default function Chat() {
     setActiveChatId(chat.id);
   };
 
+  const deleteChat = async (chatId, e) => {
+    e.stopPropagation();
+    if (!userId) return;
+    await supabase.from("chat_history").delete().eq("id", chatId);
+    setChatHistory(prev => prev.filter(c => c.id !== chatId));
+    if (activeChatId === chatId) {
+      setActiveChatId(null);
+      setMessages([{
+        role: "assistant",
+        content: "Heyy yoww! Gimana kabarnya? Ada yang bisa Edelweys bantuin hari ini?",
+      }]);
+    }
+  };
+
   const sendMessage = async () => {
     if (!input.trim()) return;
 
@@ -309,7 +323,15 @@ export default function Chat() {
                       }}
                       onClick={() => loadChat(chat)}
                     >
-                      <p style={styles.historyTitle}>{chat.title}</p>
+                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                        <p style={styles.historyTitle}>{chat.title}</p>
+                        <button
+                          onClick={(e) => deleteChat(chat.id, e)}
+                          style={styles.deleteBtn}
+                        >
+                          ×
+                        </button>
+                      </div>
                       <p style={styles.historyTime}>{chat.time}</p>
                     </div>
                   ))}
@@ -619,6 +641,16 @@ const styles = {
     fontSize: "11px",
     color: "#7A9B76",
     margin: 0,
+  },
+  deleteBtn: {
+    background: "none",
+    border: "none",
+    color: "#7A9B76",
+    fontSize: "16px",
+    cursor: "pointer",
+    padding: "0 4px",
+    lineHeight: 1,
+    opacity: 0.6,
   },
   sidebarBottom: {
     padding: "16px",
