@@ -29,6 +29,10 @@ const COLORS = {
   white: "#FFFFFF",
 };
 
+const glassBg = "rgba(255, 255, 255, 0.7)";
+const glassBorder = "1px solid rgba(255, 255, 255, 0.5)";
+const glassShadow = "0 8px 32px rgba(30, 51, 25, 0.08)";
+
 const calcBMI = (weight, height) => {
   if (!weight || !height || height === 0) return null;
   return (weight / ((height / 100) ** 2)).toFixed(1);
@@ -47,59 +51,57 @@ const fmt = (d) =>
   new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
 
 const MetricCard = ({ label, value, unit, sub, color = COLORS.greenSage, bg = "#F0FDF4" }) => (
-  <div style={metricStyles.card}>
-    <p style={metricStyles.label}>{label}</p>
-    <div style={metricStyles.valueRow}>
-      <span style={metricStyles.value}>{value ?? "-"}</span>
-      {unit && <span style={metricStyles.unit}>{unit}</span>}
+  <div style={glassCard}>
+    <p style={labelStyle}>{label}</p>
+    <div style={{ display: "flex", alignItems: "baseline", gap: "4px" }}>
+      <span style={valueStyle}>{value ?? "-"}</span>
+      {unit && <span style={unitStyle}>{unit}</span>}
     </div>
     {sub && (
-      <span style={{ ...metricStyles.badge, color, background: bg }}>
-        {sub}
-      </span>
+      <span style={{ ...badgeStyle, color, background: bg }}>{sub}</span>
     )}
   </div>
 );
 
-const metricStyles = {
-  card: {
-    background: COLORS.white,
-    borderRadius: "12px",
-    padding: "20px",
-    border: `1px solid ${COLORS.borderSoft}`,
-  },
-  label: {
-    fontSize: "11px",
-    fontWeight: "600",
-    color: COLORS.textTertiary,
-    letterSpacing: "0.06em",
-    textTransform: "uppercase",
-    margin: "0 0 8px",
-  },
-  valueRow: {
-    display: "flex",
-    alignItems: "baseline",
-    gap: "4px",
-  },
-  value: {
-    fontSize: "28px",
-    fontWeight: "800",
-    color: COLORS.textPrimary,
-    letterSpacing: "-0.02em",
-  },
-  unit: {
-    fontSize: "14px",
-    color: COLORS.textTertiary,
-    fontWeight: "500",
-  },
-  badge: {
-    display: "inline-block",
-    marginTop: "8px",
-    padding: "3px 10px",
-    borderRadius: "99px",
-    fontSize: "11px",
-    fontWeight: "600",
-  },
+const glassCard = {
+  background: glassBg,
+  backdropFilter: "blur(10px)",
+  WebkitBackdropFilter: "blur(10px)",
+  borderRadius: "14px",
+  padding: "20px",
+  border: glassBorder,
+  boxShadow: glassShadow,
+};
+
+const labelStyle = {
+  fontSize: "11px",
+  fontWeight: "600",
+  color: COLORS.textTertiary,
+  letterSpacing: "0.06em",
+  textTransform: "uppercase",
+  margin: "0 0 8px",
+};
+
+const valueStyle = {
+  fontSize: "28px",
+  fontWeight: "800",
+  color: COLORS.textPrimary,
+  letterSpacing: "-0.02em",
+};
+
+const unitStyle = {
+  fontSize: "14px",
+  color: COLORS.textTertiary,
+  fontWeight: "500",
+};
+
+const badgeStyle = {
+  display: "inline-block",
+  marginTop: "8px",
+  padding: "3px 10px",
+  borderRadius: "99px",
+  fontSize: "11px",
+  fontWeight: "600",
 };
 
 const InputField = ({ label, name, value, onChange, type = "number", placeholder, min, max, step = "0.1" }) => (
@@ -109,10 +111,10 @@ const InputField = ({ label, name, value, onChange, type = "number", placeholder
       type={type} name={name} value={value} onChange={onChange}
       placeholder={placeholder} min={min} max={max} step={step}
       style={{
-        border: `1px solid ${COLORS.borderLight}`, borderRadius: "10px", padding: "10px 14px",
+        border: `2px solid ${COLORS.borderSoft}`, borderRadius: "12px", padding: "12px 14px",
         fontSize: "14px", fontWeight: "500", color: COLORS.textPrimary,
-        outline: "none", background: COLORS.white, width: "100%", boxSizing: "border-box",
-        fontFamily: "inherit",
+        outline: "none", background: "rgba(255,255,255,0.6)", width: "100%", boxSizing: "border-box",
+        fontFamily: "inherit", backdropFilter: "blur(10px)",
       }}
     />
   </div>
@@ -134,6 +136,9 @@ export default function Dashboard() {
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [toast, setToast] = useState(null);
+  const [currentTime, setCurrentTime] = useState(new Date());
+  const [habitsMode, setHabitsMode] = useState("number"); // "number" or "text"
+  const [habitsNote, setHabitsNote] = useState("");
 
   const today = new Date().toISOString().split("T")[0];
   const emptyForm = {
@@ -143,6 +148,12 @@ export default function Dashboard() {
     water_glasses: "", sleep_hours: "",
   };
   const [form, setForm] = useState(emptyForm);
+
+  // Real-time clock
+  useEffect(() => {
+    const timer = setInterval(() => setCurrentTime(new Date()), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const init = async () => {
@@ -200,6 +211,7 @@ export default function Dashboard() {
       exercise_minutes: form.exercise_minutes ? parseInt(form.exercise_minutes) : null,
       water_glasses: form.water_glasses ? parseInt(form.water_glasses) : null,
       sleep_hours: form.sleep_hours ? parseFloat(form.sleep_hours) : null,
+      habits_note: habitsMode === "text" ? habitsNote : null,
     };
 
     const { error } = await supabase
@@ -237,9 +249,10 @@ export default function Dashboard() {
     .map(l => ({
       date: fmt(l.date),
       Berat: l.weight,
-      Tidur: l.sleep_hours,
-      Olahraga: l.exercise_minutes,
     }));
+
+  const timeStr = currentTime.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+  const dateStr = currentTime.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
   if (loading) return (
     <div style={loadingStyles.container}>
@@ -258,8 +271,11 @@ export default function Dashboard() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             style={{
-              ...toastStyles.base,
+              position: "fixed", top: 20, right: 20, zIndex: 9999,
               background: toast.type === "error" ? "#DC2626" : COLORS.greenSage,
+              color: "white", borderRadius: "12px", padding: "12px 20px",
+              fontWeight: "500", fontSize: "14px",
+              boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
             }}
           >
             {toast.msg}
@@ -270,16 +286,18 @@ export default function Dashboard() {
       {/* Header */}
       <div style={styles.header}>
         <div>
-          <p style={styles.greeting}>Selamat datang kembali,</p>
+          <p style={styles.greeting}>SELAMAT DATANG KEMBALI,</p>
           <h1 style={styles.userName}>{profile?.full_name || "User"} 🌿</h1>
         </div>
-        <div style={styles.headerButtons}>
-          <button onClick={() => navigate("/chat")} style={styles.chatBtn}>
-            Chat
-          </button>
-          <button onClick={handleLogout} style={styles.logoutBtn}>
-            Logout
-          </button>
+        <div style={styles.headerRight}>
+          <div style={styles.timeDisplay}>
+            <p style={styles.timeText}>{timeStr}</p>
+            <p style={styles.dateText}>{dateStr}</p>
+          </div>
+          <div style={styles.headerButtons}>
+            <button onClick={() => navigate("/chat")} style={styles.chatBtn}>Chat</button>
+            <button onClick={handleLogout} style={styles.logoutBtn}>Logout</button>
+          </div>
         </div>
       </div>
 
@@ -310,10 +328,14 @@ export default function Dashboard() {
         {activeTab === "overview" && (
           <div style={styles.tabContent}>
             {!latest && (
-              <div style={styles.emptyState}>
-                <p style={styles.emptyTitle}>Belum ada data kesehatan</p>
-                <p style={styles.emptyDesc}>Mulai catat data kesehatanmu untuk melihat overview</p>
-                <button onClick={() => setActiveTab("input")} style={styles.emptyBtn}>
+              <div style={glassCard}>
+                <p style={{ fontWeight: "700", fontSize: "16px", color: COLORS.textPrimary, margin: "0 0 8px" }}>
+                  Belum ada data kesehatan
+                </p>
+                <p style={{ color: COLORS.textTertiary, margin: "0 0 20px", fontSize: "14px" }}>
+                  Mulai catat data kesehatanmu untuk melihat overview
+                </p>
+                <button onClick={() => setActiveTab("input")} style={styles.greenBtn}>
                   Input Data Sekarang
                 </button>
               </div>
@@ -322,7 +344,7 @@ export default function Dashboard() {
             {latest && (
               <>
                 <section>
-                  <p style={styles.sectionLabel}>Data Terakhir — {fmt(latest.date)}</p>
+                  <p style={sectionLabel}>Data Terakhir — {fmt(latest.date)}</p>
                   <div style={styles.metricGrid}>
                     <MetricCard label="Berat Badan" value={latest.weight} unit="kg" />
                     <MetricCard label="Tinggi Badan" value={latest.height} unit="cm" />
@@ -334,7 +356,7 @@ export default function Dashboard() {
                 </section>
 
                 <section>
-                  <p style={styles.sectionLabel}>Kebiasaan Harian</p>
+                  <p style={sectionLabel}>Kebiasaan Harian</p>
                   <div style={styles.habitsGrid}>
                     {[
                       { label: "Air Putih", val: `${latest.water_glasses ?? 0}/8`, ok: (latest.water_glasses ?? 0) >= 8 },
@@ -343,11 +365,11 @@ export default function Dashboard() {
                       { label: "Kopi", val: `${latest.coffee_cups ?? 0}/3`, ok: (latest.coffee_cups ?? 0) <= 3 },
                     ].map(item => (
                       <div key={item.label} style={{
-                        ...styles.habitItem,
-                        borderColor: item.ok ? COLORS.greenSage : COLORS.borderSoft,
+                        ...glassCard,
+                        borderLeft: `3px solid ${item.ok ? COLORS.greenSage : COLORS.borderSoft}`,
                       }}>
-                        <span style={styles.habitLabel}>{item.label}</span>
-                        <span style={{ ...styles.habitValue, color: item.ok ? COLORS.greenSage : COLORS.textTertiary }}>
+                        <span style={{ fontSize: "12px", color: COLORS.textTertiary, fontWeight: "500" }}>{item.label}</span>
+                        <span style={{ fontSize: "16px", fontWeight: "700", color: item.ok ? COLORS.greenSage : COLORS.textTertiary }}>
                           {item.val}
                         </span>
                       </div>
@@ -357,8 +379,8 @@ export default function Dashboard() {
 
                 {chartData.length > 1 && (
                   <section>
-                    <p style={styles.sectionLabel}>Tren 14 Hari</p>
-                    <div style={styles.chartCard}>
+                    <p style={sectionLabel}>Tren 14 Hari</p>
+                    <div style={glassCard}>
                       <ResponsiveContainer width="100%" height={180}>
                         <LineChart data={chartData} margin={{ top: 5, right: 16, left: -20, bottom: 0 }}>
                           <CartesianGrid strokeDasharray="3 3" stroke={COLORS.borderSoft} />
@@ -373,14 +395,12 @@ export default function Dashboard() {
                 )}
 
                 {/* Saran Edelweys */}
-                <div style={styles.saranCard}>
-                  <div style={styles.saranHeader}>
-                    <div style={styles.saranAvatar}>
-                      <img src={logo} alt="E" style={{ width: "18px", height: "18px" }} />
-                    </div>
-                    <span style={styles.saranLabel}>SARAN EDELWEYS</span>
+                <div style={saranCard}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "12px" }}>
+                    <img src={logo} alt="E" style={{ width: "28px", height: "28px", borderRadius: "8px" }} />
+                    <span style={{ fontSize: "11px", fontWeight: "600", color: COLORS.greenSage, letterSpacing: "0.08em" }}>SARAN EDELWEYS</span>
                   </div>
-                  <p style={styles.saranText}>
+                  <p style={{ fontSize: "14px", color: COLORS.borderLight, lineHeight: "1.6", margin: 0 }}>
                     {latest.water_glasses < 8
                       ? "Jangan lupa minum air putih yang cukup ya! Target 8 gelas sehari."
                       : latest.exercise_minutes < 30
@@ -389,7 +409,7 @@ export default function Dashboard() {
                   </p>
                 </div>
 
-                <button onClick={() => setActiveTab("input")} style={styles.fullBtn}>
+                <button onClick={() => setActiveTab("input")} style={styles.greenBtn}>
                   Update Data Hari Ini
                 </button>
               </>
@@ -400,20 +420,28 @@ export default function Dashboard() {
         {/* INPUT TAB */}
         {activeTab === "input" && (
           <div style={styles.tabContent}>
-            <div style={styles.inputBanner}>
-              <p style={styles.inputBannerTitle}>Catat kondisi kesehatanmu hari ini</p>
-              <p style={styles.inputBannerDesc}>Data yang kamu isi membantu Edelweys memberikan saran personal</p>
+            <div style={{ ...glassCard, background: "rgba(107, 145, 98, 0.1)", border: `1px solid rgba(107, 145, 98, 0.3)` }}>
+              <p style={{ margin: 0, fontWeight: "600", color: COLORS.textPrimary, fontSize: "14px" }}>
+                Catat kondisi kesehatanmu hari ini
+              </p>
+              <p style={{ margin: "4px 0 0", fontSize: "13px", color: COLORS.textTertiary }}>
+                Data yang kamu isi membantu Edelweys memberikan saran personal
+              </p>
             </div>
 
-            <div style={styles.inputGroup}>
-              <label style={styles.inputLabel}>Tanggal</label>
+            <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+              <label style={{ fontSize: "12px", fontWeight: "600", color: COLORS.textPrimary }}>Tanggal</label>
               <input type="date" name="date" value={form.date} onChange={handleChange}
-                style={styles.dateInput}
+                style={{
+                  border: `2px solid ${COLORS.borderSoft}`, borderRadius: "12px", padding: "12px 14px",
+                  fontSize: "14px", color: COLORS.textPrimary, background: "rgba(255,255,255,0.6)",
+                  fontFamily: "inherit", backdropFilter: "blur(10px)",
+                }}
               />
             </div>
 
             <div>
-              <p style={styles.sectionLabel}>1. Data Tubuh</p>
+              <p style={sectionLabel}>1. Data Tubuh</p>
               <div style={styles.inputGrid}>
                 <InputField label="Berat Badan (kg)" name="weight" value={form.weight}
                   onChange={handleChange} placeholder="65" min={30} max={200} />
@@ -423,7 +451,7 @@ export default function Dashboard() {
             </div>
 
             <div>
-              <p style={styles.sectionLabel}>2. Tekanan Darah <span style={{ color: COLORS.textTertiary, fontWeight: 400 }}>(opsional)</span></p>
+              <p style={sectionLabel}>2. Tekanan Darah <span style={{ color: COLORS.textTertiary, fontWeight: 400 }}>(opsional)</span></p>
               <div style={styles.inputGrid}>
                 <InputField label="Sistolik" name="systolic" value={form.systolic}
                   onChange={handleChange} placeholder="120" min={60} max={200} step={1} />
@@ -433,24 +461,71 @@ export default function Dashboard() {
             </div>
 
             <div>
-              <p style={styles.sectionLabel}>3. Kebiasaan Harian</p>
-              <div style={styles.inputGrid}>
-                <InputField label="Air Putih (gelas)" name="water_glasses" value={form.water_glasses}
-                  onChange={handleChange} placeholder="8" min={0} max={20} step={1} />
-                <InputField label="Kopi (cangkir)" name="coffee_cups" value={form.coffee_cups}
-                  onChange={handleChange} placeholder="1" min={0} max={10} step={1} />
-                <InputField label="Olahraga (menit)" name="exercise_minutes" value={form.exercise_minutes}
-                  onChange={handleChange} placeholder="30" min={0} max={300} step={5} />
-                <InputField label="Tidur (jam)" name="sleep_hours" value={form.sleep_hours}
-                  onChange={handleChange} placeholder="8" min={0} max={12} step={0.5} />
+              <p style={sectionLabel}>3. Kebiasaan Harian</p>
+
+              {/* Mode Toggle */}
+              <div style={styles.modeToggle}>
+                <button
+                  onClick={() => setHabitsMode("number")}
+                  style={{
+                    ...styles.modeBtn,
+                    background: habitsMode === "number" ? COLORS.greenSage : "transparent",
+                    color: habitsMode === "number" ? COLORS.white : COLORS.textSecondary,
+                  }}
+                >
+                  Angka
+                </button>
+                <button
+                  onClick={() => setHabitsMode("text")}
+                  style={{
+                    ...styles.modeBtn,
+                    background: habitsMode === "text" ? COLORS.greenSage : "transparent",
+                    color: habitsMode === "text" ? COLORS.white : COLORS.textSecondary,
+                  }}
+                >
+                  Catatan
+                </button>
               </div>
+
+              {habitsMode === "number" ? (
+                <div style={styles.inputGrid}>
+                  <InputField label="Air Putih (gelas)" name="water_glasses" value={form.water_glasses}
+                    onChange={handleChange} placeholder="8" min={0} max={20} step={1} />
+                  <InputField label="Kopi (cangkir)" name="coffee_cups" value={form.coffee_cups}
+                    onChange={handleChange} placeholder="1" min={0} max={10} step={1} />
+                  <InputField label="Olahraga (menit)" name="exercise_minutes" value={form.exercise_minutes}
+                    onChange={handleChange} placeholder="30" min={0} max={300} step={5} />
+                  <InputField label="Tidur (jam)" name="sleep_hours" value={form.sleep_hours}
+                    onChange={handleChange} placeholder="8" min={0} max={12} step={0.5} />
+                </div>
+              ) : (
+                <textarea
+                  value={habitsNote}
+                  onChange={(e) => setHabitsNote(e.target.value)}
+                  placeholder="Tulis catatan kebiasaan harianmu hari ini..."
+                  style={{
+                    width: "100%",
+                    minHeight: "120px",
+                    border: `2px solid ${COLORS.borderSoft}`,
+                    borderRadius: "12px",
+                    padding: "14px",
+                    fontSize: "14px",
+                    fontFamily: "inherit",
+                    resize: "vertical",
+                    background: "rgba(255,255,255,0.6)",
+                    color: COLORS.textPrimary,
+                    outline: "none",
+                    boxSizing: "border-box",
+                  }}
+                />
+              )}
             </div>
 
-            <button onClick={handleSubmit} disabled={saving} style={styles.submitBtn}>
+            <button onClick={handleSubmit} disabled={saving} style={styles.greenBtn}>
               {saving ? "Menyimpan..." : "Simpan Data Kesehatan"}
             </button>
 
-            <button onClick={() => setForm(emptyForm)} style={styles.resetBtn}>
+            <button onClick={() => { setForm(emptyForm); setHabitsNote(""); }} style={styles.resetBtn}>
               Reset form
             </button>
           </div>
@@ -459,22 +534,24 @@ export default function Dashboard() {
         {/* HISTORY TAB */}
         {activeTab === "history" && (
           <div style={styles.tabContent}>
-            <p style={styles.sectionLabel}>Riwayat Kesehatan ({logs.length} catatan)</p>
+            <p style={sectionLabel}>Riwayat Kesehatan ({logs.length} catatan)</p>
             {logs.length === 0 && (
-              <p style={{ color: COLORS.textTertiary, textAlign: "center", padding: "30px 0" }}>
-                Belum ada riwayat.
-              </p>
+              <div style={glassCard}>
+                <p style={{ color: COLORS.textTertiary, textAlign: "center", padding: "20px 0" }}>
+                  Belum ada riwayat.
+                </p>
+              </div>
             )}
             {logs.map((log, i) => {
               const bmi = log.bmi ?? calcBMI(log.weight, log.height);
               const bi = bmiCategory(bmi);
               return (
-                <div key={log.id ?? i} style={styles.historyCard}>
-                  <div style={styles.historyHeader}>
-                    <span style={styles.historyDate}>{fmt(log.date)}</span>
+                <div key={log.id ?? i} style={glassCard}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+                    <span style={{ fontWeight: "600", color: COLORS.textPrimary, fontSize: "14px" }}>{fmt(log.date)}</span>
                     {i === 0 && <Chip label="Terbaru" />}
                   </div>
-                  <div style={styles.historyChips}>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
                     {log.weight && <Chip label={`${log.weight} kg`} />}
                     {log.height && <Chip label={`${log.height} cm`} />}
                     {bmi && <Chip label={`BMI ${bmi}`} color={bi.color} bg={bi.bg} />}
@@ -501,12 +578,36 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-start",
+    flexWrap: "wrap",
+    gap: "16px",
+  },
+  headerRight: {
+    display: "flex",
+    alignItems: "center",
+    gap: "16px",
+    flexWrap: "wrap",
+  },
+  timeDisplay: {
+    textAlign: "right",
+  },
+  timeText: {
+    fontSize: "24px",
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    margin: 0,
+    letterSpacing: "-0.02em",
+    fontVariantNumeric: "tabular-nums",
+  },
+  dateText: {
+    fontSize: "12px",
+    color: COLORS.textTertiary,
+    margin: 0,
   },
   greeting: {
-    fontSize: "13px",
+    fontSize: "11px",
     color: COLORS.textTertiary,
-    fontWeight: "500",
-    letterSpacing: "0.06em",
+    fontWeight: "600",
+    letterSpacing: "0.08em",
     textTransform: "uppercase",
     margin: "0 0 4px",
   },
@@ -522,20 +623,21 @@ const styles = {
     gap: "8px",
   },
   chatBtn: {
-    padding: "8px 16px",
-    borderRadius: "99px",
-    border: `1px solid ${COLORS.borderSoft}`,
-    background: COLORS.white,
+    padding: "10px 18px",
+    borderRadius: "10px",
+    border: glassBorder,
+    background: "rgba(255,255,255,0.5)",
     color: COLORS.textPrimary,
     fontSize: "13px",
-    fontWeight: "500",
+    fontWeight: "600",
     cursor: "pointer",
+    backdropFilter: "blur(10px)",
   },
   logoutBtn: {
-    padding: "8px 16px",
-    borderRadius: "99px",
+    padding: "10px 18px",
+    borderRadius: "10px",
     border: "none",
-    background: "#FEE2E2",
+    background: "rgba(239, 68, 68, 0.1)",
     color: "#DC2626",
     fontSize: "13px",
     fontWeight: "500",
@@ -545,20 +647,24 @@ const styles = {
     display: "flex",
     gap: "4px",
     padding: "20px 24px 0",
-    background: COLORS.white,
-    borderRadius: "99px",
+    background: glassBg,
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderRadius: "16px",
     margin: "16px 24px 0",
-    border: `1px solid ${COLORS.borderSoft}`,
+    border: glassBorder,
+    boxShadow: glassShadow,
     width: "fit-content",
   },
   tab: {
     padding: "10px 20px",
-    borderRadius: "99px",
+    borderRadius: "12px",
     border: "none",
     fontSize: "13px",
     fontWeight: "600",
     cursor: "pointer",
     transition: "all 0.2s",
+    fontFamily: "inherit",
   },
   content: {
     maxWidth: "800px",
@@ -570,14 +676,6 @@ const styles = {
     flexDirection: "column",
     gap: "20px",
   },
-  sectionLabel: {
-    fontSize: "11px",
-    fontWeight: "600",
-    color: COLORS.textTertiary,
-    letterSpacing: "0.06em",
-    textTransform: "uppercase",
-    margin: "0 0 12px",
-  },
   metricGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
@@ -586,150 +684,36 @@ const styles = {
   habitsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(2, 1fr)",
-    gap: "8px",
-  },
-  habitItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "12px 14px",
-    background: COLORS.white,
-    borderRadius: "10px",
-    border: `1px solid ${COLORS.borderSoft}`,
-  },
-  habitLabel: {
-    fontSize: "13px",
-    color: COLORS.textSecondary,
-    fontWeight: "500",
-  },
-  habitValue: {
-    fontSize: "14px",
-    fontWeight: "700",
-  },
-  chartCard: {
-    background: COLORS.white,
-    borderRadius: "12px",
-    padding: "16px",
-    border: `1px solid ${COLORS.borderSoft}`,
-  },
-  saranCard: {
-    background: COLORS.greenDeep,
-    borderRadius: "12px",
-    padding: "20px",
-  },
-  saranHeader: {
-    display: "flex",
-    alignItems: "center",
     gap: "10px",
-    marginBottom: "12px",
-  },
-  saranAvatar: {
-    width: "28px",
-    height: "28px",
-    background: COLORS.greenSage,
-    borderRadius: "8px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "12px",
-    fontWeight: "700",
-    color: COLORS.white,
-  },
-  saranLabel: {
-    fontSize: "10px",
-    fontWeight: "600",
-    color: COLORS.greenSage,
-    letterSpacing: "0.1em",
-  },
-  saranText: {
-    fontSize: "14px",
-    color: COLORS.borderLight,
-    lineHeight: "1.6",
-    margin: 0,
-  },
-  fullBtn: {
-    padding: "14px",
-    borderRadius: "10px",
-    border: "none",
-    background: COLORS.greenForest,
-    color: COLORS.white,
-    fontSize: "14px",
-    fontWeight: "600",
-    cursor: "pointer",
-    width: "100%",
-  },
-  emptyState: {
-    textAlign: "center",
-    padding: "48px 20px",
-    background: COLORS.white,
-    borderRadius: "12px",
-    border: `1px dashed ${COLORS.borderLight}`,
-  },
-  emptyTitle: {
-    fontWeight: "700",
-    fontSize: "16px",
-    color: COLORS.textPrimary,
-    margin: "0 0 8px",
-  },
-  emptyDesc: {
-    color: COLORS.textTertiary,
-    margin: "0 0 20px",
-    fontSize: "14px",
-  },
-  emptyBtn: {
-    padding: "10px 20px",
-    borderRadius: "99px",
-    border: "none",
-    background: COLORS.greenSage,
-    color: COLORS.white,
-    fontSize: "14px",
-    fontWeight: "600",
-    cursor: "pointer",
-  },
-  inputBanner: {
-    background: "#F0FDF4",
-    borderRadius: "10px",
-    padding: "14px 16px",
-    border: `1px solid ${COLORS.borderSoft}`,
-  },
-  inputBannerTitle: {
-    margin: 0,
-    fontWeight: "600",
-    color: COLORS.textPrimary,
-    fontSize: "14px",
-  },
-  inputBannerDesc: {
-    margin: "4px 0 0",
-    fontSize: "13px",
-    color: COLORS.textTertiary,
-  },
-  inputGroup: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "6px",
-  },
-  inputLabel: {
-    fontSize: "12px",
-    fontWeight: "600",
-    color: COLORS.textPrimary,
-  },
-  dateInput: {
-    border: `1px solid ${COLORS.borderLight}`,
-    borderRadius: "10px",
-    padding: "10px 14px",
-    fontSize: "14px",
-    color: COLORS.textPrimary,
-    background: COLORS.white,
-    fontFamily: "inherit",
   },
   inputGrid: {
     display: "grid",
     gridTemplateColumns: "1fr 1fr",
     gap: "12px",
   },
-  submitBtn: {
-    padding: "14px",
+  modeToggle: {
+    display: "flex",
+    gap: "4px",
+    padding: "4px",
+    background: "rgba(255,255,255,0.5)",
+    borderRadius: "12px",
+    marginBottom: "12px",
+    border: glassBorder,
+  },
+  modeBtn: {
+    flex: 1,
+    padding: "8px 12px",
     borderRadius: "10px",
+    border: "none",
+    fontSize: "13px",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "all 0.2s",
+    fontFamily: "inherit",
+  },
+  greenBtn: {
+    padding: "14px",
+    borderRadius: "12px",
     border: "none",
     background: COLORS.greenSage,
     color: COLORS.white,
@@ -747,28 +731,21 @@ const styles = {
     cursor: "pointer",
     textDecoration: "underline",
   },
-  historyCard: {
-    background: COLORS.white,
-    borderRadius: "12px",
-    padding: "16px",
-    border: `1px solid ${COLORS.borderSoft}`,
-  },
-  historyHeader: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginBottom: "10px",
-  },
-  historyDate: {
-    fontWeight: "600",
-    color: COLORS.textPrimary,
-    fontSize: "14px",
-  },
-  historyChips: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "6px",
-  },
+};
+
+const saranCard = {
+  ...glassCard,
+  background: COLORS.greenDeep,
+  border: "none",
+};
+
+const sectionLabel = {
+  fontSize: "11px",
+  fontWeight: "600",
+  color: COLORS.textTertiary,
+  letterSpacing: "0.06em",
+  textTransform: "uppercase",
+  margin: "0 0 12px",
 };
 
 const loadingStyles = {
@@ -798,20 +775,5 @@ const loadingStyles = {
     color: COLORS.textTertiary,
     fontWeight: "500",
     fontSize: "14px",
-  },
-};
-
-const toastStyles = {
-  base: {
-    position: "fixed",
-    top: 20,
-    right: 20,
-    zIndex: 9999,
-    color: "white",
-    borderRadius: "10px",
-    padding: "12px 20px",
-    fontWeight: "500",
-    fontSize: "14px",
-    boxShadow: "0 4px 16px rgba(0,0,0,0.15)",
   },
 };

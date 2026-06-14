@@ -177,17 +177,90 @@ export default function Chat() {
   };
 
   const formatMessage = (text) => {
+    // Check if text contains table (lines starting with |)
+    const lines = text.split('\n');
+    const hasTable = lines.some(l => l.trim().startsWith('|'));
+
+    if (hasTable) {
+      // Parse table
+      const tableLines = [];
+      const otherLines = [];
+      let inTable = false;
+
+      lines.forEach((line, i) => {
+        const trimmed = line.trim();
+        if (trimmed.startsWith('|')) {
+          inTable = true;
+          // Skip separator lines (|---|---|)
+          if (!trimmed.match(/^\|[\s-]+\|$/)) {
+            tableLines.push(trimmed);
+          }
+        } else {
+          if (inTable) inTable = false;
+          otherLines.push({ line, index: i });
+        }
+      });
+
+      // Parse table rows
+      const rows = tableLines.map(row =>
+        row.split('|').filter(cell => cell.trim()).map(cell => cell.trim())
+      );
+
+      const result = [];
+
+      // Add lines before table
+      otherLines.filter(o => o.index < lines.findIndex(l => l.trim().startsWith('|'))).forEach(o => {
+        result.push(<span key={`pre-${o.index}`}>{formatInline(o.line)}<br /></span>);
+      });
+
+      // Add table
+      if (rows.length > 0) {
+        result.push(
+          <table key="table" style={styles.chatTable}>
+            <thead>
+              <tr>
+                {rows[0].map((cell, ci) => (
+                  <th key={ci} style={styles.chatTh}>{formatInline(cell)}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {rows.slice(1).map((row, ri) => (
+                <tr key={ri}>
+                  {row.map((cell, ci) => (
+                    <td key={ci} style={styles.chatTd}>{formatInline(cell)}</td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        );
+      }
+
+      // Add lines after table
+      otherLines.filter(o => o.index > lines.findLastIndex(l => l.trim().startsWith('|'))).forEach(o => {
+        result.push(<span key={`post-${o.index}`}>{formatInline(o.line)}<br /></span>);
+      });
+
+      return result;
+    }
+
+    // No table - just format inline
+    return lines.map((line, i) => (
+      <span key={i}>
+        {formatInline(line)}
+        {i < lines.length - 1 && <br />}
+      </span>
+    ));
+  };
+
+  const formatInline = (text) => {
     const parts = text.split(/(\*\*[^*]+\*\*)/g);
     return parts.map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
         return <strong key={i}>{part.slice(2, -2)}</strong>;
       }
-      return part.split('\n').map((line, j) => (
-        <span key={`${i}-${j}`}>
-          {line}
-          {j < part.split('\n').length - 1 && <br />}
-        </span>
-      ));
+      return part;
     });
   };
 
@@ -206,7 +279,7 @@ export default function Chat() {
             <div style={styles.sidebarContent}>
               {/* Logo */}
               <div style={styles.sidebarHeader}>
-                <img src={logo} alt="Edelweys" style={{ height: "28px" }} />
+                <img src={logo} alt="Edelweys" style={{ height: "36px" }} />
               </div>
 
               {/* New Chat Button */}
@@ -768,6 +841,26 @@ const styles = {
     height: "8px",
     borderRadius: "50%",
     background: COLORS.greenSage,
+  },
+  chatTable: {
+    borderCollapse: "collapse",
+    width: "100%",
+    margin: "8px 0",
+    fontSize: "13px",
+  },
+  chatTh: {
+    background: "rgba(107, 145, 98, 0.1)",
+    border: `1px solid ${COLORS.borderSoft}`,
+    padding: "8px 12px",
+    textAlign: "left",
+    fontWeight: "600",
+    color: COLORS.textPrimary,
+  },
+  chatTd: {
+    border: `1px solid ${COLORS.borderSoft}`,
+    padding: "8px 12px",
+    textAlign: "left",
+    color: COLORS.textPrimary,
   },
 
   // Input Area
