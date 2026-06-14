@@ -53,6 +53,22 @@ export default function Chat() {
           .single();
         setProfile(prof);
         setEditForm({ full_name: prof?.full_name || "", username: prof?.username || "" });
+
+        // Load chat history from database
+        const { data: chats } = await supabase
+          .from("chat_history")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .order("created_at", { ascending: false })
+          .limit(20);
+        if (chats) {
+          setChatHistory(chats.map(c => ({
+            id: c.id,
+            title: c.title || "Obrolan",
+            messages: c.messages || [],
+            time: new Date(c.created_at).toLocaleDateString("id-ID"),
+          })));
+        }
       }
     };
     checkAuth();
@@ -63,16 +79,24 @@ export default function Chat() {
   }, [messages]);
 
   const startNewChat = () => {
-    if (messages.length > 1) {
+    if (messages.length > 1 && userId) {
+      // Save current chat to database
       const firstUserMsg = messages.find(m => m.role === "user");
       const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) : "Obrolan baru";
-      const newHistory = {
-        id: Date.now(),
+      supabase.from("chat_history").insert({
+        user_id: userId,
         title: title,
-        messages: [...messages],
-        time: "Baru saja",
-      };
-      setChatHistory(prev => [newHistory, ...prev]);
+        messages: messages,
+      }).then(({ data }) => {
+        if (data) {
+          setChatHistory(prev => [{
+            id: data.id,
+            title: title,
+            messages: [...messages],
+            time: "Baru saja",
+          }, ...prev]);
+        }
+      });
     }
     setMessages([
       {
@@ -153,13 +177,11 @@ export default function Chat() {
   };
 
   const formatMessage = (text) => {
-    // Parse markdown bold (**text**) and other formatting
     const parts = text.split(/(\*\*[^*]+\*\*)/g);
     return parts.map((part, i) => {
       if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={i} style={{ fontWeight: 700 }}>{part.slice(2, -2)}</strong>;
+        return <strong key={i}>{part.slice(2, -2)}</strong>;
       }
-      // Handle line breaks
       return part.split('\n').map((line, j) => (
         <span key={`${i}-${j}`}>
           {line}
@@ -176,15 +198,15 @@ export default function Chat() {
         {sidebarOpen && (
           <motion.div
             style={styles.sidebar}
-            initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 200, opacity: 1 }}
-            exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            initial={{ x: -280, opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
+            exit={{ x: -280, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 200 }}
           >
             <div style={styles.sidebarContent}>
               {/* Logo */}
               <div style={styles.sidebarHeader}>
-                <img src={logo} alt="Edelweys" style={{ height: "24px" }} />
+                <img src={logo} alt="Edelweys" style={{ height: "22px" }} />
               </div>
 
               {/* New Chat Button */}
@@ -192,24 +214,34 @@ export default function Chat() {
                 + Obrolan Baru
               </button>
 
-              {/* Chat History */}
-              <div style={styles.historySection}>
-                {chatHistory.length > 0 && (
+              {/* Guest Warning */}
+              {!userId && (
+                <div style={styles.guestWarning}>
+                  <p style={styles.guestWarningText}>
+                    Login untuk menyimpan riwayat chat
+                  </p>
+                </div>
+              )}
+
+              {/* Chat History - only for logged in users */}
+              {userId && chatHistory.length > 0 && (
+                <div style={styles.historySection}>
                   <p style={styles.historyLabel}>Riwayat</p>
-                )}
-                {chatHistory.map((chat) => (
-                  <div
-                    key={chat.id}
-                    style={{
-                      ...styles.historyItem,
-                      background: activeChatId === chat.id ? "rgba(107, 145, 98, 0.2)" : "transparent",
-                    }}
-                    onClick={() => loadChat(chat)}
-                  >
-                    <p style={styles.historyTitle}>{chat.title}</p>
-                  </div>
-                ))}
-              </div>
+                  {chatHistory.map((chat) => (
+                    <div
+                      key={chat.id}
+                      style={{
+                        ...styles.historyItem,
+                        background: activeChatId === chat.id ? "rgba(107, 145, 98, 0.2)" : "transparent",
+                      }}
+                      onClick={() => loadChat(chat)}
+                    >
+                      <p style={styles.historyTitle}>{chat.title}</p>
+                      <p style={styles.historyTime}>{chat.time}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {/* Bottom Section */}
               <div style={styles.sidebarBottom}>
@@ -227,12 +259,11 @@ export default function Chat() {
                     {userId && <p style={styles.profileHint}>Klik untuk edit</p>}
                   </div>
                 </div>
-                {userId && (
+                {userId ? (
                   <button onClick={handleLogout} style={styles.logoutBtn}>
                     Logout
                   </button>
-                )}
-                {!userId && (
+                ) : (
                   <button onClick={() => navigate("/login")} style={styles.loginBtn}>
                     Login
                   </button>
@@ -254,7 +285,7 @@ export default function Chat() {
               </svg>
             </button>
             <div style={styles.chatAvatar}>
-              <img src={logo} alt="E" style={{ width: "24px", height: "24px" }} />
+              <img src={logo} alt="E" style={{ width: "24px", height: "24px", borderRadius: "6px" }} />
             </div>
             <div style={styles.chatHeaderInfo}>
               <p style={styles.chatName}>Edelweys</p>
@@ -265,6 +296,17 @@ export default function Chat() {
             Dashboard
           </button>
         </div>
+
+        {/* Guest Banner */}
+        {!userId && (
+          <div style={styles.guestBanner}>
+            <span>⚠️</span>
+            <p style={styles.guestBannerText}>
+              Kamu belum login. Riwayat chat tidak akan tersimpan.{" "}
+              <span style={styles.guestBannerLink} onClick={() => navigate("/login")}>Login sekarang</span>
+            </p>
+          </div>
+        )}
 
         {/* Messages */}
         <div style={styles.messages}>
@@ -278,7 +320,7 @@ export default function Chat() {
             >
               {msg.role === "assistant" && (
                 <div style={styles.botAvatar}>
-                  <img src={logo} alt="E" style={{ width: "18px", height: "18px" }} />
+                  <img src={logo} alt="E" style={{ width: "18px", height: "18px", borderRadius: "4px" }} />
                 </div>
               )}
               <div
@@ -299,13 +341,13 @@ export default function Chat() {
           <AnimatePresence>
             {isTyping && (
               <motion.div
-                style={styles.messageRow}
+                style={{ ...styles.messageRow, justifyContent: "flex-start" }}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
               >
                 <div style={styles.botAvatar}>
-                  <img src={logo} alt="E" style={{ width: "18px", height: "18px" }} />
+                  <img src={logo} alt="E" style={{ width: "18px", height: "18px", borderRadius: "4px" }} />
                 </div>
                 <div style={styles.typingBubble}>
                   <div style={styles.typingDots}>
@@ -341,7 +383,9 @@ export default function Chat() {
               }}
               disabled={loading || !input.trim()}
             >
-              {loading ? "..." : "Kirim"}
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" />
+              </svg>
             </button>
           </div>
         </div>
@@ -359,9 +403,9 @@ export default function Chat() {
           >
             <motion.div
               style={styles.modal}
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
             >
               <h3 style={styles.modalTitle}>Edit Profile</h3>
@@ -387,16 +431,10 @@ export default function Chat() {
               </div>
 
               <div style={styles.modalActions}>
-                <button
-                  onClick={() => setShowProfileEdit(false)}
-                  style={styles.modalCancelBtn}
-                >
+                <button onClick={() => setShowProfileEdit(false)} style={styles.modalCancelBtn}>
                   Batal
                 </button>
-                <button
-                  onClick={handleSaveProfile}
-                  style={styles.modalSaveBtn}
-                >
+                <button onClick={handleSaveProfile} style={styles.modalSaveBtn}>
                   Simpan
                 </button>
               </div>
@@ -418,6 +456,10 @@ export default function Chat() {
   );
 }
 
+const glassBg = "rgba(255, 255, 255, 0.7)";
+const glassBorder = "1px solid rgba(255, 255, 255, 0.5)";
+const glassShadow = "0 8px 32px rgba(30, 51, 25, 0.08)";
+
 const styles = {
   container: {
     display: "flex",
@@ -435,85 +477,101 @@ const styles = {
 
   // Sidebar
   sidebar: {
+    width: "260px",
     height: "100%",
     background: COLORS.greenDeep,
-    overflow: "hidden",
     flexShrink: 0,
+    zIndex: 20,
   },
   sidebarContent: {
-    width: "200px",
+    width: "260px",
     height: "100%",
     display: "flex",
     flexDirection: "column",
   },
   sidebarHeader: {
-    padding: "20px 16px",
+    padding: "20px",
     borderBottom: "1px solid rgba(255,255,255,0.1)",
   },
-  logoText: {
-    fontSize: "16px",
-    fontWeight: "700",
-    color: COLORS.white,
-  },
   newChatBtn: {
-    margin: "12px 12px",
-    padding: "10px 14px",
+    margin: "16px",
+    padding: "12px 16px",
     background: COLORS.greenSage,
     border: "none",
-    borderRadius: "99px",
+    borderRadius: "12px",
     color: COLORS.white,
-    fontSize: "13px",
+    fontSize: "14px",
     fontWeight: "600",
     cursor: "pointer",
     textAlign: "left",
   },
+  guestWarning: {
+    margin: "0 16px 12px",
+    padding: "12px",
+    background: "rgba(251, 191, 36, 0.15)",
+    borderRadius: "10px",
+    border: "1px solid rgba(251, 191, 36, 0.3)",
+  },
+  guestWarningText: {
+    margin: 0,
+    fontSize: "12px",
+    color: "#FCD34D",
+    fontWeight: "500",
+  },
   historySection: {
     flex: 1,
     overflowY: "auto",
-    padding: "0 8px",
+    padding: "0 12px",
   },
   historyLabel: {
-    fontSize: "10px",
+    fontSize: "11px",
     fontWeight: "600",
-    color: COLORS.textTertiary,
-    letterSpacing: "0.1em",
+    color: "#7A9B76",
+    letterSpacing: "0.05em",
     textTransform: "uppercase",
-    padding: "8px 8px 8px",
+    padding: "4px 8px 8px",
     margin: 0,
   },
   historyItem: {
-    padding: "10px 12px",
-    borderRadius: "8px",
+    padding: "12px",
+    borderRadius: "10px",
     cursor: "pointer",
-    marginBottom: "2px",
+    marginBottom: "4px",
+    transition: "background 0.2s",
   },
   historyTitle: {
     fontSize: "13px",
     fontWeight: "500",
-    color: "#7A9B76",
-    margin: 0,
+    color: COLORS.white,
+    margin: "0 0 4px",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
+  historyTime: {
+    fontSize: "11px",
+    color: "#7A9B76",
+    margin: 0,
+  },
   sidebarBottom: {
-    padding: "12px",
+    padding: "16px",
     borderTop: "1px solid rgba(255,255,255,0.1)",
   },
   profileSection: {
     display: "flex",
     alignItems: "center",
     gap: "10px",
-    padding: "8px",
-    borderRadius: "8px",
+    padding: "10px",
+    borderRadius: "10px",
     cursor: "pointer",
-    marginBottom: "8px",
+    marginBottom: "10px",
+    transition: "background 0.2s",
   },
   profileAvatar: {
-    width: "32px",
-    height: "32px",
+    width: "36px",
+    height: "36px",
     background: COLORS.greenSage,
-    borderRadius: "8px",
+    borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -540,24 +598,24 @@ const styles = {
   },
   logoutBtn: {
     width: "100%",
-    padding: "8px",
-    background: "rgba(220, 38, 38, 0.2)",
+    padding: "10px",
+    background: "rgba(220, 38, 38, 0.15)",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: "10px",
     color: "#FCA5A5",
-    fontSize: "12px",
+    fontSize: "13px",
     fontWeight: "500",
     cursor: "pointer",
   },
   loginBtn: {
     width: "100%",
-    padding: "8px",
+    padding: "10px",
     background: COLORS.greenSage,
     border: "none",
-    borderRadius: "8px",
+    borderRadius: "10px",
     color: COLORS.white,
-    fontSize: "12px",
-    fontWeight: "500",
+    fontSize: "13px",
+    fontWeight: "600",
     cursor: "pointer",
   },
 
@@ -573,9 +631,12 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "12px 20px",
-    background: COLORS.white,
-    borderBottom: `1px solid ${COLORS.borderSoft}`,
+    padding: "14px 20px",
+    background: glassBg,
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderBottom: glassBorder,
+    boxShadow: glassShadow,
   },
   chatHeaderLeft: {
     display: "flex",
@@ -588,11 +649,11 @@ const styles = {
     gap: "2px",
   },
   menuBtn: {
-    width: "32px",
-    height: "32px",
-    borderRadius: "8px",
-    border: `1px solid ${COLORS.borderSoft}`,
-    background: COLORS.white,
+    width: "36px",
+    height: "36px",
+    borderRadius: "10px",
+    border: glassBorder,
+    background: "rgba(255,255,255,0.5)",
     color: COLORS.textPrimary,
     cursor: "pointer",
     display: "flex",
@@ -600,74 +661,92 @@ const styles = {
     justifyContent: "center",
   },
   chatAvatar: {
-    width: "36px",
-    height: "36px",
+    width: "40px",
+    height: "40px",
     background: COLORS.greenSage,
-    borderRadius: "10px",
+    borderRadius: "12px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    fontSize: "14px",
-    fontWeight: "700",
-    color: COLORS.white,
+    boxShadow: "0 4px 12px rgba(107, 145, 98, 0.3)",
   },
   chatName: {
     margin: 0,
     fontWeight: "700",
     color: COLORS.textPrimary,
-    fontSize: "15px",
+    fontSize: "16px",
     lineHeight: "1.2",
   },
   statusText: {
     margin: 0,
-    fontSize: "11px",
+    fontSize: "12px",
     color: COLORS.greenSage,
     lineHeight: "1.2",
   },
   dashBtn: {
-    padding: "8px 16px",
-    borderRadius: "99px",
-    border: `1px solid ${COLORS.borderSoft}`,
-    background: COLORS.white,
+    padding: "10px 18px",
+    borderRadius: "10px",
+    border: glassBorder,
+    background: "rgba(255,255,255,0.5)",
     color: COLORS.textPrimary,
     cursor: "pointer",
     fontSize: "13px",
-    fontWeight: "500",
+    fontWeight: "600",
+    backdropFilter: "blur(10px)",
+  },
+
+  // Guest Banner
+  guestBanner: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    padding: "10px 20px",
+    background: "rgba(251, 191, 36, 0.15)",
+    borderBottom: "1px solid rgba(251, 191, 36, 0.3)",
+  },
+  guestBannerText: {
+    margin: 0,
+    fontSize: "13px",
+    color: COLORS.textSecondary,
+  },
+  guestBannerLink: {
+    color: COLORS.greenSage,
+    fontWeight: "600",
+    cursor: "pointer",
+    textDecoration: "underline",
   },
 
   // Messages
   messages: {
     flex: 1,
     overflowY: "auto",
-    padding: "20px",
+    padding: "24px",
     display: "flex",
     flexDirection: "column",
-    gap: "12px",
+    gap: "16px",
   },
   messageRow: {
     display: "flex",
     alignItems: "flex-end",
-    gap: "8px",
-    maxWidth: "70%",
+    gap: "10px",
+    maxWidth: "75%",
   },
   botAvatar: {
-    width: "28px",
-    height: "28px",
+    width: "32px",
+    height: "32px",
     background: COLORS.greenSage,
-    borderRadius: "8px",
+    borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    fontSize: "12px",
-    fontWeight: "700",
-    color: COLORS.white,
+    boxShadow: "0 2px 8px rgba(107, 145, 98, 0.25)",
   },
   userAvatar: {
-    width: "28px",
-    height: "28px",
+    width: "32px",
+    height: "32px",
     background: COLORS.greenDeep,
-    borderRadius: "8px",
+    borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -677,79 +756,88 @@ const styles = {
     color: COLORS.white,
   },
   bubble: {
-    padding: "12px 16px",
+    padding: "14px 18px",
     fontSize: "14px",
-    lineHeight: "1.5",
+    lineHeight: "1.6",
     wordBreak: "break-word",
   },
   userBubble: {
     background: COLORS.chatUserBg,
     color: COLORS.white,
-    borderRadius: "12px 12px 2px 12px",
-    marginLeft: "auto",
+    borderRadius: "16px 16px 4px 16px",
+    textAlign: "left",
   },
   botBubble: {
-    background: COLORS.chatBotBg,
+    background: glassBg,
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
     color: COLORS.textPrimary,
-    borderRadius: "12px 12px 12px 2px",
-    border: `1px solid ${COLORS.borderSoft}`,
+    borderRadius: "16px 16px 16px 4px",
+    border: glassBorder,
+    boxShadow: glassShadow,
+    textAlign: "left",
   },
   typingBubble: {
-    background: COLORS.white,
-    padding: "12px 16px",
-    borderRadius: "12px 12px 12px 2px",
-    border: `1px solid ${COLORS.borderSoft}`,
+    background: glassBg,
+    backdropFilter: "blur(10px)",
+    WebkitBackdropFilter: "blur(10px)",
+    padding: "14px 18px",
+    borderRadius: "16px 16px 16px 4px",
+    border: glassBorder,
+    boxShadow: glassShadow,
   },
   typingDots: {
     display: "flex",
-    gap: "4px",
+    gap: "5px",
   },
   dot: {
-    width: "6px",
-    height: "6px",
+    width: "8px",
+    height: "8px",
     borderRadius: "50%",
     background: COLORS.greenSage,
   },
 
   // Input Area
   inputArea: {
-    padding: "12px 20px 16px",
-    background: COLORS.white,
-    borderTop: `1px solid ${COLORS.borderSoft}`,
+    padding: "16px 24px 20px",
+    background: glassBg,
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderTop: glassBorder,
   },
   inputContainer: {
     display: "flex",
-    gap: "10px",
+    gap: "12px",
     alignItems: "flex-end",
   },
   textarea: {
     flex: 1,
-    padding: "10px 14px",
-    borderRadius: "99px",
-    border: `1px solid ${COLORS.borderSoft}`,
-    background: COLORS.white,
+    padding: "14px 18px",
+    borderRadius: "14px",
+    border: `2px solid ${COLORS.borderSoft}`,
+    background: "rgba(255,255,255,0.6)",
     fontSize: "14px",
     color: COLORS.textPrimary,
     resize: "none",
     outline: "none",
     fontFamily: "inherit",
-    minHeight: "40px",
-    maxHeight: "100px",
+    minHeight: "48px",
+    maxHeight: "120px",
   },
   sendBtn: {
-    width: "40px",
-    height: "40px",
-    borderRadius: "50%",
+    width: "48px",
+    height: "48px",
+    borderRadius: "14px",
     border: "none",
     background: COLORS.greenSage,
     color: COLORS.white,
-    fontSize: "13px",
-    fontWeight: "600",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
+    boxShadow: "0 4px 12px rgba(107, 145, 98, 0.3)",
+    transition: "all 0.2s",
   },
 
   // Modal
@@ -760,41 +848,45 @@ const styles = {
     right: 0,
     bottom: 0,
     background: "rgba(0, 0, 0, 0.3)",
+    backdropFilter: "blur(4px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     zIndex: 1000,
   },
   modal: {
-    background: COLORS.white,
-    borderRadius: "16px",
-    padding: "28px",
+    background: glassBg,
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderRadius: "20px",
+    padding: "32px",
     width: "100%",
-    maxWidth: "360px",
+    maxWidth: "380px",
     boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
+    border: glassBorder,
   },
   modalTitle: {
-    fontSize: "18px",
+    fontSize: "20px",
     fontWeight: "700",
     color: COLORS.textPrimary,
-    margin: "0 0 20px",
+    margin: "0 0 24px",
   },
   modalField: {
-    marginBottom: "16px",
+    marginBottom: "18px",
   },
   modalLabel: {
     display: "block",
     fontSize: "13px",
     fontWeight: "600",
     color: COLORS.textPrimary,
-    marginBottom: "6px",
+    marginBottom: "8px",
   },
   modalInput: {
     width: "100%",
-    padding: "10px 14px",
+    padding: "12px 16px",
     borderRadius: "10px",
     border: `1px solid ${COLORS.borderLight}`,
-    background: COLORS.white,
+    background: "rgba(255,255,255,0.6)",
     fontSize: "14px",
     color: COLORS.textPrimary,
     outline: "none",
@@ -803,27 +895,27 @@ const styles = {
   },
   modalActions: {
     display: "flex",
-    gap: "10px",
+    gap: "12px",
     justifyContent: "flex-end",
-    marginTop: "20px",
+    marginTop: "24px",
   },
   modalCancelBtn: {
-    padding: "8px 16px",
+    padding: "10px 20px",
     borderRadius: "10px",
     border: `1px solid ${COLORS.borderSoft}`,
-    background: COLORS.white,
+    background: "rgba(255,255,255,0.5)",
     color: COLORS.textSecondary,
-    fontSize: "13px",
+    fontSize: "14px",
     fontWeight: "500",
     cursor: "pointer",
   },
   modalSaveBtn: {
-    padding: "8px 16px",
+    padding: "10px 20px",
     borderRadius: "10px",
     border: "none",
     background: COLORS.greenSage,
     color: COLORS.white,
-    fontSize: "13px",
+    fontSize: "14px",
     fontWeight: "600",
     cursor: "pointer",
   },

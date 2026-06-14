@@ -18,6 +18,10 @@ const COLORS = {
   white: "#FFFFFF",
 };
 
+const glassBg = "rgba(255, 255, 255, 0.7)";
+const glassBorder = "1px solid rgba(255, 255, 255, 0.5)";
+const glassShadow = "0 8px 32px rgba(30, 51, 25, 0.10)";
+
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -48,6 +52,12 @@ export default function Login() {
 
   return (
     <div style={styles.container}>
+      {/* Floating shapes */}
+      <div style={styles.floatingShapes}>
+        <div style={{ ...styles.shape, width: 300, height: 300, background: "rgba(107, 145, 98, 0.15)", top: "-100px", left: "-100px" }} />
+        <div style={{ ...styles.shape, width: 200, height: 200, background: "rgba(168, 197, 160, 0.2)", bottom: "-50px", right: "-50px" }} />
+      </div>
+
       <motion.div
         style={styles.card}
         initial={{ opacity: 0, y: 30 }}
@@ -111,27 +121,18 @@ export default function Login() {
             />
           </div>
 
-          <button
-            type="submit"
-            style={styles.button}
-            disabled={loading}
-          >
+          <button type="submit" style={styles.button} disabled={loading}>
             {loading ? "Masuk..." : "Masuk ✦"}
           </button>
         </form>
 
         <p style={styles.link}>
           Belum punya akun?{" "}
-          <Link to="/register" style={styles.linkBold}>
-            Daftar di sini
-          </Link>
+          <Link to="/register" style={styles.linkBold}>Daftar di sini</Link>
         </p>
 
         <p style={styles.guestNote}>
-          Atau{" "}
-          <Link to="/chat" style={styles.guestLink}>
-            coba chat tanpa login
-          </Link>
+          Atau <Link to="/chat" style={styles.guestLink}>coba chat tanpa login</Link>
         </p>
       </motion.div>
     </div>
@@ -146,56 +147,58 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     background: COLORS.bgMain,
+    fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+    position: "relative",
+    overflow: "hidden",
+  },
+  floatingShapes: {
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+    pointerEvents: "none",
+  },
+  shape: {
+    position: "absolute",
+    borderRadius: "50%",
+    filter: "blur(60px)",
   },
   card: {
-    background: COLORS.white,
-    borderRadius: "16px",
-    padding: "32px",
+    background: glassBg,
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderRadius: "20px",
+    padding: "40px 36px",
     width: "100%",
-    maxWidth: "380px",
-    boxShadow: "0 8px 32px rgba(30, 51, 25, 0.10)",
+    maxWidth: "420px",
+    boxShadow: glassShadow,
+    border: glassBorder,
+    position: "relative",
+    zIndex: 10,
   },
   logoSection: {
     textAlign: "center",
     marginBottom: "28px",
   },
-  logo: {
-    width: "48px",
-    height: "48px",
-    background: "linear-gradient(135deg, #A8C5A0, #6B9162)",
-    borderRadius: "14px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "0 auto 16px",
-    fontSize: "22px",
-    fontWeight: "800",
-    color: COLORS.white,
-  },
   title: {
-    fontSize: "24px",
+    fontSize: "28px",
     fontWeight: "800",
     color: COLORS.textPrimary,
-    margin: "0 0 6px",
+    margin: "0 0 8px",
     letterSpacing: "-0.02em",
   },
   subtitle: {
-    fontSize: "14px",
+    fontSize: "15px",
     color: COLORS.textTertiary,
     margin: 0,
   },
   errorBox: {
-    background: "#FEE2E2",
-    border: "1px solid #FECACA",
+    background: "rgba(239, 68, 68, 0.1)",
+    border: "1px solid rgba(239, 68, 68, 0.3)",
     color: "#DC2626",
     padding: "12px 16px",
-    borderRadius: "10px",
+    borderRadius: "12px",
     fontSize: "13px",
     fontWeight: "500",
     marginBottom: "16px",
@@ -204,7 +207,7 @@ const styles = {
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "16px",
+    gap: "18px",
   },
   inputGroup: {
     display: "flex",
@@ -217,10 +220,10 @@ const styles = {
     color: COLORS.textPrimary,
   },
   input: {
-    padding: "10px 14px",
-    borderRadius: "10px",
-    border: `1px solid ${COLORS.borderLight}`,
-    background: COLORS.white,
+    padding: "14px 18px",
+    borderRadius: "12px",
+    border: `2px solid ${COLORS.borderLight}`,
+    background: "rgba(255,255,255,0.5)",
     fontSize: "14px",
     color: COLORS.textPrimary,
     outline: "none",
@@ -228,8 +231,8 @@ const styles = {
     fontFamily: "inherit",
   },
   button: {
-    padding: "12px",
-    borderRadius: "10px",
+    padding: "14px",
+    borderRadius: "12px",
     border: "none",
     background: COLORS.greenForest,
     color: COLORS.white,
@@ -237,7 +240,7 @@ const styles = {
     fontWeight: "600",
     cursor: "pointer",
     marginTop: "8px",
-    fontFamily: "inherit",
+    boxShadow: "0 4px 12px rgba(30, 51, 25, 0.25)",
   },
   link: {
     textAlign: "center",

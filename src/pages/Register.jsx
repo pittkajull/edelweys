@@ -18,6 +18,10 @@ const COLORS = {
   white: "#FFFFFF",
 };
 
+const glassBg = "rgba(255, 255, 255, 0.7)";
+const glassBorder = "1px solid rgba(255, 255, 255, 0.5)";
+const glassShadow = "0 8px 32px rgba(30, 51, 25, 0.10)";
+
 export default function Register() {
   const [form, setForm] = useState({
     email: "",
@@ -73,140 +77,149 @@ export default function Register() {
 
   return (
     <div style={styles.container}>
-      <motion.div
-        style={styles.card}
-        initial={{ opacity: 0, y: 30 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        {/* Logo */}
-        <div style={styles.logoSection}>
-          <img src={logo} alt="Edelweys" style={{ height: "48px", marginBottom: "16px" }} />
-          <h1 style={styles.title}>Edelweys</h1>
-          <p style={styles.subtitle}>Buat akun baru</p>
-        </div>
+      {/* Floating shapes */}
+      <div style={styles.floatingShapes}>
+        <div style={{ ...styles.shape, width: 300, height: 300, background: "rgba(107, 145, 98, 0.15)", top: "-100px", right: "-100px" }} />
+        <div style={{ ...styles.shape, width: 200, height: 200, background: "rgba(168, 197, 160, 0.2)", bottom: "-50px", left: "-50px" }} />
+      </div>
 
-        {/* Error */}
-        <AnimatePresence>
-          {error && (
-            <motion.div
-              style={styles.errorBox}
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-            >
-              {error}
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div style={styles.scrollContainer}>
+        <motion.div
+          style={styles.card}
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          {/* Logo */}
+          <div style={styles.logoSection}>
+            <img src={logo} alt="Edelweys" style={{ height: "48px", marginBottom: "16px" }} />
+            <h1 style={styles.title}>Edelweys</h1>
+            <p style={styles.subtitle}>Buat akun baru</p>
+          </div>
 
-        {/* Form */}
-        <form onSubmit={handleRegister} style={styles.form}>
-          {inputFields.map((field) => (
-            <div key={field.name} style={styles.inputGroup}>
-              <label style={styles.label}>{field.label}</label>
-              <input
-                name={field.name}
-                type={field.type}
-                placeholder={field.placeholder}
-                value={form[field.name]}
-                onChange={handleChange}
-                onFocus={() => setFocusedField(field.name)}
-                onBlur={() => setFocusedField(null)}
-                style={{
-                  ...styles.input,
-                  borderColor: focusedField === field.name ? COLORS.greenSage : COLORS.borderLight,
-                }}
-                required
-              />
-            </div>
-          ))}
+          {/* Error */}
+          <AnimatePresence>
+            {error && (
+              <motion.div
+                style={styles.errorBox}
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: "auto" }}
+                exit={{ opacity: 0, height: 0 }}
+              >
+                {error}
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <button
-            type="submit"
-            style={styles.button}
-            disabled={loading}
-          >
-            {loading ? "Mendaftar..." : "Daftar 🌿"}
-          </button>
-        </form>
+          {/* Form */}
+          <form onSubmit={handleRegister} style={styles.form}>
+            {inputFields.map((field) => (
+              <div key={field.name} style={styles.inputGroup}>
+                <label style={styles.label}>{field.label}</label>
+                <input
+                  name={field.name}
+                  type={field.type}
+                  placeholder={field.placeholder}
+                  value={form[field.name]}
+                  onChange={handleChange}
+                  onFocus={() => setFocusedField(field.name)}
+                  onBlur={() => setFocusedField(null)}
+                  style={{
+                    ...styles.input,
+                    borderColor: focusedField === field.name ? COLORS.greenSage : COLORS.borderLight,
+                  }}
+                  required
+                />
+              </div>
+            ))}
 
-        <p style={styles.link}>
-          Sudah punya akun?{" "}
-          <Link to="/login" style={styles.linkBold}>
-            Masuk di sini
-          </Link>
-        </p>
+            <button type="submit" style={styles.button} disabled={loading}>
+              {loading ? "Mendaftar..." : "Daftar 🌿"}
+            </button>
+          </form>
 
-        <p style={styles.guestNote}>
-          Atau{" "}
-          <Link to="/chat" style={styles.guestLink}>
-            coba chat tanpa login
-          </Link>
-        </p>
-      </motion.div>
+          <p style={styles.link}>
+            Sudah punya akun?{" "}
+            <Link to="/login" style={styles.linkBold}>Masuk di sini</Link>
+          </p>
+
+          <p style={styles.guestNote}>
+            Atau <Link to="/chat" style={styles.guestLink}>coba chat tanpa login</Link>
+          </p>
+        </motion.div>
+      </div>
     </div>
   );
 }
 
 const styles = {
   container: {
-    height: "100vh",
+    minHeight: "100vh",
     width: "100vw",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     background: COLORS.bgMain,
+    fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+    position: "relative",
+    overflow: "hidden",
+  },
+  scrollContainer: {
+    width: "100%",
+    minHeight: "100vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: "40px 20px",
+    position: "relative",
+    zIndex: 10,
+  },
+  floatingShapes: {
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
+    pointerEvents: "none",
+  },
+  shape: {
+    position: "absolute",
+    borderRadius: "50%",
+    filter: "blur(60px)",
   },
   card: {
-    background: COLORS.white,
-    borderRadius: "16px",
-    padding: "32px",
+    background: glassBg,
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    borderRadius: "20px",
+    padding: "40px 36px",
     width: "100%",
-    maxWidth: "380px",
-    boxShadow: "0 8px 32px rgba(30, 51, 25, 0.10)",
+    maxWidth: "420px",
+    boxShadow: glassShadow,
+    border: glassBorder,
   },
   logoSection: {
     textAlign: "center",
     marginBottom: "28px",
   },
-  logo: {
-    width: "48px",
-    height: "48px",
-    background: "linear-gradient(135deg, #C5D5C2, #8EAB85)",
-    borderRadius: "14px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    margin: "0 auto 16px",
-    fontSize: "22px",
-    fontWeight: "800",
-    color: COLORS.white,
-  },
   title: {
-    fontSize: "24px",
+    fontSize: "28px",
     fontWeight: "800",
     color: COLORS.textPrimary,
-    margin: "0 0 6px",
+    margin: "0 0 8px",
     letterSpacing: "-0.02em",
   },
   subtitle: {
-    fontSize: "14px",
+    fontSize: "15px",
     color: COLORS.textTertiary,
     margin: 0,
   },
   errorBox: {
-    background: "#FEE2E2",
-    border: "1px solid #FECACA",
+    background: "rgba(239, 68, 68, 0.1)",
+    border: "1px solid rgba(239, 68, 68, 0.3)",
     color: "#DC2626",
     padding: "12px 16px",
-    borderRadius: "10px",
+    borderRadius: "12px",
     fontSize: "13px",
     fontWeight: "500",
     marginBottom: "16px",
@@ -215,7 +228,7 @@ const styles = {
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "14px",
+    gap: "16px",
   },
   inputGroup: {
     display: "flex",
@@ -228,10 +241,10 @@ const styles = {
     color: COLORS.textPrimary,
   },
   input: {
-    padding: "10px 14px",
-    borderRadius: "10px",
-    border: `1px solid ${COLORS.borderLight}`,
-    background: COLORS.white,
+    padding: "12px 16px",
+    borderRadius: "12px",
+    border: `2px solid ${COLORS.borderLight}`,
+    background: "rgba(255,255,255,0.5)",
     fontSize: "14px",
     color: COLORS.textPrimary,
     outline: "none",
@@ -239,8 +252,8 @@ const styles = {
     fontFamily: "inherit",
   },
   button: {
-    padding: "12px",
-    borderRadius: "10px",
+    padding: "14px",
+    borderRadius: "12px",
     border: "none",
     background: COLORS.greenSage,
     color: COLORS.white,
@@ -248,7 +261,7 @@ const styles = {
     fontWeight: "600",
     cursor: "pointer",
     marginTop: "8px",
-    fontFamily: "inherit",
+    boxShadow: "0 4px 12px rgba(107, 145, 98, 0.3)",
   },
   link: {
     textAlign: "center",
