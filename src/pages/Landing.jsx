@@ -1,30 +1,38 @@
 import { useNavigate } from "react-router-dom";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useState, useRef } from "react";
+import { motion } from "framer-motion";
+
+const COLORS = {
+  bgMain: "#EEEEE9",
+  greenDeep: "#1E3319",
+  greenForest: "#2D4A29",
+  greenSage: "#6B9162",
+  greenLight: "#A8C5A0",
+  borderSoft: "#D5E0D2",
+  borderLight: "#C5D5C2",
+  textPrimary: "#1E3319",
+  textSecondary: "#5A6B57",
+  textTertiary: "#7A8B76",
+  white: "#FFFFFF",
+};
 
 export default function Landing() {
   const navigate = useNavigate();
-  const [hoveredFeature, setHoveredFeature] = useState(null);
-  const containerRef = useRef(null);
 
   const features = [
     {
       title: "Chat Kesehatan",
-      desc: "Tanya apa aja soal kesehatan,Edelweys jawab dengan friendly!",
-      color: "#FF6B6B",
-      emoji: "💬",
+      desc: "Tanya apa aja soal kesehatan, Edelweys jawab dengan friendly!",
+      icon: "💬",
     },
     {
       title: "Dashboard Harian",
       desc: "Pantau berat badan, tekanan darah, dan kebiasaan sehari-hari.",
-      color: "#4ECDC4",
-      emoji: "📊",
+      icon: "📊",
     },
     {
       title: "Tips Personal",
       desc: "Dapatkan saran kesehatan yang disesuaikan dengan data kamu.",
-      color: "#FFE66D",
-      emoji: "✨",
+      icon: "✨",
     },
   ];
 
@@ -35,287 +43,216 @@ export default function Landing() {
   ];
 
   return (
-    <div style={styles.container} ref={containerRef}>
-      {/* Floating Elements */}
-      <div style={styles.floatingElements}>
-        <motion.div
-          style={{ ...styles.floatingCircle, background: "#FF6B6B" }}
-          animate={{ y: [0, -30, 0], rotate: [0, 10, -10, 0] }}
-          transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          style={{ ...styles.floatingCircle, background: "#4ECDC4", width: 60, height: 60, top: "20%", left: "10%" }}
-          animate={{ y: [0, 20, 0], x: [0, -15, 0] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          style={{ ...styles.floatingCircle, background: "#FFE66D", width: 80, height: 80, top: "60%", right: "5%" }}
-          animate={{ y: [0, -25, 0], scale: [1, 1.1, 1] }}
-          transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          style={{ ...styles.floatingCircle, background: "#95E1D3", width: 50, height: 50, top: "70%", left: "15%" }}
-          animate={{ y: [0, 15, 0], rotate: [0, -20, 0] }}
-          transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-        />
-      </div>
+    <div style={styles.container}>
+      {/* Navbar */}
+      <nav style={styles.navbar}>
+        <div style={styles.navContent}>
+          <div style={styles.navLogo}>✦ Edelweys</div>
+          <div style={styles.navLinks}>
+            <a href="#features" style={styles.navLink}>Fitur</a>
+            <a href="#testimonials" style={styles.navLink}>Testimoni</a>
+          </div>
+          <motion.button
+            onClick={() => navigate("/register")}
+            style={styles.navCta}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            Mulai Gratis
+          </motion.button>
+        </div>
+      </nav>
 
       {/* Hero Section */}
       <section style={styles.hero}>
         <div style={styles.heroContent}>
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, type: "spring" }}
+            style={styles.heroBadge}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
           >
-            <motion.p
-              style={styles.heroTag}
-              animate={{ scale: [1, 1.05, 1] }}
-              transition={{ duration: 2, repeat: Infinity }}
-            >
-              HEYY YOWW! 👋
-            </motion.p>
-            <h1 style={styles.heroTitle}>
-              Kenalan sama <br />
-              <motion.span
-                style={styles.heroHighlight}
-                animate={{ color: ["#FF6B6B", "#4ECDC4", "#FFE66D", "#FF6B6B"] }}
-                transition={{ duration: 4, repeat: Infinity }}
-              >
-                Edelweys
-              </motion.span>
-            </h1>
-            <p style={styles.heroSubtitle}>
-              Teman sehat kamu yang selalu ada, siap bantu kapan aja!
-            </p>
-            <div style={styles.heroButtons}>
-              <motion.button
-                onClick={() => navigate("/chat")}
-                style={styles.heroCta}
-                whileHover={{ scale: 1.05, rotate: -2 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Mulai Chat! 🚀
-              </motion.button>
-              <motion.button
-                onClick={() => navigate("/dashboard")}
-                style={styles.heroSecondary}
-                whileHover={{ scale: 1.05, rotate: 2 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Lihat Dashboard 📊
-              </motion.button>
-            </div>
-            <p style={styles.heroNote}>
-              ✨ Gratis tanpa login untuk mencoba!
-            </p>
+            Baru | AI Health Companion kamu
           </motion.div>
 
-          <motion.div
-            style={styles.heroVisual}
-            initial={{ opacity: 0, x: 50, rotate: 5 }}
-            animate={{ opacity: 1, x: 0, rotate: 0 }}
-            transition={{ duration: 0.6, delay: 0.2, type: "spring" }}
+          <motion.h1
+            style={styles.heroTitle}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
           >
-            <div style={styles.chatPreview}>
-              <div style={styles.previewHeader}>
-                <motion.div
-                  style={styles.previewAvatar}
-                  animate={{ rotate: [0, 10, -10, 0] }}
-                  transition={{ duration: 3, repeat: Infinity }}
-                >
-                  E
-                </motion.div>
-                <div>
-                  <p style={styles.previewName}>Edelweys</p>
-                  <p style={styles.previewStatus}>● Online</p>
-                </div>
-              </div>
-              <div style={styles.previewMessages}>
-                <motion.div
-                  style={styles.previewBotMsg}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                >
-                  Heyy yoww! Ada yang bisa aku bantu? 🌸
-                </motion.div>
-                <motion.div
-                  style={styles.previewUserMsg}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.8 }}
-                >
-                  Tips hidup sehat dong!
-                </motion.div>
-                <motion.div
-                  style={styles.previewBotMsg}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.1 }}
-                >
-                  Pasti! Mulai dari tidur cukup, minum air 8 gelas, dan olahraga rutin! 💪
-                </motion.div>
-              </div>
-            </div>
+            Kenalan sama <br />
+            <span style={styles.heroHighlight}>Edelweys 🌿</span>
+          </motion.h1>
+
+          <motion.p
+            style={styles.heroSubtitle}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+          >
+            Teman sehat kamu yang selalu ada, siap bantu kapan aja!
+          </motion.p>
+
+          <motion.div
+            style={styles.heroButtons}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.3 }}
+          >
+            <motion.button
+              onClick={() => navigate("/chat")}
+              style={styles.heroCta}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Mulai Chat ✦
+            </motion.button>
+            <motion.button
+              onClick={() => navigate("/dashboard")}
+              style={styles.heroSecondary}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Lihat Dashboard
+            </motion.button>
           </motion.div>
+        </div>
+
+        {/* Floating Icon Cards */}
+        <div style={styles.floatingIcons}>
+          <motion.div
+            style={{ ...styles.iconCard, background: "linear-gradient(135deg, #A8C5A0, #6B9162)", top: "15%", left: "8%" }}
+            animate={{ y: [0, -10, 0] }}
+            transition={{ duration: 4, repeat: Infinity }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+            </svg>
+          </motion.div>
+          <motion.div
+            style={{ ...styles.iconCard, background: "linear-gradient(135deg, #D4C5A9, #B5A07A)", top: "20%", right: "10%" }}
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 5, repeat: Infinity }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8zM6 1v3M10 1v3M14 1v3" />
+            </svg>
+          </motion.div>
+          <motion.div
+            style={{ ...styles.iconCard, background: "linear-gradient(135deg, #C5D5C2, #8EAB85)", bottom: "25%", left: "12%" }}
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 4.5, repeat: Infinity }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+              <circle cx="12" cy="5" r="3" />
+              <path d="M6.5 8a2 2 0 0 0-1.94 1.5L4 22h16l-1.5-12.5A2 2 0 0 0 16.58 8H6.5z" />
+            </svg>
+          </motion.div>
+          <motion.div
+            style={{ ...styles.iconCard, background: "linear-gradient(135deg, #E8D5C4, #C4956A)", bottom: "30%", right: "8%" }}
+            animate={{ y: [0, 12, 0] }}
+            transition={{ duration: 5.5, repeat: Infinity }}
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2">
+              <path d="M12 2a7 7 0 0 1 7 7c0 5-7 13-7 13S5 14 5 9a7 7 0 0 1 7-7z" />
+              <circle cx="12" cy="9" r="2.5" />
+            </svg>
+          </motion.div>
+        </div>
+
+        {/* Decorative Orbs */}
+        <div style={styles.orbsContainer}>
+          <div style={{ ...styles.orb, width: 280, height: 280, background: "#B8C9B0", opacity: 0.55 }} />
+          <div style={{ ...styles.orb, width: 200, height: 200, background: "#8EAB85", opacity: 0.60 }} />
+          <div style={{ ...styles.orb, width: 140, height: 140, background: "#6B9162", opacity: 0.70 }} />
         </div>
       </section>
 
       {/* Features Section */}
-      <section style={styles.features}>
-        <motion.p
-          style={styles.sectionTag}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-        >
-          FITUR KECE
-        </motion.p>
-        <motion.h2
-          style={styles.sectionTitle}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-        >
-          Kenapa Pilih Edelweys?
-        </motion.h2>
-        <div style={styles.featuresGrid}>
-          {features.map((f, i) => (
-            <motion.div
-              key={i}
-              style={{
-                ...styles.featureCard,
-                borderColor: hoveredFeature === i ? f.color : "transparent",
-              }}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.15 }}
-              whileHover={{ y: -10, scale: 1.02 }}
-              onHoverStart={() => setHoveredFeature(i)}
-              onHoverEnd={() => setHoveredFeature(null)}
-            >
-              <motion.div
-                style={{ ...styles.featureIcon, background: f.color }}
-                animate={hoveredFeature === i ? { rotate: [0, -10, 10, 0], scale: 1.2 } : {}}
-              >
-                {f.emoji}
-              </motion.div>
-              <h3 style={styles.featureTitle}>{f.title}</h3>
-              <p style={styles.featureDesc}>{f.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Big Text Section */}
-      <section style={styles.bigText}>
-        <motion.h2
-          style={styles.bigTextTitle}
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-        >
-          HEALTHY IS{" "}
-          <motion.span
-            style={styles.bigTextHighlight}
-            animate={{ scale: [1, 1.1, 1] }}
-            transition={{ duration: 2, repeat: Infinity }}
+      <section id="features" style={styles.features}>
+        <div style={styles.featuresContent}>
+          <motion.p
+            style={styles.sectionTag}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
           >
-            EASY
-          </motion.span>{" "}
-          WHEN YOU HAVE THE RIGHT COMPANION
-        </motion.h2>
+            FITUR UNGGULAN
+          </motion.p>
+          <motion.h2
+            style={styles.sectionTitle}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+          >
+            Kenapa Pilih Edelweys?
+          </motion.h2>
+          <div style={styles.featuresGrid}>
+            {features.map((f, i) => (
+              <motion.div
+                key={i}
+                style={styles.featureCard}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <div style={styles.featureIcon}>{f.icon}</div>
+                <h3 style={styles.featureTitle}>{f.title}</h3>
+                <p style={styles.featureDesc}>{f.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* Testimonials Section */}
-      <section style={styles.testimonials}>
-        <motion.p
-          style={styles.sectionTag}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-        >
-          APA KATA MEREKA
-        </motion.p>
-        <motion.h2
-          style={styles.sectionTitle}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-        >
-          Testimoni Pengguna
-        </motion.h2>
-        <div style={styles.testimonialsGrid}>
-          {testimonials.map((t, i) => (
-            <motion.div
-              key={i}
-              style={styles.testimonialCard}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.15 }}
-              whileHover={{ y: -5, rotate: i % 2 === 0 ? 2 : -2 }}
-            >
-              <div style={styles.testimonialStars}>
-                {"⭐".repeat(t.stars)}
-              </div>
-              <p style={styles.testimonialText}>"{t.text}"</p>
-              <p style={styles.testimonialName}>{t.name}</p>
-            </motion.div>
-          ))}
+      <section id="testimonials" style={styles.testimonials}>
+        <div style={styles.testimonialsContent}>
+          <motion.p
+            style={styles.sectionTag}
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+          >
+            APA KATA MEREKA
+          </motion.p>
+          <motion.h2
+            style={styles.sectionTitle}
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+          >
+            Testimoni Pengguna
+          </motion.h2>
+          <div style={styles.testimonialsGrid}>
+            {testimonials.map((t, i) => (
+              <motion.div
+                key={i}
+                style={styles.testimonialCard}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.1 }}
+              >
+                <div style={styles.testimonialStars}>
+                  {"★".repeat(t.stars)}
+                </div>
+                <p style={styles.testimonialText}>"{t.text}"</p>
+                <p style={styles.testimonialName}>{t.name}</p>
+              </motion.div>
+            ))}
+          </div>
         </div>
-      </section>
-
-      {/* CTA Section */}
-      <section style={styles.ctaSection}>
-        <motion.h2
-          style={styles.ctaTitle}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-        >
-          Siap Mulai Perjalanan Sehatmu?
-        </motion.h2>
-        <motion.p
-          style={styles.ctaSubtitle}
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          transition={{ delay: 0.2 }}
-        >
-          Bergabung dengan ribuan pengguna yang sudah merasakan manfaatnya
-        </motion.p>
-        <motion.button
-          onClick={() => navigate("/register")}
-          style={styles.ctaButton}
-          whileHover={{ scale: 1.05, rotate: -2 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          Daftar Sekarang - Gratis! 🎉
-        </motion.button>
       </section>
 
       {/* Footer */}
       <footer style={styles.footer}>
         <div style={styles.footerContent}>
-          <div style={styles.footerLogo}>
-            <div style={styles.footerLogoIcon}>E</div>
-            <span style={styles.footerLogoText}>Edelweys</span>
-          </div>
+          <div style={styles.footerLogo}>✦ Edelweys</div>
           <p style={styles.footerText}>
             Health companion yang selalu ada untuk kamu.
           </p>
           <div style={styles.footerLinks}>
-            <motion.a
-              onClick={() => navigate("/login")}
-              style={styles.footerLink}
-              whileHover={{ scale: 1.1 }}
-            >
-              Login
-            </motion.a>
-            <motion.a
-              onClick={() => navigate("/register")}
-              style={styles.footerLink}
-              whileHover={{ scale: 1.1 }}
-            >
-              Daftar
-            </motion.a>
+            <a onClick={() => navigate("/login")} style={styles.footerLink}>Login</a>
+            <a onClick={() => navigate("/register")} style={styles.footerLink}>Daftar</a>
           </div>
           <p style={styles.footerCopyright}>
-            &copy; 2026 Edelweys. All rights reserved.
+            © 2026 Edelweys. All rights reserved.
           </p>
         </div>
       </footer>
@@ -326,386 +263,284 @@ export default function Landing() {
 const styles = {
   container: {
     minHeight: "100vh",
-    background: "#FFFEF7",
-    fontFamily: "'DM Sans', system-ui, sans-serif",
-    overflowX: "hidden",
-    position: "relative",
+    background: COLORS.bgMain,
+    fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
   },
-  floatingElements: {
-    position: "fixed",
+
+  // Navbar
+  navbar: {
+    position: "sticky",
+    top: 0,
+    zIndex: 100,
+    background: "rgba(238, 238, 233, 0.9)",
+    backdropFilter: "blur(10px)",
+    borderBottom: `1px solid ${COLORS.borderSoft}`,
+  },
+  navContent: {
+    maxWidth: "1100px",
+    margin: "0 auto",
+    padding: "16px 24px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  navLogo: {
+    fontSize: "20px",
+    fontWeight: "700",
+    color: COLORS.greenForest,
+  },
+  navLinks: {
+    display: "flex",
+    gap: "32px",
+  },
+  navLink: {
+    fontSize: "14px",
+    fontWeight: "500",
+    color: COLORS.textSecondary,
+    textDecoration: "none",
+    cursor: "pointer",
+  },
+  navCta: {
+    padding: "10px 20px",
+    borderRadius: "99px",
+    border: "none",
+    background: COLORS.greenForest,
+    color: COLORS.white,
+    fontSize: "14px",
+    fontWeight: "600",
+    cursor: "pointer",
+  },
+
+  // Hero
+  hero: {
+    padding: "80px 24px 120px",
+    textAlign: "center",
+    position: "relative",
+    overflow: "hidden",
+  },
+  heroContent: {
+    maxWidth: "700px",
+    margin: "0 auto",
+    position: "relative",
+    zIndex: 2,
+  },
+  heroBadge: {
+    display: "inline-block",
+    padding: "8px 16px",
+    borderRadius: "99px",
+    border: `1px solid ${COLORS.borderLight}`,
+    background: COLORS.white,
+    fontSize: "13px",
+    fontWeight: "500",
+    color: COLORS.textSecondary,
+    marginBottom: "24px",
+  },
+  heroTitle: {
+    fontSize: "56px",
+    fontWeight: "800",
+    color: COLORS.textPrimary,
+    lineHeight: "1.1",
+    margin: "0 0 20px",
+    letterSpacing: "-0.03em",
+  },
+  heroHighlight: {
+    color: COLORS.greenSage,
+  },
+  heroSubtitle: {
+    fontSize: "18px",
+    color: COLORS.textSecondary,
+    lineHeight: "1.6",
+    margin: "0 0 32px",
+  },
+  heroButtons: {
+    display: "flex",
+    gap: "12px",
+    justifyContent: "center",
+    flexWrap: "wrap",
+  },
+  heroCta: {
+    padding: "14px 28px",
+    borderRadius: "99px",
+    border: "none",
+    background: COLORS.greenDeep,
+    color: COLORS.white,
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: "pointer",
+  },
+  heroSecondary: {
+    padding: "14px 28px",
+    borderRadius: "99px",
+    border: `2px solid ${COLORS.greenSage}`,
+    background: COLORS.white,
+    color: COLORS.greenSage,
+    fontSize: "16px",
+    fontWeight: "600",
+    cursor: "pointer",
+  },
+
+  // Floating Icons
+  floatingIcons: {
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
     pointerEvents: "none",
-    zIndex: 0,
   },
-  floatingCircle: {
+  iconCard: {
     position: "absolute",
-    width: 100,
-    height: 100,
+    width: "58px",
+    height: "58px",
+    borderRadius: "16px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 8px 24px rgba(107, 145, 98, 0.25)",
+  },
+
+  // Orbs
+  orbsContainer: {
+    position: "absolute",
+    bottom: "-80px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    display: "flex",
+    gap: "20px",
+    pointerEvents: "none",
+  },
+  orb: {
     borderRadius: "50%",
-    opacity: 0.3,
     filter: "blur(40px)",
-    top: "10%",
-    right: "20%",
-  },
-
-  // Hero
-  hero: {
-    padding: "80px 24px 100px",
-    background: "linear-gradient(180deg, #FFF8E7 0%, #FFFEF7 100%)",
-    position: "relative",
-    zIndex: 1,
-  },
-  heroContent: {
-    maxWidth: "1100px",
-    margin: "0 auto",
-    display: "flex",
-    alignItems: "center",
-    gap: "60px",
-    flexWrap: "wrap",
-  },
-  heroTag: {
-    fontSize: "14px",
-    fontWeight: "700",
-    color: "#FF6B6B",
-    letterSpacing: "0.1em",
-    marginBottom: "16px",
-  },
-  heroTitle: {
-    fontSize: "56px",
-    fontWeight: "900",
-    color: "#1A1A1A",
-    lineHeight: "1.1",
-    margin: "0 0 20px",
-  },
-  heroHighlight: {
-    color: "#FF6B6B",
-    display: "inline-block",
-  },
-  heroSubtitle: {
-    fontSize: "20px",
-    color: "#6B7280",
-    lineHeight: "1.6",
-    margin: "0 0 32px",
-    maxWidth: "450px",
-  },
-  heroButtons: {
-    display: "flex",
-    gap: "16px",
-    flexWrap: "wrap",
-  },
-  heroCta: {
-    padding: "18px 36px",
-    borderRadius: "16px",
-    border: "none",
-    background: "linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)",
-    color: "white",
-    fontSize: "18px",
-    fontWeight: "700",
-    cursor: "pointer",
-    boxShadow: "0 8px 30px rgba(255, 107, 107, 0.4)",
-    fontFamily: "inherit",
-  },
-  heroSecondary: {
-    padding: "18px 36px",
-    borderRadius: "16px",
-    border: "3px solid #4ECDC4",
-    background: "transparent",
-    color: "#4ECDC4",
-    fontSize: "18px",
-    fontWeight: "700",
-    cursor: "pointer",
-    fontFamily: "inherit",
-  },
-  heroNote: {
-    fontSize: "14px",
-    color: "#9CA3AF",
-    marginTop: "16px",
-  },
-
-  // Chat Preview
-  heroVisual: {
-    flex: "1 1 320px",
-    display: "flex",
-    justifyContent: "center",
-  },
-  chatPreview: {
-    width: "100%",
-    maxWidth: "360px",
-    background: "white",
-    borderRadius: "28px",
-    boxShadow: "0 30px 60px -15px rgba(0, 0, 0, 0.2)",
-    overflow: "hidden",
-    border: "3px solid #FFE66D",
-    transform: "rotate(2deg)",
-  },
-  previewHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    padding: "18px 22px",
-    background: "linear-gradient(135deg, #FFE66D 0%, #FFF8E7 100%)",
-    borderBottom: "2px solid #FFE66D",
-  },
-  previewAvatar: {
-    width: "44px",
-    height: "44px",
-    background: "linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)",
-    borderRadius: "14px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    fontSize: "20px",
-    fontWeight: "900",
-    color: "white",
-  },
-  previewName: {
-    margin: 0,
-    fontWeight: "700",
-    color: "#1A1A1A",
-    fontSize: "16px",
-  },
-  previewStatus: {
-    margin: 0,
-    fontSize: "12px",
-    color: "#4ECDC4",
-  },
-  previewMessages: {
-    padding: "22px",
-    display: "flex",
-    flexDirection: "column",
-    gap: "14px",
-  },
-  previewBotMsg: {
-    background: "#F9FAFB",
-    padding: "14px 18px",
-    borderRadius: "18px 18px 18px 6px",
-    fontSize: "14px",
-    color: "#374151",
-    maxWidth: "85%",
-    border: "2px solid #F3F4F6",
-  },
-  previewUserMsg: {
-    background: "linear-gradient(135deg, #4ECDC4 0%, #44B09E 100%)",
-    padding: "14px 18px",
-    borderRadius: "18px 18px 6px 18px",
-    fontSize: "14px",
-    color: "white",
-    maxWidth: "85%",
-    marginLeft: "auto",
   },
 
   // Features
   features: {
-    padding: "100px 24px",
+    padding: "80px 24px",
+    background: COLORS.white,
+  },
+  featuresContent: {
     maxWidth: "1100px",
     margin: "0 auto",
-    position: "relative",
-    zIndex: 1,
   },
   sectionTag: {
-    fontSize: "14px",
-    fontWeight: "700",
-    color: "#FF6B6B",
+    fontSize: "11px",
+    fontWeight: "600",
+    color: COLORS.greenSage,
     letterSpacing: "0.1em",
+    textTransform: "uppercase",
     textAlign: "center",
     marginBottom: "12px",
   },
   sectionTitle: {
-    fontSize: "42px",
-    fontWeight: "900",
-    color: "#1A1A1A",
+    fontSize: "36px",
+    fontWeight: "800",
+    color: COLORS.textPrimary,
     textAlign: "center",
-    margin: "0 0 50px",
+    margin: "0 0 48px",
+    letterSpacing: "-0.02em",
   },
   featuresGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-    gap: "28px",
+    gap: "24px",
   },
   featureCard: {
-    background: "white",
-    borderRadius: "24px",
-    padding: "36px",
-    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.08)",
-    border: "3px solid transparent",
-    transition: "all 0.3s ease",
+    background: COLORS.bgMain,
+    borderRadius: "12px",
+    padding: "32px",
   },
   featureIcon: {
-    width: "70px",
-    height: "70px",
-    borderRadius: "20px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
     fontSize: "32px",
-    marginBottom: "20px",
+    marginBottom: "16px",
   },
   featureTitle: {
-    fontSize: "22px",
-    fontWeight: "800",
-    color: "#1A1A1A",
-    margin: "0 0 12px",
+    fontSize: "18px",
+    fontWeight: "700",
+    color: COLORS.textPrimary,
+    margin: "0 0 10px",
   },
   featureDesc: {
-    fontSize: "16px",
-    color: "#6B7280",
+    fontSize: "15px",
+    color: COLORS.textSecondary,
     lineHeight: "1.6",
     margin: 0,
   },
 
-  // Big Text
-  bigText: {
-    padding: "100px 24px",
-    background: "linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 50%, #FFE66D 100%)",
-    textAlign: "center",
-    position: "relative",
-    zIndex: 1,
-  },
-  bigTextTitle: {
-    fontSize: "48px",
-    fontWeight: "900",
-    color: "white",
-    lineHeight: "1.2",
-    maxWidth: "900px",
-    margin: "0 auto",
-    textShadow: "0 4px 20px rgba(0, 0, 0, 0.15)",
-  },
-  bigTextHighlight: {
-    color: "#FFE66D",
-    display: "inline-block",
-  },
-
   // Testimonials
   testimonials: {
-    padding: "100px 24px",
-    background: "#FAFAF8",
-    position: "relative",
-    zIndex: 1,
+    padding: "80px 24px",
+    background: COLORS.bgMain,
+  },
+  testimonialsContent: {
+    maxWidth: "1100px",
+    margin: "0 auto",
   },
   testimonialsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-    gap: "28px",
-    maxWidth: "1100px",
-    margin: "0 auto",
+    gap: "24px",
   },
   testimonialCard: {
-    background: "white",
-    borderRadius: "24px",
-    padding: "36px",
-    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.08)",
-    border: "3px solid #F3F4F6",
+    background: COLORS.white,
+    borderRadius: "12px",
+    padding: "32px",
   },
   testimonialStars: {
-    fontSize: "24px",
+    fontSize: "18px",
+    color: "#F59E0B",
     marginBottom: "16px",
   },
   testimonialText: {
-    fontSize: "16px",
-    color: "#374151",
+    fontSize: "15px",
+    color: COLORS.textPrimary,
     lineHeight: "1.7",
-    margin: "0 0 20px",
-    fontStyle: "italic",
-  },
-  testimonialName: {
-    fontSize: "16px",
-    fontWeight: "700",
-    color: "#1A1A1A",
-    margin: 0,
-  },
-
-  // CTA
-  ctaSection: {
-    padding: "100px 24px",
-    textAlign: "center",
-    background: "linear-gradient(180deg, #FFFEF7 0%, #FFF8E7 100%)",
-    position: "relative",
-    zIndex: 1,
-  },
-  ctaTitle: {
-    fontSize: "42px",
-    fontWeight: "900",
-    color: "#1A1A1A",
     margin: "0 0 16px",
   },
-  ctaSubtitle: {
-    fontSize: "20px",
-    color: "#6B7280",
-    margin: "0 0 36px",
-  },
-  ctaButton: {
-    padding: "20px 48px",
-    borderRadius: "16px",
-    border: "none",
-    background: "linear-gradient(135deg, #4ECDC4 0%, #44B09E 100%)",
-    color: "white",
-    fontSize: "20px",
-    fontWeight: "800",
-    cursor: "pointer",
-    boxShadow: "0 10px 40px rgba(78, 205, 196, 0.4)",
-    fontFamily: "inherit",
+  testimonialName: {
+    fontSize: "14px",
+    fontWeight: "600",
+    color: COLORS.textSecondary,
+    margin: 0,
   },
 
   // Footer
   footer: {
-    padding: "60px 24px",
-    background: "#1A1A1A",
+    padding: "48px 24px",
+    background: COLORS.greenDeep,
     textAlign: "center",
-    position: "relative",
-    zIndex: 1,
   },
   footerContent: {
     maxWidth: "400px",
     margin: "0 auto",
   },
   footerLogo: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "12px",
-    marginBottom: "20px",
-  },
-  footerLogoIcon: {
-    width: "44px",
-    height: "44px",
-    background: "linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)",
-    borderRadius: "14px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
     fontSize: "20px",
-    fontWeight: "900",
-    color: "white",
-  },
-  footerLogoText: {
-    fontSize: "22px",
-    fontWeight: "800",
-    color: "white",
+    fontWeight: "700",
+    color: COLORS.white,
+    marginBottom: "12px",
   },
   footerText: {
-    fontSize: "16px",
-    color: "#9CA3AF",
-    margin: "0 0 24px",
+    fontSize: "14px",
+    color: COLORS.greenLight,
+    margin: "0 0 20px",
   },
   footerLinks: {
     display: "flex",
     justifyContent: "center",
-    gap: "32px",
-    marginBottom: "28px",
+    gap: "24px",
+    marginBottom: "20px",
   },
   footerLink: {
-    fontSize: "16px",
-    color: "#FF6B6B",
+    fontSize: "14px",
+    color: COLORS.greenSage,
     cursor: "pointer",
     textDecoration: "none",
-    fontWeight: "600",
+    fontWeight: "500",
   },
   footerCopyright: {
-    fontSize: "14px",
-    color: "#6B7280",
+    fontSize: "12px",
+    color: COLORS.textTertiary,
     margin: 0,
   },
 };

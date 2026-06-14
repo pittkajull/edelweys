@@ -3,6 +3,22 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../services/supabase";
 
+const COLORS = {
+  bgMain: "#EEEEE9",
+  greenDeep: "#1E3319",
+  greenForest: "#2D4A29",
+  greenSage: "#6B9162",
+  greenLight: "#A8C5A0",
+  borderSoft: "#D5E0D2",
+  borderLight: "#C5D5C2",
+  textPrimary: "#1E3319",
+  textSecondary: "#5A6B57",
+  textTertiary: "#7A8B76",
+  white: "#FFFFFF",
+  chatUserBg: "#6B9162",
+  chatBotBg: "#FFFFFF",
+};
+
 export default function Chat() {
   const [messages, setMessages] = useState([
     {
@@ -27,9 +43,7 @@ export default function Chat() {
   useEffect(() => {
     const checkAuth = async () => {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        navigate("/login");
-      } else {
+      if (session) {
         setUserId(session.user.id);
         const { data: prof } = await supabase
           .from("profiles")
@@ -48,7 +62,6 @@ export default function Chat() {
   }, [messages]);
 
   const startNewChat = () => {
-    // Save current chat to history if there are messages beyond initial
     if (messages.length > 1) {
       const firstUserMsg = messages.find(m => m.role === "user");
       const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) : "Obrolan baru";
@@ -60,7 +73,6 @@ export default function Chat() {
       };
       setChatHistory(prev => [newHistory, ...prev]);
     }
-    // Start fresh
     setMessages([
       {
         role: "assistant",
@@ -71,16 +83,6 @@ export default function Chat() {
   };
 
   const loadChat = (chat) => {
-    // Save current chat if needed
-    if (messages.length > 1 && activeChatId !== chat.id) {
-      const existingIndex = chatHistory.findIndex(c => c.id === activeChatId);
-      if (existingIndex >= 0) {
-        const updated = [...chatHistory];
-        updated[existingIndex].messages = [...messages];
-        setChatHistory(updated);
-      }
-    }
-    // Load selected chat
     setMessages(chat.messages);
     setActiveChatId(chat.id);
   };
@@ -166,41 +168,36 @@ export default function Chat() {
           <motion.div
             style={styles.sidebar}
             initial={{ width: 0, opacity: 0 }}
-            animate={{ width: 280, opacity: 1 }}
+            animate={{ width: 200, opacity: 1 }}
             exit={{ width: 0, opacity: 0 }}
-            transition={{ duration: 0.3 }}
+            transition={{ duration: 0.2 }}
           >
             <div style={styles.sidebarContent}>
               {/* Logo */}
               <div style={styles.sidebarHeader}>
-                <div style={styles.logo}>
-                  <span style={styles.logoText}>E</span>
-                </div>
-                <span style={styles.logoTitle}>Edelweys</span>
+                <span style={styles.logoText}>✦ Edelweys</span>
               </div>
 
               {/* New Chat Button */}
               <button onClick={startNewChat} style={styles.newChatBtn}>
-                <span style={styles.newChatIcon}>+</span>
-                Obrolan Baru
+                + Obrolan Baru
               </button>
 
               {/* Chat History */}
               <div style={styles.historySection}>
                 {chatHistory.length > 0 && (
-                  <p style={styles.historyLabel}>Riwayat Obrolan</p>
+                  <p style={styles.historyLabel}>Riwayat</p>
                 )}
                 {chatHistory.map((chat) => (
                   <div
                     key={chat.id}
                     style={{
                       ...styles.historyItem,
-                      background: activeChatId === chat.id ? "rgba(212, 165, 116, 0.15)" : "transparent",
+                      background: activeChatId === chat.id ? "rgba(107, 145, 98, 0.2)" : "transparent",
                     }}
                     onClick={() => loadChat(chat)}
                   >
                     <p style={styles.historyTitle}>{chat.title}</p>
-                    <p style={styles.historyTime}>{chat.time}</p>
                   </div>
                 ))}
               </div>
@@ -209,7 +206,7 @@ export default function Chat() {
               <div style={styles.sidebarBottom}>
                 <div
                   style={styles.profileSection}
-                  onClick={() => setShowProfileEdit(true)}
+                  onClick={() => userId && setShowProfileEdit(true)}
                 >
                   <div style={styles.profileAvatar}>
                     <span style={styles.profileAvatarText}>
@@ -217,13 +214,14 @@ export default function Chat() {
                     </span>
                   </div>
                   <div style={styles.profileInfo}>
-                    <p style={styles.profileName}>{profile?.full_name || "User"}</p>
-                    <p style={styles.profileEmail}>Klik untuk edit profile</p>
+                    <p style={styles.profileName}>{profile?.full_name || "Guest"}</p>
                   </div>
                 </div>
-                <button onClick={handleLogout} style={styles.logoutBtn}>
-                  Logout
-                </button>
+                {userId && (
+                  <button onClick={handleLogout} style={styles.logoutBtn}>
+                    Logout
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>
@@ -236,19 +234,14 @@ export default function Chat() {
         <div style={styles.chatHeader}>
           <div style={styles.chatHeaderLeft}>
             <button onClick={() => setSidebarOpen(!sidebarOpen)} style={styles.menuBtn}>
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 12h18M3 6h18M3 18h18" />
               </svg>
             </button>
-            <div style={styles.chatAvatar}>
-              <span style={styles.chatAvatarText}>E</span>
-            </div>
+            <div style={styles.chatAvatar}>E</div>
             <div>
               <p style={styles.chatName}>Edelweys</p>
-              <div style={styles.statusContainer}>
-                <div style={styles.statusDot} />
-                <p style={styles.statusText}>Online</p>
-              </div>
+              <p style={styles.statusText}>● Online</p>
             </div>
           </div>
           <button onClick={() => navigate("/dashboard")} style={styles.dashBtn}>
@@ -267,9 +260,7 @@ export default function Chat() {
               }}
             >
               {msg.role === "assistant" && (
-                <div style={styles.botAvatar}>
-                  <span style={styles.botAvatarText}>E</span>
-                </div>
+                <div style={styles.botAvatar}>E</div>
               )}
               <div
                 style={{
@@ -280,9 +271,7 @@ export default function Chat() {
                 {formatMessage(msg.content)}
               </div>
               {msg.role === "user" && (
-                <div style={styles.userAvatar}>
-                  <span style={styles.userAvatarText}>U</span>
-                </div>
+                <div style={styles.userAvatar}>U</div>
               )}
             </div>
           ))}
@@ -296,9 +285,7 @@ export default function Chat() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
               >
-                <div style={styles.botAvatar}>
-                  <span style={styles.botAvatarText}>E</span>
-                </div>
+                <div style={styles.botAvatar}>E</div>
                 <div style={styles.typingBubble}>
                   <div style={styles.typingDots}>
                     <div style={styles.dot} className="bounce1" />
@@ -336,7 +323,6 @@ export default function Chat() {
               {loading ? "..." : "Kirim"}
             </button>
           </div>
-          <p style={styles.inputHint}>Tekan Enter untuk kirim</p>
         </div>
       </div>
 
@@ -352,9 +338,9 @@ export default function Chat() {
           >
             <motion.div
               style={styles.modal}
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
               onClick={(e) => e.stopPropagation()}
             >
               <h3 style={styles.modalTitle}>Edit Profile</h3>
@@ -416,172 +402,129 @@ const styles = {
     display: "flex",
     height: "100vh",
     width: "100vw",
-    background: "linear-gradient(135deg, #FFF8E7 0%, #FFFEF7 50%, #FFF5E1 100%)",
+    background: COLORS.bgMain,
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    fontFamily: "'DM Sans', system-ui, sans-serif",
+    fontFamily: "'Plus Jakarta Sans', system-ui, sans-serif",
     overflow: "hidden",
   },
 
-  // Sidebar Styles
+  // Sidebar
   sidebar: {
     height: "100%",
-    background: "rgba(255, 255, 255, 0.4)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-    borderRight: "1px solid rgba(255, 255, 255, 0.5)",
+    background: COLORS.greenDeep,
     overflow: "hidden",
     flexShrink: 0,
   },
   sidebarContent: {
-    width: "280px",
+    width: "200px",
     height: "100%",
     display: "flex",
     flexDirection: "column",
   },
   sidebarHeader: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    padding: "20px",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.5)",
-  },
-  logo: {
-    width: "44px",
-    height: "44px",
-    background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
-    borderRadius: "14px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    boxShadow: "0 4px 12px rgba(212, 165, 116, 0.35)",
+    padding: "20px 16px",
+    borderBottom: "1px solid rgba(255,255,255,0.1)",
   },
   logoText: {
-    fontSize: "20px",
-    fontWeight: "800",
-    color: "white",
-  },
-  logoTitle: {
-    fontSize: "18px",
+    fontSize: "16px",
     fontWeight: "700",
-    color: "#5D4E37",
+    color: COLORS.white,
   },
   newChatBtn: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    margin: "16px 20px",
-    padding: "12px 16px",
-    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
+    margin: "12px 12px",
+    padding: "10px 14px",
+    background: COLORS.greenSage,
     border: "none",
-    borderRadius: "12px",
-    color: "white",
-    fontSize: "14px",
+    borderRadius: "99px",
+    color: COLORS.white,
+    fontSize: "13px",
     fontWeight: "600",
     cursor: "pointer",
-    boxShadow: "0 4px 12px rgba(212, 165, 116, 0.3)",
-    fontFamily: "inherit",
-  },
-  newChatIcon: {
-    fontSize: "18px",
-    fontWeight: "700",
+    textAlign: "left",
   },
   historySection: {
     flex: 1,
     overflowY: "auto",
-    padding: "0 12px",
+    padding: "0 8px",
   },
   historyLabel: {
-    fontSize: "11px",
+    fontSize: "10px",
     fontWeight: "600",
-    color: "#9C8B7A",
+    color: COLORS.textTertiary,
+    letterSpacing: "0.1em",
     textTransform: "uppercase",
-    letterSpacing: "0.05em",
-    padding: "8px 8px 12px",
+    padding: "8px 8px 8px",
     margin: 0,
   },
   historyItem: {
-    padding: "12px",
-    borderRadius: "10px",
+    padding: "10px 12px",
+    borderRadius: "8px",
     cursor: "pointer",
-    marginBottom: "4px",
-    transition: "background 0.2s",
+    marginBottom: "2px",
   },
   historyTitle: {
     fontSize: "13px",
     fontWeight: "500",
-    color: "#5D4E37",
-    margin: "0 0 4px",
+    color: "#7A9B76",
+    margin: 0,
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
   },
-  historyTime: {
-    fontSize: "11px",
-    color: "#9C8B7A",
-    margin: 0,
-  },
   sidebarBottom: {
-    padding: "16px 20px",
-    borderTop: "1px solid rgba(255, 255, 255, 0.5)",
-    background: "rgba(255, 255, 255, 0.3)",
+    padding: "12px",
+    borderTop: "1px solid rgba(255,255,255,0.1)",
   },
   profileSection: {
     display: "flex",
     alignItems: "center",
-    gap: "12px",
-    marginBottom: "12px",
+    gap: "10px",
     padding: "8px",
-    borderRadius: "10px",
+    borderRadius: "8px",
     cursor: "pointer",
-    transition: "background 0.2s",
+    marginBottom: "8px",
   },
   profileAvatar: {
-    width: "40px",
-    height: "40px",
-    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
-    borderRadius: "12px",
+    width: "32px",
+    height: "32px",
+    background: COLORS.greenSage,
+    borderRadius: "8px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
   profileAvatarText: {
-    fontSize: "16px",
+    fontSize: "14px",
     fontWeight: "700",
-    color: "white",
+    color: COLORS.white,
   },
   profileInfo: {
     flex: 1,
     overflow: "hidden",
   },
   profileName: {
-    fontSize: "14px",
+    fontSize: "13px",
     fontWeight: "600",
-    color: "#5D4E37",
-    margin: 0,
-  },
-  profileEmail: {
-    fontSize: "11px",
-    color: "#9C8B7A",
+    color: COLORS.white,
     margin: 0,
   },
   logoutBtn: {
     width: "100%",
-    padding: "10px",
-    background: "rgba(197, 48, 48, 0.1)",
-    border: "1px solid rgba(197, 48, 48, 0.2)",
-    borderRadius: "10px",
-    color: "#C53030",
-    fontSize: "13px",
+    padding: "8px",
+    background: "rgba(220, 38, 38, 0.2)",
+    border: "none",
+    borderRadius: "8px",
+    color: "#FCA5A5",
+    fontSize: "12px",
     fontWeight: "500",
     cursor: "pointer",
-    fontFamily: "inherit",
   },
 
-  // Main Chat Styles
+  // Main Chat
   mainChat: {
     flex: 1,
     display: "flex",
@@ -593,12 +536,9 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
-    padding: "14px 24px",
-    background: "rgba(255, 255, 255, 0.4)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-    borderBottom: "1px solid rgba(255, 255, 255, 0.5)",
-    boxShadow: "0 4px 20px rgba(139, 119, 80, 0.08)",
+    padding: "12px 20px",
+    background: COLORS.white,
+    borderBottom: `1px solid ${COLORS.borderSoft}`,
   },
   chatHeaderLeft: {
     display: "flex",
@@ -606,212 +546,169 @@ const styles = {
     gap: "12px",
   },
   menuBtn: {
-    width: "36px",
-    height: "36px",
-    borderRadius: "10px",
-    border: "1px solid rgba(212, 165, 116, 0.3)",
-    background: "rgba(255, 255, 255, 0.4)",
-    color: "#5D4E37",
+    width: "32px",
+    height: "32px",
+    borderRadius: "8px",
+    border: `1px solid ${COLORS.borderSoft}`,
+    background: COLORS.white,
+    color: COLORS.textPrimary,
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    transition: "all 0.2s",
   },
   chatAvatar: {
-    width: "44px",
-    height: "44px",
-    background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
-    borderRadius: "14px",
+    width: "36px",
+    height: "36px",
+    background: COLORS.greenSage,
+    borderRadius: "10px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    boxShadow: "0 4px 12px rgba(212, 165, 116, 0.35)",
-  },
-  chatAvatarText: {
-    fontSize: "18px",
-    fontWeight: "800",
-    color: "white",
+    fontSize: "14px",
+    fontWeight: "700",
+    color: COLORS.white,
   },
   chatName: {
     margin: 0,
     fontWeight: "700",
-    color: "#5D4E37",
-    fontSize: "16px",
-  },
-  statusContainer: {
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-    marginTop: "2px",
-  },
-  statusDot: {
-    width: "8px",
-    height: "8px",
-    borderRadius: "50%",
-    background: "#68D391",
-    boxShadow: "0 0 8px rgba(104, 211, 145, 0.5)",
+    color: COLORS.textPrimary,
+    fontSize: "15px",
   },
   statusText: {
     margin: 0,
-    fontSize: "12px",
-    color: "#9C8B7A",
+    fontSize: "11px",
+    color: COLORS.greenSage,
   },
   dashBtn: {
-    padding: "10px 18px",
-    borderRadius: "10px",
-    border: "1px solid rgba(212, 165, 116, 0.3)",
-    background: "rgba(255, 255, 255, 0.4)",
-    color: "#5D4E37",
+    padding: "8px 16px",
+    borderRadius: "99px",
+    border: `1px solid ${COLORS.borderSoft}`,
+    background: COLORS.white,
+    color: COLORS.textPrimary,
     cursor: "pointer",
     fontSize: "13px",
     fontWeight: "500",
-    backdropFilter: "blur(10px)",
-    fontFamily: "inherit",
   },
 
-  // Messages Styles
+  // Messages
   messages: {
     flex: 1,
     overflowY: "auto",
-    padding: "24px",
+    padding: "20px",
     display: "flex",
     flexDirection: "column",
-    gap: "16px",
+    gap: "12px",
   },
   messageRow: {
     display: "flex",
     alignItems: "flex-end",
-    gap: "10px",
+    gap: "8px",
     maxWidth: "70%",
   },
   botAvatar: {
-    width: "32px",
-    height: "32px",
-    background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
-    borderRadius: "10px",
+    width: "28px",
+    height: "28px",
+    background: COLORS.greenSage,
+    borderRadius: "8px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    boxShadow: "0 3px 10px rgba(212, 165, 116, 0.3)",
-  },
-  botAvatarText: {
-    fontSize: "14px",
-    fontWeight: "800",
-    color: "white",
+    fontSize: "12px",
+    fontWeight: "700",
+    color: COLORS.white,
   },
   userAvatar: {
-    width: "32px",
-    height: "32px",
-    background: "linear-gradient(135deg, #68D391 0%, #48BB78 100%)",
-    borderRadius: "10px",
+    width: "28px",
+    height: "28px",
+    background: COLORS.greenDeep,
+    borderRadius: "8px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     flexShrink: 0,
-    boxShadow: "0 3px 10px rgba(104, 211, 145, 0.3)",
-  },
-  userAvatarText: {
-    fontSize: "14px",
-    fontWeight: "800",
-    color: "white",
+    fontSize: "12px",
+    fontWeight: "700",
+    color: COLORS.white,
   },
   bubble: {
-    padding: "14px 18px",
-    borderRadius: "18px",
+    padding: "12px 16px",
     fontSize: "14px",
-    lineHeight: "1.6",
+    lineHeight: "1.5",
     wordBreak: "break-word",
   },
   userBubble: {
-    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
-    color: "white",
-    borderBottomRightRadius: "4px",
+    background: COLORS.chatUserBg,
+    color: COLORS.white,
+    borderRadius: "12px 12px 2px 12px",
     marginLeft: "auto",
-    boxShadow: "0 4px 15px rgba(212, 165, 116, 0.3)",
   },
   botBubble: {
-    background: "rgba(255, 255, 255, 0.6)",
-    backdropFilter: "blur(15px)",
-    WebkitBackdropFilter: "blur(15px)",
-    color: "#5D4E37",
-    borderBottomLeftRadius: "4px",
-    boxShadow: "0 4px 15px rgba(139, 119, 80, 0.08)",
-    border: "1px solid rgba(255, 255, 255, 0.5)",
-    textAlign: "left",
+    background: COLORS.chatBotBg,
+    color: COLORS.textPrimary,
+    borderRadius: "12px 12px 12px 2px",
+    border: `1px solid ${COLORS.borderSoft}`,
   },
   typingBubble: {
-    background: "rgba(255, 255, 255, 0.6)",
-    backdropFilter: "blur(15px)",
-    WebkitBackdropFilter: "blur(15px)",
-    padding: "14px 18px",
-    borderRadius: "18px",
-    borderBottomLeftRadius: "4px",
-    boxShadow: "0 4px 15px rgba(139, 119, 80, 0.08)",
-    border: "1px solid rgba(255, 255, 255, 0.5)",
+    background: COLORS.white,
+    padding: "12px 16px",
+    borderRadius: "12px 12px 12px 2px",
+    border: `1px solid ${COLORS.borderSoft}`,
   },
   typingDots: {
     display: "flex",
-    gap: "5px",
+    gap: "4px",
   },
   dot: {
-    width: "8px",
-    height: "8px",
+    width: "6px",
+    height: "6px",
     borderRadius: "50%",
-    background: "#D4A574",
-    boxShadow: "0 2px 6px rgba(212, 165, 116, 0.4)",
+    background: COLORS.greenSage,
   },
 
-  // Input Area Styles
+  // Input Area
   inputArea: {
-    padding: "16px 24px 20px",
-    background: "rgba(255, 255, 255, 0.4)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
-    borderTop: "1px solid rgba(255, 255, 255, 0.5)",
+    padding: "12px 20px 16px",
+    background: COLORS.white,
+    borderTop: `1px solid ${COLORS.borderSoft}`,
   },
   inputContainer: {
     display: "flex",
-    gap: "12px",
+    gap: "10px",
     alignItems: "flex-end",
   },
   textarea: {
     flex: 1,
-    padding: "14px 18px",
-    borderRadius: "14px",
-    border: "2px solid rgba(255, 255, 255, 0.4)",
-    background: "rgba(255, 255, 255, 0.4)",
+    padding: "10px 14px",
+    borderRadius: "99px",
+    border: `1px solid ${COLORS.borderSoft}`,
+    background: COLORS.white,
     fontSize: "14px",
-    color: "#5D4E37",
+    color: COLORS.textPrimary,
     resize: "none",
     outline: "none",
     fontFamily: "inherit",
-    minHeight: "48px",
-    maxHeight: "120px",
-    transition: "all 0.2s",
+    minHeight: "40px",
+    maxHeight: "100px",
   },
   sendBtn: {
-    padding: "14px 24px",
-    borderRadius: "14px",
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
     border: "none",
-    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
-    color: "white",
-    fontSize: "14px",
+    background: COLORS.greenSage,
+    color: COLORS.white,
+    fontSize: "13px",
     fontWeight: "600",
     cursor: "pointer",
-    boxShadow: "0 4px 15px rgba(212, 165, 116, 0.35)",
-    transition: "all 0.2s",
-    fontFamily: "inherit",
-  },
-  inputHint: {
-    margin: "8px 0 0",
-    fontSize: "11px",
-    color: "#9C8B7A",
-    textAlign: "center",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
   },
 
-  // Modal Styles
+  // Modal
   modalOverlay: {
     position: "fixed",
     top: 0,
@@ -819,74 +716,71 @@ const styles = {
     right: 0,
     bottom: 0,
     background: "rgba(0, 0, 0, 0.3)",
-    backdropFilter: "blur(4px)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     zIndex: 1000,
   },
   modal: {
-    background: "white",
-    borderRadius: "20px",
-    padding: "32px",
+    background: COLORS.white,
+    borderRadius: "16px",
+    padding: "28px",
     width: "100%",
-    maxWidth: "400px",
+    maxWidth: "360px",
     boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)",
   },
   modalTitle: {
-    fontSize: "20px",
+    fontSize: "18px",
     fontWeight: "700",
-    color: "#1A1A1A",
-    margin: "0 0 24px",
+    color: COLORS.textPrimary,
+    margin: "0 0 20px",
   },
   modalField: {
-    marginBottom: "20px",
+    marginBottom: "16px",
   },
   modalLabel: {
     display: "block",
     fontSize: "13px",
-    fontWeight: "500",
-    color: "#374151",
-    marginBottom: "8px",
+    fontWeight: "600",
+    color: COLORS.textPrimary,
+    marginBottom: "6px",
   },
   modalInput: {
     width: "100%",
-    padding: "12px 16px",
+    padding: "10px 14px",
     borderRadius: "10px",
-    border: "1.5px solid #E8E4DF",
-    background: "#FAFAF8",
-    fontSize: "15px",
-    color: "#1A1A1A",
+    border: `1px solid ${COLORS.borderLight}`,
+    background: COLORS.white,
+    fontSize: "14px",
+    color: COLORS.textPrimary,
     outline: "none",
     fontFamily: "inherit",
     boxSizing: "border-box",
   },
   modalActions: {
     display: "flex",
-    gap: "12px",
+    gap: "10px",
     justifyContent: "flex-end",
-    marginTop: "24px",
+    marginTop: "20px",
   },
   modalCancelBtn: {
-    padding: "10px 20px",
+    padding: "8px 16px",
     borderRadius: "10px",
-    border: "1px solid #E8E4DF",
-    background: "white",
-    color: "#374151",
-    fontSize: "14px",
+    border: `1px solid ${COLORS.borderSoft}`,
+    background: COLORS.white,
+    color: COLORS.textSecondary,
+    fontSize: "13px",
     fontWeight: "500",
     cursor: "pointer",
-    fontFamily: "inherit",
   },
   modalSaveBtn: {
-    padding: "10px 20px",
+    padding: "8px 16px",
     borderRadius: "10px",
     border: "none",
-    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
-    color: "white",
-    fontSize: "14px",
-    fontWeight: "500",
+    background: COLORS.greenSage,
+    color: COLORS.white,
+    fontSize: "13px",
+    fontWeight: "600",
     cursor: "pointer",
-    fontFamily: "inherit",
   },
 };
