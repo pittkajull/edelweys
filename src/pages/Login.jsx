@@ -23,7 +23,6 @@ export default function Login() {
       });
 
       if (error) throw error;
-
       navigate("/dashboard");
     } catch (err) {
       setError(err.message || "Login gagal");
@@ -32,61 +31,45 @@ export default function Login() {
     }
   };
 
-  // Floating shapes
-  const shapes = [
-    { size: 300, x: -50, y: -80, opacity: 0.15 },
-    { size: 200, x: "70%", y: "60%", opacity: 0.1 },
-    { size: 150, x: "20%", y: "70%", opacity: 0.12 },
-  ];
-
   return (
     <div style={styles.container}>
-      {/* Animated Background */}
-      <div style={styles.bgContainer}>
-        {shapes.map((shape, i) => (
-          <motion.div
-            key={i}
-            style={{
-              ...styles.floatingShape,
-              width: shape.size,
-              height: shape.size,
-              left: typeof shape.x === "number" ? shape.x : shape.x,
-              top: typeof shape.y === "number" ? shape.y : shape.y,
-              opacity: shape.opacity,
-            }}
-            animate={{
-              y: [0, -20, 0, 20, 0],
-              x: [0, 15, 0, -15, 0],
-            }}
-            transition={{
-              duration: 15 + i * 5,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          />
-        ))}
+      {/* Floating Elements */}
+      <div style={styles.floatingElements}>
+        <motion.div
+          style={{ ...styles.floatingShape, background: "#FF6B6B" }}
+          animate={{ y: [0, -20, 0], rotate: [0, 10, -10, 0] }}
+          transition={{ duration: 5, repeat: Infinity }}
+        />
+        <motion.div
+          style={{ ...styles.floatingShape, background: "#4ECDC4", width: 80, height: 80, top: "20%", left: "10%" }}
+          animate={{ y: [0, 15, 0], x: [0, -10, 0] }}
+          transition={{ duration: 6, repeat: Infinity }}
+        />
+        <motion.div
+          style={{ ...styles.floatingShape, background: "#FFE66D", width: 100, height: 100, bottom: "15%", right: "10%" }}
+          animate={{ scale: [1, 1.2, 1], rotate: [0, 180, 360] }}
+          transition={{ duration: 8, repeat: Infinity }}
+        />
       </div>
 
-      {/* Main Card */}
       <motion.div
         style={styles.card}
-        initial={{ opacity: 0, y: 40, scale: 0.95 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        initial={{ opacity: 0, y: 40, rotate: -2 }}
+        animate={{ opacity: 1, y: 0, rotate: 0 }}
+        transition={{ duration: 0.5, type: "spring" }}
       >
         {/* Logo */}
-        <motion.div
-          style={styles.logoSection}
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2 }}
-        >
-          <div style={styles.logo}>
-            <span style={styles.logoText}>E</span>
-          </div>
+        <div style={styles.logoSection}>
+          <motion.div
+            style={styles.logo}
+            animate={{ rotate: [0, 5, -5, 0] }}
+            transition={{ duration: 4, repeat: Infinity }}
+          >
+            E
+          </motion.div>
           <h1 style={styles.title}>Edelweys</h1>
           <p style={styles.subtitle}>Health Companion</p>
-        </motion.div>
+        </div>
 
         {/* Error */}
         <AnimatePresence>
@@ -108,63 +91,57 @@ export default function Login() {
             style={styles.inputGroup}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.3 }}
+            transition={{ delay: 0.2 }}
           >
             <label style={styles.label}>Email</label>
-            <div style={{
-              ...styles.inputWrapper,
-              borderColor: focusedField === "email" ? "#D4A574" : "rgba(255,255,255,0.4)",
-              boxShadow: focusedField === "email" ? "0 0 20px rgba(212, 165, 116, 0.3)" : "none",
-            }}>
-              <input
-                type="email"
-                placeholder="email@domain.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onFocus={() => setFocusedField("email")}
-                onBlur={() => setFocusedField(null)}
-                style={styles.input}
-                required
-              />
-            </div>
+            <input
+              type="email"
+              placeholder="email@domain.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setFocusedField("email")}
+              onBlur={() => setFocusedField(null)}
+              style={{
+                ...styles.input,
+                borderColor: focusedField === "email" ? "#FF6B6B" : "#E5E7EB",
+              }}
+              required
+            />
           </motion.div>
 
           <motion.div
             style={styles.inputGroup}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.3 }}
           >
             <label style={styles.label}>Password</label>
-            <div style={{
-              ...styles.inputWrapper,
-              borderColor: focusedField === "password" ? "#D4A574" : "rgba(255,255,255,0.4)",
-              boxShadow: focusedField === "password" ? "0 0 20px rgba(212, 165, 116, 0.3)" : "none",
-            }}>
-              <input
-                type="password"
-                placeholder="Masukkan password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                onFocus={() => setFocusedField("password")}
-                onBlur={() => setFocusedField(null)}
-                style={styles.input}
-                required
-              />
-            </div>
+            <input
+              type="password"
+              placeholder="Masukkan password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              onFocus={() => setFocusedField("password")}
+              onBlur={() => setFocusedField(null)}
+              style={{
+                ...styles.input,
+                borderColor: focusedField === "password" ? "#FF6B6B" : "#E5E7EB",
+              }}
+              required
+            />
           </motion.div>
 
           <motion.button
             type="submit"
             style={styles.button}
-            whileHover={{ scale: 1.02, boxShadow: "0 10px 40px rgba(212, 165, 116, 0.4)" }}
+            whileHover={{ scale: 1.02, rotate: -1 }}
             whileTap={{ scale: 0.98 }}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.4 }}
             disabled={loading}
           >
-            {loading ? "Masuk..." : "Masuk"}
+            {loading ? "Masuk..." : "Masuk 🚀"}
           </motion.button>
         </form>
 
@@ -172,11 +149,23 @@ export default function Login() {
           style={styles.link}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          transition={{ delay: 0.5 }}
         >
           Belum punya akun?{" "}
           <Link to="/register" style={styles.linkBold}>
             Daftar di sini
+          </Link>
+        </motion.p>
+
+        <motion.p
+          style={styles.guestNote}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.6 }}
+        >
+          Atau{" "}
+          <Link to="/chat" style={styles.guestLink}>
+            coba chat tanpa login
           </Link>
         </motion.p>
       </motion.div>
@@ -191,92 +180,83 @@ const styles = {
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    background: "linear-gradient(135deg, #FFF8E7 0%, #FFFEF7 25%, #FFF5E1 50%, #FFFEF7 75%, #FFF8E7 100%)",
-    backgroundSize: "400% 400%",
-    animation: "gradientShift 15s ease infinite",
+    background: "linear-gradient(135deg, #FFF8E7 0%, #FFFEF7 50%, #FFF0F0 100%)",
     position: "fixed",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
+    fontFamily: "'DM Sans', system-ui, sans-serif",
     overflow: "hidden",
-    fontFamily: "'Inter', system-ui, -apple-system, sans-serif",
   },
-  bgContainer: {
+  floatingElements: {
     position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     bottom: 0,
-    overflow: "hidden",
     pointerEvents: "none",
   },
   floatingShape: {
     position: "absolute",
+    width: 120,
+    height: 120,
     borderRadius: "50%",
-    background: "radial-gradient(circle, rgba(212,165,116,0.4) 0%, rgba(245,230,163,0.2) 50%, transparent 70%)",
-    filter: "blur(40px)",
+    opacity: 0.4,
+    filter: "blur(50px)",
+    top: "10%",
+    right: "15%",
   },
   card: {
-    background: "rgba(255, 255, 255, 0.35)",
-    backdropFilter: "blur(20px)",
-    WebkitBackdropFilter: "blur(20px)",
+    background: "white",
     borderRadius: "28px",
     padding: "48px 44px",
     width: "100%",
-    maxWidth: "440px",
-    textAlign: "center",
-    boxShadow: "0 25px 50px -12px rgba(139, 119, 80, 0.15), 0 8px 20px rgba(212, 165, 116, 0.1)",
-    border: "1px solid rgba(255, 255, 255, 0.5)",
+    maxWidth: "420px",
+    boxShadow: "0 25px 60px -15px rgba(0, 0, 0, 0.15)",
     position: "relative",
     zIndex: 10,
+    border: "3px solid #FFE66D",
   },
   logoSection: {
+    textAlign: "center",
     marginBottom: "32px",
   },
   logo: {
     width: "80px",
     height: "80px",
-    background: "linear-gradient(135deg, #F5E6A3 0%, #E8D48B 50%, #D4A574 100%)",
+    background: "linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)",
     borderRadius: "24px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     margin: "0 auto 20px",
-    boxShadow: "0 10px 30px rgba(212, 165, 116, 0.4), 0 4px 12px rgba(245, 230, 163, 0.3)",
-  },
-  logoText: {
     fontSize: "36px",
     fontWeight: "900",
     color: "white",
-    textShadow: "0 2px 8px rgba(0,0,0,0.15)",
+    boxShadow: "0 10px 30px rgba(255, 107, 107, 0.4)",
   },
   title: {
-    fontSize: "36px",
-    fontWeight: "800",
-    color: "#5D4E37",
+    fontSize: "32px",
+    fontWeight: "900",
+    color: "#1A1A1A",
     margin: "0 0 8px",
-    letterSpacing: "-0.03em",
-    textShadow: "0 2px 10px rgba(93, 78, 55, 0.1)",
   },
   subtitle: {
     fontSize: "16px",
-    color: "#9C8B7A",
+    color: "#6B7280",
     margin: 0,
-    fontWeight: "500",
   },
   errorBox: {
-    background: "rgba(254, 215, 215, 0.9)",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(252, 165, 165, 0.5)",
-    color: "#C53030",
+    background: "#FFF0F0",
+    border: "2px solid #FF6B6B",
+    color: "#FF6B6B",
     padding: "14px 18px",
     borderRadius: "14px",
     fontSize: "14px",
-    fontWeight: "500",
+    fontWeight: "600",
     marginBottom: "20px",
     overflow: "hidden",
-    boxShadow: "0 4px 12px rgba(197, 48, 48, 0.1)",
   },
   form: {
     display: "flex",
@@ -284,65 +264,59 @@ const styles = {
     gap: "20px",
   },
   inputGroup: {
-    textAlign: "left",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
   },
   label: {
-    display: "block",
     fontSize: "14px",
     fontWeight: "700",
-    color: "#5D4E37",
-    marginBottom: "8px",
-  },
-  inputWrapper: {
-    background: "rgba(255, 255, 255, 0.4)",
-    borderRadius: "14px",
-    border: "2px solid rgba(255, 255, 255, 0.4)",
-    padding: "4px 18px",
-    transition: "all 0.3s ease",
+    color: "#374151",
   },
   input: {
-    width: "100%",
-    padding: "14px 0",
-    border: "none",
-    background: "transparent",
+    padding: "16px 18px",
+    borderRadius: "14px",
+    border: "3px solid #E5E7EB",
+    background: "#FAFAF8",
     fontSize: "16px",
-    fontWeight: "600",
-    color: "#5D4E37",
+    color: "#1A1A1A",
     outline: "none",
+    transition: "border-color 0.2s",
+    fontFamily: "inherit",
   },
   button: {
-    padding: "18px 32px",
-    borderRadius: "16px",
+    padding: "18px",
+    borderRadius: "14px",
     border: "none",
-    background: "linear-gradient(135deg, #D4A574 0%, #C49A6C 100%)",
+    background: "linear-gradient(135deg, #FF6B6B 0%, #FF8E8E 100%)",
     color: "white",
     fontSize: "18px",
     fontWeight: "700",
     cursor: "pointer",
     marginTop: "8px",
-    boxShadow: "0 8px 25px rgba(212, 165, 116, 0.4)",
-    transition: "all 0.3s ease",
+    boxShadow: "0 8px 25px rgba(255, 107, 107, 0.4)",
+    fontFamily: "inherit",
   },
   link: {
-    marginTop: "28px",
-    color: "#9C8B7A",
+    textAlign: "center",
+    marginTop: "24px",
     fontSize: "15px",
-    fontWeight: "500",
+    color: "#6B7280",
   },
   linkBold: {
-    color: "#D4A574",
+    color: "#FF6B6B",
     fontWeight: "700",
     textDecoration: "none",
   },
+  guestNote: {
+    textAlign: "center",
+    marginTop: "16px",
+    fontSize: "14px",
+    color: "#9CA3AF",
+  },
+  guestLink: {
+    color: "#4ECDC4",
+    fontWeight: "600",
+    textDecoration: "none",
+  },
 };
-
-// Add keyframes
-const styleSheet = document.createElement("style");
-styleSheet.textContent = `
-  @keyframes gradientShift {
-    0% { background-position: 0% 50%; }
-    50% { background-position: 100% 50%; }
-    100% { background-position: 0% 50%; }
-  }
-`;
-document.head.appendChild(styleSheet);
