@@ -201,12 +201,12 @@ export default function Chat() {
             initial={{ x: -280, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -280, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
+            transition={{ type: "tween", duration: 0.25, ease: "easeInOut" }}
           >
             <div style={styles.sidebarContent}>
               {/* Logo */}
               <div style={styles.sidebarHeader}>
-                <img src={logo} alt="Edelweys" style={{ height: "22px" }} />
+                <img src={logo} alt="Edelweys" style={{ height: "28px" }} />
               </div>
 
               {/* New Chat Button */}
@@ -284,9 +284,7 @@ export default function Chat() {
                 <path d="M3 12h18M3 6h18M3 18h18" />
               </svg>
             </button>
-            <div style={styles.chatAvatar}>
-              <img src={logo} alt="E" style={{ width: "24px", height: "24px", borderRadius: "6px" }} />
-            </div>
+            <img src={logo} alt="Edelweys" style={{ width: "40px", height: "40px", borderRadius: "12px" }} />
             <div style={styles.chatHeaderInfo}>
               <p style={styles.chatName}>Edelweys</p>
               <p style={styles.statusText}>● Online</p>
@@ -319,9 +317,7 @@ export default function Chat() {
               }}
             >
               {msg.role === "assistant" && (
-                <div style={styles.botAvatar}>
-                  <img src={logo} alt="E" style={{ width: "18px", height: "18px", borderRadius: "4px" }} />
-                </div>
+                <img src={logo} alt="Edelweys" style={{ width: "32px", height: "32px", borderRadius: "10px", flexShrink: 0 }} />
               )}
               <div
                 style={{
@@ -346,9 +342,7 @@ export default function Chat() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
               >
-                <div style={styles.botAvatar}>
-                  <img src={logo} alt="E" style={{ width: "18px", height: "18px", borderRadius: "4px" }} />
-                </div>
+                <img src={logo} alt="Edelweys" style={{ width: "32px", height: "32px", borderRadius: "10px", flexShrink: 0 }} />
                 <div style={styles.typingBubble}>
                   <div style={styles.typingDots}>
                     <div style={styles.dot} className="bounce1" />
@@ -660,16 +654,6 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
   },
-  chatAvatar: {
-    width: "40px",
-    height: "40px",
-    background: COLORS.greenSage,
-    borderRadius: "12px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    boxShadow: "0 4px 12px rgba(107, 145, 98, 0.3)",
-  },
   chatName: {
     margin: 0,
     fontWeight: "700",
@@ -730,17 +714,6 @@ const styles = {
     alignItems: "flex-end",
     gap: "10px",
     maxWidth: "75%",
-  },
-  botAvatar: {
-    width: "32px",
-    height: "32px",
-    background: COLORS.greenSage,
-    borderRadius: "10px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-    boxShadow: "0 2px 8px rgba(107, 145, 98, 0.25)",
   },
   userAvatar: {
     width: "32px",
