@@ -117,4 +117,5 @@ secrets/
 secrets.json
 config.json
 config.local.json
+Claude.md
 
