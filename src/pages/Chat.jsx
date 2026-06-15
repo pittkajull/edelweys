@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { supabase } from "../services/supabase";
-import logo from "../assets/edelweys.png";
+import logo from "../assets/logo.png";
 
 export default function Chat() {
   const [messages, setMessages] = useState([

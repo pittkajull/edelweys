@@ -82,7 +82,7 @@ edelweys/
 │   └── favicon.png           # Edelweys logo
 ├── src/
 │   ├── assets/
-│   │   └── edelweys.png      # Logo utama
+│   │   └── logo.png          # Logo utama
 │   ├── pages/
 │   │   ├── Landing.jsx       ✅ Hero + features + CTA
 │   │   ├── Login.jsx         ✅ Glassmorphism login
