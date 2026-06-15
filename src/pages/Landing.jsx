@@ -41,7 +41,7 @@ export default function Landing() {
       <nav className="sticky top-0 z-50 border-b border-white/30"
         style={{ background: "rgba(238, 238, 233, 0.8)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
         <div className="max-w-[1100px] mx-auto px-5 py-4 flex items-center justify-between">
-          <img src={logo} alt="Edelweys" className="h-8" />
+          <img src={logo} alt="Edelweys" className="h-10" />
           <motion.button
             onClick={() => navigate("/register")}
             className="px-6 py-2.5 rounded-pill border-none bg-edelweys-forest text-white text-sm font-bold cursor-pointer shadow-green-sm"
@@ -235,7 +235,7 @@ export default function Landing() {
       {/* Footer */}
       <footer className="py-12 px-5 text-center" style={{ background: "#1E3319" }}>
         <div className="max-w-[400px] mx-auto">
-          <img src={logo} alt="Edelweys" className="h-8 mx-auto mb-4 opacity-90" />
+          <img src={logo} alt="Edelweys" className="h-10 mx-auto mb-4 opacity-90" />
           <p className="text-sm text-edelweys-light/70 m-0 mb-5">
             Health companion yang selalu ada untuk kamu.
           </p>

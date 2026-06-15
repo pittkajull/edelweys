@@ -268,7 +268,7 @@ export default function Dashboard() {
                 {/* Saran Edelweys */}
                 <GlassCard dark>
                   <div className="flex items-center gap-3 mb-4">
-                    <img src={logo} alt="E" className="w-8 h-8 rounded-lg" />
+                    <img src={logo} alt="E" className="w-10 h-10 rounded-lg" />
                     <span className="text-[11px] font-bold text-edelweys-sage tracking-[0.1em] uppercase">Saran Edelweys</span>
                   </div>
                   <div className="flex flex-col gap-2">

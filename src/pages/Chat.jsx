@@ -149,7 +149,7 @@ export default function Chat() {
           >
             <div className="w-[280px] h-full flex flex-col">
               <div className="p-5 border-b border-white/10">
-                <img src={logo} alt="Edelweys" className="h-8" />
+                <img src={logo} alt="Edelweys" className="h-10" />
               </div>
               <button onClick={startNewChat} className="mx-4 my-4 px-4 py-3 bg-gradient-to-r from-edelweys-sage to-edelweys-light border-none rounded-xl text-white text-sm font-bold cursor-pointer text-left shadow-green-sm hover:shadow-green transition-all flex items-center gap-2">
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
@@ -205,7 +205,7 @@ export default function Chat() {
             <button onClick={() => setSidebarOpen(!sidebarOpen)} className="w-10 h-10 rounded-xl border border-white/40 bg-white/40 text-edelweys-text cursor-pointer flex items-center justify-center hover:bg-white/60 transition-all">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
             </button>
-            <img src={logo} alt="Edelweys" className="w-10 h-10 rounded-xl shadow-green-sm" />
+            <img src={logo} alt="Edelweys" className="w-12 h-12 rounded-xl shadow-green-sm" />
             <div>
               <p className="m-0 font-bold text-edelweys-text text-base">Edelweys</p>
               <p className="m-0 text-xs text-edelweys-sage font-medium flex items-center gap-1">
@@ -238,7 +238,7 @@ export default function Chat() {
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.3, ease: "easeOut" }}
               >
-                {msg.role === "assistant" && <img src={logo} alt="Edelweys" className="w-9 h-9 rounded-xl flex-shrink-0 shadow-green-sm" />}
+                {msg.role === "assistant" && <img src={logo} alt="Edelweys" className="w-10 h-10 rounded-xl flex-shrink-0 shadow-green-sm" />}
                 <div className={`px-5 py-3.5 text-[14px] leading-relaxed break-words ${
                   msg.role === "user"
                     ? "bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white rounded-2xl rounded-br-md"
@@ -256,7 +256,7 @@ export default function Chat() {
             {isTyping && (
               <motion.div className="flex items-end gap-3 justify-start"
                 initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                <img src={logo} alt="Edelweys" className="w-9 h-9 rounded-xl shadow-green-sm" />
+                <img src={logo} alt="Edelweys" className="w-10 h-10 rounded-xl shadow-green-sm" />
                 <div className="px-5 py-4 rounded-2xl rounded-bl-md border border-white/40 shadow-glass" style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(20px)" }}>
                   <div className="flex gap-1.5">
                     <motion.div className="w-2.5 h-2.5 rounded-full bg-edelweys-sage" animate={{ y: [0, -8, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0 }} />

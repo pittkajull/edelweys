@@ -101,7 +101,7 @@ export default function Register() {
             <motion.img
               src={logo}
               alt="Edelweys"
-              className="h-16 mx-auto mb-5"
+              className="h-20 mx-auto mb-5"
               animate={{ rotate: [0, 3, -3, 0] }}
               transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
             />
