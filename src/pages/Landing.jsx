@@ -287,13 +287,13 @@ const styles = {
   navContent: {
     maxWidth: "1100px",
     margin: "0 auto",
-    padding: "16px 24px",
+    padding: "14px 20px",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
   },
   navLogo: {
-    fontSize: "20px",
+    fontSize: "18px",
     fontWeight: "700",
     color: COLORS.greenForest,
   },
@@ -321,7 +321,7 @@ const styles = {
 
   // Hero
   hero: {
-    padding: "100px 24px 140px",
+    padding: "60px 20px 100px",
     textAlign: "center",
     position: "relative",
     overflow: "hidden",
@@ -338,52 +338,52 @@ const styles = {
     borderRadius: "99px",
     border: `1px solid ${COLORS.borderLight}`,
     background: COLORS.white,
-    fontSize: "13px",
+    fontSize: "12px",
     fontWeight: "500",
     color: COLORS.textSecondary,
-    marginBottom: "24px",
+    marginBottom: "20px",
   },
   heroTitle: {
-    fontSize: "64px",
+    fontSize: "clamp(36px, 8vw, 64px)",
     fontWeight: "800",
     color: COLORS.textPrimary,
     lineHeight: "1.05",
-    margin: "0 0 24px",
+    margin: "0 0 20px",
     letterSpacing: "-0.03em",
   },
   heroHighlight: {
     color: COLORS.greenSage,
   },
   heroSubtitle: {
-    fontSize: "20px",
+    fontSize: "clamp(16px, 3vw, 20px)",
     color: COLORS.textSecondary,
     lineHeight: "1.6",
-    margin: "0 0 40px",
+    margin: "0 0 32px",
   },
   heroButtons: {
     display: "flex",
-    gap: "16px",
+    gap: "12px",
     justifyContent: "center",
     flexWrap: "wrap",
   },
   heroCta: {
-    padding: "16px 32px",
+    padding: "14px 28px",
     borderRadius: "99px",
     border: "none",
     background: COLORS.greenDeep,
     color: COLORS.white,
-    fontSize: "18px",
+    fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
     boxShadow: "0 8px 24px rgba(30, 51, 25, 0.25)",
   },
   heroSecondary: {
-    padding: "16px 32px",
+    padding: "14px 28px",
     borderRadius: "99px",
     border: `2px solid ${COLORS.greenSage}`,
     background: COLORS.white,
     color: COLORS.greenSage,
-    fontSize: "18px",
+    fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
   },
@@ -396,6 +396,7 @@ const styles = {
     right: 0,
     bottom: 0,
     pointerEvents: "none",
+    display: "none",
   },
   iconCard: {
     position: "absolute",
@@ -411,11 +412,11 @@ const styles = {
   // Orbs
   orbsContainer: {
     position: "absolute",
-    bottom: "-80px",
+    bottom: "-60px",
     left: "50%",
     transform: "translateX(-50%)",
     display: "flex",
-    gap: "20px",
+    gap: "16px",
     pointerEvents: "none",
   },
   orb: {
@@ -425,7 +426,7 @@ const styles = {
 
   // Features
   features: {
-    padding: "100px 24px",
+    padding: "60px 20px",
     background: COLORS.white,
   },
   featuresContent: {
@@ -442,17 +443,17 @@ const styles = {
     marginBottom: "12px",
   },
   sectionTitle: {
-    fontSize: "42px",
+    fontSize: "clamp(28px, 5vw, 42px)",
     fontWeight: "800",
     color: COLORS.textPrimary,
     textAlign: "center",
-    margin: "0 0 56px",
+    margin: "0 0 40px",
     letterSpacing: "-0.02em",
   },
   featuresGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
-    gap: "24px",
+    gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+    gap: "20px",
   },
   featureCard: {
     background: COLORS.bgMain,
@@ -486,12 +487,12 @@ const styles = {
 
   // Big Text
   bigText: {
-    padding: "100px 24px",
+    padding: "60px 20px",
     background: COLORS.greenDeep,
     textAlign: "center",
   },
   bigTextTitle: {
-    fontSize: "48px",
+    fontSize: "clamp(24px, 5vw, 48px)",
     fontWeight: "800",
     color: COLORS.white,
     lineHeight: "1.2",
@@ -505,29 +506,29 @@ const styles = {
 
   // CTA
   ctaSection: {
-    padding: "100px 24px",
+    padding: "60px 20px",
     textAlign: "center",
     background: COLORS.bgMain,
   },
   ctaTitle: {
-    fontSize: "42px",
+    fontSize: "clamp(28px, 5vw, 42px)",
     fontWeight: "800",
     color: COLORS.textPrimary,
     margin: "0 0 16px",
     letterSpacing: "-0.02em",
   },
   ctaSubtitle: {
-    fontSize: "18px",
+    fontSize: "16px",
     color: COLORS.textSecondary,
-    margin: "0 0 36px",
+    margin: "0 0 28px",
   },
   ctaButton: {
-    padding: "18px 40px",
+    padding: "16px 32px",
     borderRadius: "99px",
     border: "none",
     background: COLORS.greenSage,
     color: COLORS.white,
-    fontSize: "18px",
+    fontSize: "16px",
     fontWeight: "700",
     cursor: "pointer",
     boxShadow: "0 8px 24px rgba(107, 145, 98, 0.35)",
@@ -535,7 +536,7 @@ const styles = {
 
   // Footer
   footer: {
-    padding: "48px 24px",
+    padding: "40px 20px",
     background: COLORS.greenDeep,
     textAlign: "center",
   },
@@ -544,7 +545,7 @@ const styles = {
     margin: "0 auto",
   },
   footerLogo: {
-    fontSize: "20px",
+    fontSize: "18px",
     fontWeight: "700",
     color: COLORS.white,
     marginBottom: "12px",
@@ -552,7 +553,7 @@ const styles = {
   footerText: {
     fontSize: "14px",
     color: COLORS.greenLight,
-    margin: "0 0 20px",
+    margin: "0 0 16px",
   },
   footerLinks: {
     display: "flex",
