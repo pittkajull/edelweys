@@ -112,8 +112,8 @@ export default function Chat() {
       });
       if (rows.length > 0) {
         result.push(
-          <table key="table" className="border-collapse w-full my-2 text-[13px]">
-            <thead><tr>{rows[0].map((cell, ci) => <th key={ci} className="bg-edelweys-sage/10 border border-edelweys-border px-3 py-2 text-left font-semibold text-edelweys-text">{formatInline(cell)}</th>)}</tr></thead>
+          <table key="table" className="border-collapse w-full my-3 text-[13px]">
+            <thead><tr>{rows[0].map((cell, ci) => <th key={ci} className="bg-edelweys-sage/10 border border-edelweys-border px-3 py-2 text-left font-bold text-edelweys-text">{formatInline(cell)}</th>)}</tr></thead>
             <tbody>{rows.slice(1).map((row, ri) => <tr key={ri}>{row.map((cell, ci) => <td key={ci} className="border border-edelweys-border px-3 py-2 text-left text-edelweys-text">{formatInline(cell)}</td>)}</tr>)}</tbody>
           </table>
         );
@@ -129,62 +129,66 @@ export default function Chat() {
   const formatInline = (text) => {
     const parts = text.split(/(\*\*[^*]+\*\*)/g);
     return parts.map((part, i) => {
-      if (part.startsWith('**') && part.endsWith('**')) return <strong key={i}>{part.slice(2, -2)}</strong>;
+      if (part.startsWith('**') && part.endsWith('**')) return <strong key={i} className="font-bold">{part.slice(2, -2)}</strong>;
       return part;
     });
   };
 
   return (
-    <div className="flex h-screen w-screen bg-edelweys-bg font-sans overflow-hidden fixed inset-0">
+    <div className="flex h-screen w-screen font-sans overflow-hidden fixed inset-0" style={{ background: "linear-gradient(135deg, #EEEEE9 0%, #E8EDE5 100%)" }}>
       {/* Sidebar */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
-            className="w-[260px] h-full bg-edelweys-deep flex-shrink-0 z-20"
+            className="w-[280px] h-full flex-shrink-0 z-20"
+            style={{ background: "linear-gradient(180deg, #1E3319 0%, #2D4A29 100%)" }}
             initial={{ x: -280, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -280, opacity: 0 }}
-            transition={{ type: "tween", duration: 0.25, ease: "easeInOut" }}
+            transition={{ type: "tween", duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
           >
-            <div className="w-[260px] h-full flex flex-col">
+            <div className="w-[280px] h-full flex flex-col">
               <div className="p-5 border-b border-white/10">
-                <img src={logo} alt="Edelweys" className="h-9" />
+                <img src={logo} alt="Edelweys" className="h-8" />
               </div>
-              <button onClick={startNewChat} className="mx-4 my-4 px-4 py-3 bg-edelweys-sage border-none rounded-xl text-white text-sm font-semibold cursor-pointer text-left">+ Obrolan Baru</button>
+              <button onClick={startNewChat} className="mx-4 my-4 px-4 py-3 bg-gradient-to-r from-edelweys-sage to-edelweys-light border-none rounded-xl text-white text-sm font-bold cursor-pointer text-left shadow-green-sm hover:shadow-green transition-all flex items-center gap-2">
+                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
+                Obrolan Baru
+              </button>
               {!userId && (
-                <div className="mx-4 mb-3 p-3 bg-yellow-500/15 rounded-[10px] border border-yellow-500/30">
+                <div className="mx-4 mb-3 p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
                   <p className="m-0 text-xs text-yellow-300 font-medium">Login untuk menyimpan riwayat chat</p>
                 </div>
               )}
               {userId && chatHistory.length > 0 && (
                 <div className="flex-1 overflow-y-auto px-3">
-                  <p className="text-[11px] font-semibold text-[#7A9B76] tracking-widest uppercase py-1 px-2 mb-2 m-0">Riwayat</p>
+                  <p className="text-[10px] font-bold text-white/40 tracking-widest uppercase py-2 px-2 m-0">Riwayat</p>
                   {chatHistory.map((chat) => (
                     <div key={chat.id} onClick={() => loadChat(chat)}
-                      className={`p-3 rounded-[10px] cursor-pointer mb-1 transition-colors ${activeChatId === chat.id ? "bg-edelweys-sage/20" : ""}`}>
+                      className={`p-3 rounded-xl cursor-pointer mb-1 transition-all duration-200 hover:bg-white/5 ${activeChatId === chat.id ? "bg-white/10" : ""}`}>
                       <div className="flex justify-between items-center">
-                        <p className="text-[13px] font-medium text-white m-0 truncate">{chat.title}</p>
-                        <button onClick={(e) => deleteChat(chat.id, e)} className="bg-transparent border-none text-[#7A9B76] text-lg cursor-pointer px-1 opacity-60">×</button>
+                        <p className="text-[13px] font-medium text-white/90 m-0 truncate flex-1">{chat.title}</p>
+                        <button onClick={(e) => deleteChat(chat.id, e)} className="bg-transparent border-none text-white/30 text-lg cursor-pointer px-1 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all">×</button>
                       </div>
-                      <p className="text-[11px] text-[#7A9B76] m-0">{chat.time}</p>
+                      <p className="text-[11px] text-white/40 m-0 mt-1">{chat.time}</p>
                     </div>
                   ))}
                 </div>
               )}
               <div className="p-4 border-t border-white/10">
-                <div onClick={() => userId && setShowProfileEdit(true)} className="flex items-center gap-2.5 p-2.5 rounded-[10px] cursor-pointer mb-2.5 hover:bg-white/5">
-                  <div className="w-9 h-9 bg-edelweys-sage rounded-[10px] flex items-center justify-center">
+                <div onClick={() => userId && setShowProfileEdit(true)} className="flex items-center gap-3 p-3 rounded-xl cursor-pointer mb-3 hover:bg-white/5 transition-all">
+                  <div className="w-10 h-10 bg-gradient-to-br from-edelweys-sage to-edelweys-light rounded-xl flex items-center justify-center shadow-green-sm">
                     <span className="text-sm font-bold text-white">{profile?.full_name?.charAt(0) || "U"}</span>
                   </div>
                   <div className="flex-1 overflow-hidden">
                     <p className="text-[13px] font-semibold text-white m-0">{profile?.full_name || "Guest"}</p>
-                    {userId && <p className="text-[11px] text-[#7A9B76] m-0 mt-0.5">Klik untuk edit</p>}
+                    {userId && <p className="text-[11px] text-white/40 m-0 mt-0.5">Klik untuk edit</p>}
                   </div>
                 </div>
                 {userId ? (
-                  <button onClick={handleLogout} className="w-full py-2.5 bg-red-500/15 border-none rounded-[10px] text-red-300 text-[13px] font-medium cursor-pointer">Logout</button>
+                  <button onClick={handleLogout} className="w-full py-2.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300 text-[13px] font-medium cursor-pointer hover:bg-red-500/20 transition-all">Logout</button>
                 ) : (
-                  <button onClick={() => navigate("/login")} className="w-full py-2.5 bg-edelweys-sage border-none rounded-[10px] text-white text-[13px] font-semibold cursor-pointer">Login</button>
+                  <button onClick={() => navigate("/login")} className="w-full py-2.5 bg-gradient-to-r from-edelweys-sage to-edelweys-light border-none rounded-xl text-white text-[13px] font-bold cursor-pointer shadow-green-sm hover:shadow-green transition-all">Login</button>
                 )}
               </div>
             </div>
@@ -195,56 +199,69 @@ export default function Chat() {
       {/* Main Chat */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-3.5 bg-white/70 backdrop-blur-glass border-b border-white/50 shadow-glass">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/30"
+          style={{ background: "rgba(255, 255, 255, 0.6)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)" }}>
           <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="w-9 h-9 rounded-[10px] border border-white/50 bg-white/50 text-edelweys-text cursor-pointer flex items-center justify-center">
+            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="w-10 h-10 rounded-xl border border-white/40 bg-white/40 text-edelweys-text cursor-pointer flex items-center justify-center hover:bg-white/60 transition-all">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
             </button>
-            <img src={logo} alt="Edelweys" className="w-10 h-10 rounded-xl" />
-            <div className="flex flex-col gap-0.5">
-              <p className="m-0 font-bold text-edelweys-text text-base leading-tight">Edelweys</p>
-              <p className="m-0 text-xs text-edelweys-sage leading-tight">● Online</p>
+            <img src={logo} alt="Edelweys" className="w-10 h-10 rounded-xl shadow-green-sm" />
+            <div>
+              <p className="m-0 font-bold text-edelweys-text text-base">Edelweys</p>
+              <p className="m-0 text-xs text-edelweys-sage font-medium flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-edelweys-sage animate-pulse" /> Online
+              </p>
             </div>
           </div>
-          <button onClick={() => navigate("/dashboard")} className="px-4 py-2.5 rounded-[10px] border border-white/50 bg-white/50 text-edelweys-text cursor-pointer text-[13px] font-semibold backdrop-blur-[10px]">Dashboard</button>
+          <button onClick={() => navigate("/dashboard")} className="px-4 py-2.5 rounded-xl border border-white/40 bg-white/40 text-edelweys-text cursor-pointer text-[13px] font-semibold hover:bg-white/60 transition-all" style={{ backdropFilter: "blur(10px)" }}>Dashboard</button>
         </div>
 
         {/* Guest Banner */}
         {!userId && (
-          <div className="flex items-center gap-2 px-5 py-2.5 bg-yellow-500/15 border-b border-yellow-500/30">
-            <span>⚠️</span>
+          <div className="flex items-center gap-2 px-5 py-3 bg-yellow-500/10 border-b border-yellow-500/20">
+            <svg className="w-4 h-4 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
             <p className="m-0 text-[13px] text-edelweys-text-secondary">
               Kamu belum login. Riwayat chat tidak akan tersimpan.{" "}
-              <span className="text-edelweys-sage font-semibold cursor-pointer underline" onClick={() => navigate("/login")}>Login sekarang</span>
+              <span className="text-edelweys-sage font-bold cursor-pointer hover:underline" onClick={() => navigate("/login")}>Login sekarang</span>
             </p>
           </div>
         )}
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
-          {messages.map((msg, i) => (
-            <div key={i} className={`flex items-end gap-2.5 max-w-[75%] ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-              {msg.role === "assistant" && <img src={logo} alt="Edelweys" className="w-8 h-8 rounded-[10px] flex-shrink-0" />}
-              <div className={`px-4 py-3.5 text-[14px] leading-relaxed break-words ${
-                msg.role === "user"
-                  ? "bg-edelweys-sage text-white rounded-[16px_16px_4px_16px] text-left"
-                  : "bg-white/70 backdrop-blur-[10px] text-edelweys-text rounded-[16px_16px_16px_4px] border border-white/50 shadow-glass text-left"
-              }`}>{formatMessage(msg.content)}</div>
-              {msg.role === "user" && <div className="w-8 h-8 bg-edelweys-deep rounded-[10px] flex items-center justify-center flex-shrink-0 text-[12px] font-bold text-white">U</div>}
-            </div>
-          ))}
+          <AnimatePresence>
+            {messages.map((msg, i) => (
+              <motion.div
+                key={i}
+                className={`flex items-end gap-3 max-w-[75%] ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                initial={{ opacity: 0, y: 15, scale: 0.95 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.3, ease: "easeOut" }}
+              >
+                {msg.role === "assistant" && <img src={logo} alt="Edelweys" className="w-9 h-9 rounded-xl flex-shrink-0 shadow-green-sm" />}
+                <div className={`px-5 py-3.5 text-[14px] leading-relaxed break-words ${
+                  msg.role === "user"
+                    ? "bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white rounded-2xl rounded-br-md"
+                    : "border border-white/40 shadow-glass text-edelweys-text rounded-2xl rounded-bl-md"
+                }`} style={msg.role === "bot" ? { background: "rgba(255,255,255,0.6)", backdropFilter: "blur(20px)" } : msg.role === "assistant" ? { background: "rgba(255,255,255,0.6)", backdropFilter: "blur(20px)" } : {}}>
+                  {formatMessage(msg.content)}
+                </div>
+                {msg.role === "user" && <div className="w-9 h-9 bg-edelweys-deep rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-lg">U</div>}
+              </motion.div>
+            ))}
+          </AnimatePresence>
 
           {/* Typing Indicator */}
           <AnimatePresence>
             {isTyping && (
-              <motion.div className="flex items-end gap-2.5 justify-start"
-                initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                <img src={logo} alt="Edelweys" className="w-8 h-8 rounded-[10px] flex-shrink-0" />
-                <div className="bg-white/70 backdrop-blur-[10px] px-4 py-3.5 rounded-[16px_16px_16px_4px] border border-white/50 shadow-glass">
+              <motion.div className="flex items-end gap-3 justify-start"
+                initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                <img src={logo} alt="Edelweys" className="w-9 h-9 rounded-xl shadow-green-sm" />
+                <div className="px-5 py-4 rounded-2xl rounded-bl-md border border-white/40 shadow-glass" style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(20px)" }}>
                   <div className="flex gap-1.5">
-                    <div className="w-2 h-2 rounded-full bg-edelweys-sage animate-bounce" style={{ animationDelay: "0s" }} />
-                    <div className="w-2 h-2 rounded-full bg-edelweys-sage animate-bounce" style={{ animationDelay: "0.2s" }} />
-                    <div className="w-2 h-2 rounded-full bg-edelweys-sage animate-bounce" style={{ animationDelay: "0.4s" }} />
+                    <motion.div className="w-2.5 h-2.5 rounded-full bg-edelweys-sage" animate={{ y: [0, -8, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0 }} />
+                    <motion.div className="w-2.5 h-2.5 rounded-full bg-edelweys-sage" animate={{ y: [0, -8, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }} />
+                    <motion.div className="w-2.5 h-2.5 rounded-full bg-edelweys-sage" animate={{ y: [0, -8, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }} />
                   </div>
                 </div>
               </motion.div>
@@ -254,15 +271,20 @@ export default function Chat() {
         </div>
 
         {/* Input Area */}
-        <div className="px-6 py-4 pb-5 bg-white/70 backdrop-blur-glass border-t border-white/50">
+        <div className="px-6 py-4 border-t border-white/30" style={{ background: "rgba(255, 255, 255, 0.6)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)" }}>
           <div className="flex gap-3 items-end">
             <textarea ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown}
               placeholder="Ketik pesanmu di sini..."
-              className="flex-1 px-4 py-3.5 rounded-2xl border-2 border-edelweys-border bg-white/60 text-[14px] text-edelweys-text resize-none outline-none font-sans min-h-[48px] max-h-[120px]" />
-            <button onClick={sendMessage} disabled={loading || !input.trim()}
-              className={`w-12 h-12 rounded-2xl border-none bg-edelweys-sage text-white cursor-pointer flex items-center justify-center flex-shrink-0 shadow-green-sm transition-all ${input.trim() ? "opacity-100" : "opacity-40"}`}>
+              className="flex-1 px-5 py-4 rounded-2xl border-2 border-edelweys-border bg-white/40 text-[14px] text-edelweys-text resize-none outline-none font-sans transition-all duration-200 focus:border-edelweys-sage focus:bg-white/60 focus:shadow-green-sm" style={{ backdropFilter: "blur(10px)", minHeight: "52px", maxHeight: "120px" }} />
+            <motion.button
+              onClick={sendMessage}
+              disabled={loading || !input.trim()}
+              className={`w-12 h-12 rounded-2xl border-none bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white cursor-pointer flex items-center justify-center flex-shrink-0 transition-all duration-200 ${input.trim() ? "shadow-green-sm hover:shadow-green opacity-100" : "opacity-40"}`}
+              whileHover={input.trim() ? { scale: 1.1 } : {}}
+              whileTap={input.trim() ? { scale: 0.9 } : {}}
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
-            </button>
+            </motion.button>
           </div>
         </div>
       </div>
@@ -270,25 +292,30 @@ export default function Chat() {
       {/* Profile Edit Modal */}
       <AnimatePresence>
         {showProfileEdit && (
-          <motion.div className="fixed inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-[1000]"
+          <motion.div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]"
+            style={{ backdropFilter: "blur(8px)" }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowProfileEdit(false)}>
-            <motion.div className="bg-white/70 backdrop-blur-glass rounded-[20px] p-8 w-full max-w-[380px] shadow-glass-lg border border-white/50"
-              initial={{ opacity: 0, scale: 0.95, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            <motion.div className="w-full max-w-[400px] mx-4 rounded-3xl p-8 border border-white/40 shadow-glass-xl"
+              style={{ background: "rgba(255, 255, 255, 0.7)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)" }}
+              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 30 }}
+              transition={{ type: "spring", damping: 25, stiffness: 300 }}
               onClick={(e) => e.stopPropagation()}>
               <h3 className="text-xl font-bold text-edelweys-text m-0 mb-6">Edit Profile</h3>
               <div className="mb-4">
-                <label className="block text-[13px] font-semibold text-edelweys-text mb-2">Nama Lengkap</label>
+                <label className="text-xs font-bold text-edelweys-text-tertiary tracking-wide uppercase mb-2 block">Nama Lengkap</label>
                 <input type="text" value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                  className="w-full px-4 py-3 rounded-[10px] border border-edelweys-border-light bg-white/60 text-sm text-edelweys-text outline-none font-sans box-border" />
+                  className="w-full px-4 py-3 rounded-xl border-2 border-edelweys-border bg-white/40 text-sm text-edelweys-text outline-none font-sans transition-all focus:border-edelweys-sage focus:bg-white/60" style={{ backdropFilter: "blur(10px)" }} />
               </div>
-              <div className="mb-4">
-                <label className="block text-[13px] font-semibold text-edelweys-text mb-2">Username</label>
+              <div className="mb-6">
+                <label className="text-xs font-bold text-edelweys-text-tertiary tracking-wide uppercase mb-2 block">Username</label>
                 <input type="text" value={editForm.username} onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                  className="w-full px-4 py-3 rounded-[10px] border border-edelweys-border-light bg-white/60 text-sm text-edelweys-text outline-none font-sans box-border" />
+                  className="w-full px-4 py-3 rounded-xl border-2 border-edelweys-border bg-white/40 text-sm text-edelweys-text outline-none font-sans transition-all focus:border-edelweys-sage focus:bg-white/60" style={{ backdropFilter: "blur(10px)" }} />
               </div>
-              <div className="flex gap-3 justify-end mt-6">
-                <button onClick={() => setShowProfileEdit(false)} className="px-5 py-2.5 rounded-[10px] border border-edelweys-border bg-white/50 text-edelweys-text-secondary text-sm font-medium cursor-pointer">Batal</button>
-                <button onClick={handleSaveProfile} className="px-5 py-2.5 rounded-[10px] border-none bg-edelweys-sage text-white text-sm font-semibold cursor-pointer">Simpan</button>
+              <div className="flex gap-3 justify-end">
+                <button onClick={() => setShowProfileEdit(false)} className="px-5 py-2.5 rounded-xl border border-edelweys-border bg-white/40 text-edelweys-text-secondary text-sm font-semibold cursor-pointer hover:bg-white/60 transition-all" style={{ backdropFilter: "blur(10px)" }}>Batal</button>
+                <button onClick={handleSaveProfile} className="px-5 py-2.5 rounded-xl border-none bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white text-sm font-bold cursor-pointer shadow-green-sm hover:shadow-green transition-all">Simpan</button>
               </div>
             </motion.div>
           </motion.div>

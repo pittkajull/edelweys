@@ -30,19 +30,32 @@ export default {
       boxShadow: {
         'glass': '0 8px 32px rgba(30, 51, 25, 0.08)',
         'glass-lg': '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+        'glass-xl': '0 32px 64px -16px rgba(30, 51, 25, 0.12)',
         'green': '0 8px 24px rgba(107, 145, 98, 0.25)',
         'green-sm': '0 4px 12px rgba(107, 145, 98, 0.3)',
+        'green-lg': '0 16px 48px rgba(107, 145, 98, 0.35)',
       },
       backdropBlur: {
         'glass': '20px',
+        'glass-lg': '40px',
       },
       animation: {
         'bounce-dot': 'bounce-dot 1.2s infinite',
+        'float': 'float 6s ease-in-out infinite',
+        'pulse-soft': 'pulse-soft 3s ease-in-out infinite',
       },
       keyframes: {
         'bounce-dot': {
           '0%, 80%, 100%': { transform: 'translateY(0)' },
-          '40%': { transform: 'translateY(-4px)' },
+          '40%': { transform: 'translateY(-6px)' },
+        },
+        'float': {
+          '0%, 100%': { transform: 'translateY(0)' },
+          '50%': { transform: 'translateY(-10px)' },
+        },
+        'pulse-soft': {
+          '0%, 100%': { opacity: '1' },
+          '50%': { opacity: '0.7' },
         },
       },
     },

@@ -16,17 +16,53 @@
   }
 }
 
-@layer utilities {
+@layer components {
   .glass {
     @apply bg-white/70 backdrop-blur-glass border border-white/50 shadow-glass;
   }
 
   .glass-strong {
-    @apply bg-white/80 backdrop-blur-xl border border-white/60 shadow-glass-lg;
+    @apply bg-white/80 backdrop-blur-glass-lg border border-white/60 shadow-glass-lg;
   }
 
-  .text-balance {
-    text-wrap: balance;
+  .glass-card {
+    @apply bg-white/60 backdrop-blur-glass border border-white/40 shadow-glass rounded-glass;
+  }
+
+  .glass-dark {
+    @apply bg-edelweys-deep/90 backdrop-blur-glass border border-white/10 shadow-glass-lg;
+  }
+
+  .glass-input {
+    @apply bg-white/50 backdrop-blur-sm border-2 border-edelweys-border-light rounded-xl px-4 py-3 text-sm text-edelweys-text outline-none transition-all duration-200 font-sans;
+  }
+
+  .glass-input:focus {
+    @apply border-edelweys-sage shadow-green-sm;
+  }
+
+  .btn-primary {
+    @apply px-6 py-3 rounded-pill bg-edelweys-forest text-white font-semibold cursor-pointer shadow-green-sm transition-all duration-200;
+  }
+
+  .btn-primary:hover {
+    @apply shadow-green-lg scale-105;
+  }
+
+  .btn-secondary {
+    @apply px-6 py-3 rounded-pill border-2 border-edelweys-sage bg-white text-edelweys-sage font-semibold cursor-pointer transition-all duration-200;
+  }
+
+  .btn-secondary:hover {
+    @apply bg-edelweys-sage text-white;
+  }
+
+  .section-title {
+    @apply text-3xl md:text-5xl font-extrabold text-edelweys-text tracking-tight;
+  }
+
+  .section-subtitle {
+    @apply text-base text-edelweys-text-secondary;
   }
 }
 
@@ -41,4 +77,22 @@ textarea:focus-visible {
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(107, 145, 98, 0.3);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(107, 145, 98, 0.5);
 }
