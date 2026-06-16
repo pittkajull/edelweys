@@ -78,20 +78,23 @@ export default function Dashboard() {
     if (!form.weight && !form.height) { showToast("Isi minimal berat atau tinggi badan!", "error"); return; }
     setSaving(true);
     const bmi = calcBMI(form.weight, form.height);
+
+    // Build payload with only non-null fields
     const payload = {
       user_id: user.id,
       logged_at: form.date,
-      weight: form.weight ? parseFloat(form.weight) : null,
-      height: form.height ? parseFloat(form.height) : null,
-      bmi: bmi ? parseFloat(bmi) : null,
-      blood_pressure_sytolic: form.systolic ? parseInt(form.systolic) : null,
-      blood_pressure_diastolic: form.diastolic ? parseInt(form.diastolic) : null,
-      coffee_cups: form.coffee_cups ? parseInt(form.coffee_cups) : null,
-      exercise_minutes: form.exercise_minutes ? parseInt(form.exercise_minutes) : null,
-      water_glasses: form.water_glasses ? parseInt(form.water_glasses) : null,
-      sleep_hours: form.sleep_hours ? parseFloat(form.sleep_hours) : null,
-      habits_note: habitsMode === "text" ? habitsNote : null,
     };
+    if (form.weight) payload.weight = parseFloat(form.weight);
+    if (form.height) payload.height = parseFloat(form.height);
+    if (bmi) payload.bmi = parseFloat(bmi);
+    if (form.coffee_cups) payload.coffee_cups = parseInt(form.coffee_cups);
+    if (form.exercise_minutes) payload.exercise_minutes = parseInt(form.exercise_minutes);
+    if (form.water_glasses) payload.water_glasses = parseInt(form.water_glasses);
+    if (form.sleep_hours) payload.sleep_hours = parseFloat(form.sleep_hours);
+    if (habitsMode === "text" && habitsNote) payload.habits_note = habitsNote;
+
+    console.log("Payload:", payload);
+
     const { error } = await supabase.from("health_logs").upsert(payload, { onConflict: "user_id,logged_at" });
     if (error) {
       console.error("Gagal simpan:", error);
@@ -228,7 +231,7 @@ export default function Dashboard() {
                     <MetricCard label="Berat Badan" value={latest.weight} unit="kg" />
                     <MetricCard label="Tinggi Badan" value={latest.height} unit="cm" />
                     <MetricCard label="BMI" value={latestBMI} sub={bmiInfo.label} color={bmiInfo.color} bg={bmiInfo.bg} />
-                    {(latest.blood_pressure_sytolic || latest.blood_pressure_diastolic) && <MetricCard label="Tekanan Darah" value={`${latest.blood_pressure_sytolic || "-"}/${latest.blood_pressure_diastolic || "-"}`} unit="mmHg" color="#EF4444" bg="#FEF2F2" />}
+                    {(latest.blood_pressure_sytolic || latest.blood_pressure_diastolic) && <MetricCard label="Tekanan Darah" value={`${latest.blood_pressure_sytolic ?? "-"}/${latest.blood_pressure_diastolic ?? "-"}`} unit="mmHg" color="#EF4444" bg="#FEF2F2" />}
                   </div>
                 </section>
 
@@ -419,7 +422,7 @@ export default function Dashboard() {
                     {log.weight && <span className="bg-edelweys-sage/10 text-edelweys-sage rounded-full px-3 py-1 text-xs font-semibold">{log.weight} kg</span>}
                     {log.height && <span className="bg-edelweys-sage/10 text-edelweys-sage rounded-full px-3 py-1 text-xs font-semibold">{log.height} cm</span>}
                     {bmi && <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: bi.bg, color: bi.color }}>BMI {bmi}</span>}
-                    {(log.blood_pressure_sytolic || log.blood_pressure_diastolic) && <span className="bg-red-50 text-red-500 rounded-full px-3 py-1 text-xs font-semibold">{log.blood_pressure_sytolic || "-"}/{log.blood_pressure_diastolic || "-"} mmHg</span>}
+                    {(log.blood_pressure_sytolic || log.blood_pressure_diastolic) && <span className="bg-red-50 text-red-500 rounded-full px-3 py-1 text-xs font-semibold">{log.blood_pressure_sytolic ?? "-"}/{log.blood_pressure_diastolic ?? "-"} mmHg</span>}
                   </div>
                 </GlassCard>
               );

@@ -47,10 +47,13 @@ export default function Chat() {
     if (messages.length > 1 && userId) {
       const firstUserMsg = messages.find(m => m.role === "user");
       const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) : "Obrolan baru";
+      console.log("Menyimpan chat:", { user_id: userId, title, messagesCount: messages.length });
       supabase.from("chat_history").insert({ user_id: userId, title, messages }).then(({ data, error }) => {
         if (error) {
           console.error("Gagal simpan chat:", error);
-        } else if (data) {
+          alert("Error: " + error.message);
+        } else {
+          console.log("Chat tersimpan:", data);
           setChatHistory(prev => [{ id: data.id, title, messages: [...messages], time: "Baru saja" }, ...prev]);
         }
       });
