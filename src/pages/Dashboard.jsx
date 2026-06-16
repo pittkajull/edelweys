@@ -86,12 +86,10 @@ export default function Dashboard() {
     };
     if (form.weight) payload.weight = parseFloat(form.weight);
     if (form.height) payload.height = parseFloat(form.height);
-    if (bmi) payload.bmi = parseFloat(bmi);
     if (form.coffee_cups) payload.coffee_cups = parseInt(form.coffee_cups);
     if (form.exercise_minutes) payload.exercise_minutes = parseInt(form.exercise_minutes);
     if (form.water_glasses) payload.water_glasses = parseInt(form.water_glasses);
     if (form.sleep_hours) payload.sleep_hours = parseFloat(form.sleep_hours);
-    if (habitsMode === "text" && habitsNote) payload.habits_note = habitsNote;
 
     console.log("Payload:", payload);
 
