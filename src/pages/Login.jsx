@@ -19,7 +19,7 @@ export default function Login() {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
-      navigate("/dashboard");
+      navigate("/chat");
     } catch (err) {
       setError(err.message || "Login gagal");
     } finally {
