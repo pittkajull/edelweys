@@ -60,7 +60,7 @@ export default function Dashboard() {
       setUser(session.user);
       const { data: prof } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
       setProfile(prof);
-      const { data: hlogs } = await supabase.from("health_logs").select("*").eq("user_id", session.user.id).order("date", { ascending: false }).limit(30);
+      const { data: hlogs } = await supabase.from("health_logs").select("*").eq("user_id", session.user.id).order("logged_at", { ascending: false }).limit(30);
       setLogs(hlogs || []);
       setLoading(false);
     };
@@ -78,27 +78,28 @@ export default function Dashboard() {
     if (!form.weight && !form.height) { showToast("Isi minimal berat atau tinggi badan!", "error"); return; }
     setSaving(true);
     const bmi = calcBMI(form.weight, form.height);
-    const blood_pressure = form.systolic && form.diastolic ? `${form.systolic}/${form.diastolic}` : null;
     const payload = {
-      user_id: user.id, date: form.date,
+      user_id: user.id,
+      logged_at: form.date,
       weight: form.weight ? parseFloat(form.weight) : null,
       height: form.height ? parseFloat(form.height) : null,
       bmi: bmi ? parseFloat(bmi) : null,
-      blood_pressure,
+      blood_pressure_sytolic: form.systolic ? parseInt(form.systolic) : null,
+      blood_pressure_diastolic: form.diastolic ? parseInt(form.diastolic) : null,
       coffee_cups: form.coffee_cups ? parseInt(form.coffee_cups) : null,
       exercise_minutes: form.exercise_minutes ? parseInt(form.exercise_minutes) : null,
       water_glasses: form.water_glasses ? parseInt(form.water_glasses) : null,
       sleep_hours: form.sleep_hours ? parseFloat(form.sleep_hours) : null,
       habits_note: habitsMode === "text" ? habitsNote : null,
     };
-    const { error } = await supabase.from("health_logs").upsert(payload, { onConflict: "user_id,date" });
+    const { error } = await supabase.from("health_logs").upsert(payload, { onConflict: "user_id,logged_at" });
     if (error) {
       console.error("Gagal simpan:", error);
       showToast("Gagal simpan: " + error.message, "error");
     }
     else {
       showToast("Data kesehatan berhasil disimpan!");
-      const { data: hlogs } = await supabase.from("health_logs").select("*").eq("user_id", user.id).order("date", { ascending: false }).limit(30);
+      const { data: hlogs } = await supabase.from("health_logs").select("*").eq("user_id", user.id).order("logged_at", { ascending: false }).limit(30);
       setLogs(hlogs || []);
       setActiveTab("overview");
     }
@@ -110,7 +111,7 @@ export default function Dashboard() {
   const latest = logs[0] || null;
   const latestBMI = latest?.bmi ?? (latest ? calcBMI(latest.weight, latest.height) : null);
   const bmiInfo = bmiCategory(latestBMI);
-  const chartData = [...logs].reverse().slice(-14).map(l => ({ date: fmt(l.date), Berat: l.weight }));
+  const chartData = [...logs].reverse().slice(-14).map(l => ({ date: fmt(l.logged_at), Berat: l.weight }));
   const timeStr = currentTime.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   const dateStr = currentTime.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
@@ -222,12 +223,12 @@ export default function Dashboard() {
             {latest && (
               <>
                 <section>
-                  <p className="text-[11px] font-bold text-edelweys-text-tertiary tracking-[0.1em] uppercase m-0 mb-3">Data Terakhir — {fmt(latest.date)}</p>
+                  <p className="text-[11px] font-bold text-edelweys-text-tertiary tracking-[0.1em] uppercase m-0 mb-3">Data Terakhir — {fmt(latest.logged_at)}</p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <MetricCard label="Berat Badan" value={latest.weight} unit="kg" />
                     <MetricCard label="Tinggi Badan" value={latest.height} unit="cm" />
                     <MetricCard label="BMI" value={latestBMI} sub={bmiInfo.label} color={bmiInfo.color} bg={bmiInfo.bg} />
-                    {latest.blood_pressure && <MetricCard label="Tekanan Darah" value={latest.blood_pressure} unit="mmHg" color="#EF4444" bg="#FEF2F2" />}
+                    {(latest.blood_pressure_sytolic || latest.blood_pressure_diastolic) && <MetricCard label="Tekanan Darah" value={`${latest.blood_pressure_sytolic || "-"}/${latest.blood_pressure_diastolic || "-"}`} unit="mmHg" color="#EF4444" bg="#FEF2F2" />}
                   </div>
                 </section>
 
@@ -411,14 +412,14 @@ export default function Dashboard() {
               return (
                 <GlassCard key={log.id ?? i}>
                   <div className="flex justify-between items-center mb-3">
-                    <span className="font-bold text-edelweys-text text-sm">{fmt(log.date)}</span>
+                    <span className="font-bold text-edelweys-text text-sm">{fmt(log.logged_at)}</span>
                     {i === 0 && <span className="bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white rounded-full px-3 py-1 text-[11px] font-bold">Terbaru</span>}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {log.weight && <span className="bg-edelweys-sage/10 text-edelweys-sage rounded-full px-3 py-1 text-xs font-semibold">{log.weight} kg</span>}
                     {log.height && <span className="bg-edelweys-sage/10 text-edelweys-sage rounded-full px-3 py-1 text-xs font-semibold">{log.height} cm</span>}
                     {bmi && <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: bi.bg, color: bi.color }}>BMI {bmi}</span>}
-                    {log.blood_pressure && <span className="bg-red-50 text-red-500 rounded-full px-3 py-1 text-xs font-semibold">{log.blood_pressure} mmHg</span>}
+                    {(log.blood_pressure_sytolic || log.blood_pressure_diastolic) && <span className="bg-red-50 text-red-500 rounded-full px-3 py-1 text-xs font-semibold">{log.blood_pressure_sytolic || "-"}/{log.blood_pressure_diastolic || "-"} mmHg</span>}
                   </div>
                 </GlassCard>
               );
