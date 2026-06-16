@@ -6,7 +6,12 @@ app = FastAPI(title="Edelweys API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://edelweys.vercel.app"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:5174",
+        "https://edelweys.vercel.app",
+        "https://edelweys-pittkajulls-projects.vercel.app",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -18,4 +23,4 @@ app.include_router(health.router, prefix="/health", tags=["health"])
 
 @app.get("/")
 def root():
-    return {"message": "Edelweys API is running 🌸"}
+    return {"message": "Edelweys API is running"}
