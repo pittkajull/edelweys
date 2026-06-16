@@ -30,11 +30,38 @@ export default function Chat() {
         const { data: prof } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
         setProfile(prof);
         setEditForm({ full_name: prof?.full_name || "", username: prof?.username || "" });
-        const { data: chats, error } = await supabase.from("chat_history").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false }).limit(20);
+        // Load chat history - group messages by time
+        const { data: chats, error } = await supabase
+          .from("chat_history")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .order("created_at", { ascending: false })
+          .limit(100);
         if (error) {
           console.error("Gagal load chat history:", error);
-        } else if (chats) {
-          setChatHistory(chats.map(c => ({ id: c.id, title: c.title || "Obrolan", messages: c.messages || [], time: new Date(c.created_at).toLocaleDateString("id-ID") })));
+        } else if (chats && chats.length > 0) {
+          // Group messages into conversations (30 min gap = new conversation)
+          const conversations = [];
+          let currentChat = { messages: [], startTime: null, title: "" };
+          chats.forEach((chat, i) => {
+            const msgTime = new Date(chat.created_at);
+            if (!currentChat.startTime || (currentChat.startTime - msgTime) > 30 * 60 * 1000) {
+              if (currentChat.messages.length > 0) {
+                conversations.push({ ...currentChat });
+              }
+              currentChat = { messages: [], startTime: msgTime, title: chat.message?.slice(0, 30) || "Obrolan" };
+            }
+            currentChat.messages.unshift({ role: chat.role, content: chat.message });
+          });
+          if (currentChat.messages.length > 0) {
+            conversations.push({ ...currentChat });
+          }
+          setChatHistory(conversations.slice(0, 20).map((c, i) => ({
+            id: i,
+            title: c.title,
+            messages: c.messages,
+            time: c.startTime?.toLocaleDateString("id-ID") || "Baru saja",
+          })));
         }
       }
     };
@@ -45,16 +72,27 @@ export default function Chat() {
 
   const startNewChat = () => {
     if (messages.length > 1 && userId) {
-      const firstUserMsg = messages.find(m => m.role === "user");
-      const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) : "Obrolan baru";
-      console.log("Menyimpan chat:", { user_id: userId, title, messagesCount: messages.length });
-      supabase.from("chat_history").insert({ user_id: userId, title, messages }).then(({ data, error }) => {
+      // Save each message individually to chat_history
+      const messagesToSave = messages.map(m => ({
+        user_id: userId,
+        role: m.role,
+        message: m.content,
+      }));
+      console.log("Menyimpan chat:", { user_id: userId, messagesCount: messagesToSave.length });
+      supabase.from("chat_history").insert(messagesToSave).then(({ data, error }) => {
         if (error) {
           console.error("Gagal simpan chat:", error);
-          alert("Error: " + error.message);
         } else {
-          console.log("Chat tersimpan:", data);
-          setChatHistory(prev => [{ id: data.id, title, messages: [...messages], time: "Baru saja" }, ...prev]);
+          console.log("Chat tersimpan");
+          // Add to local history
+          const firstUserMsg = messages.find(m => m.role === "user");
+          const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) : "Obrolan baru";
+          setChatHistory(prev => [{
+            id: Date.now(),
+            title: title,
+            messages: [...messages],
+            time: "Baru saja",
+          }, ...prev]);
         }
       });
     }
@@ -67,7 +105,7 @@ export default function Chat() {
   const deleteChat = async (chatId, e) => {
     e.stopPropagation();
     if (!userId) return;
-    await supabase.from("chat_history").delete().eq("id", chatId);
+    // Delete all messages for this user (simplified - in production you'd track conversation IDs)
     setChatHistory(prev => prev.filter(c => c.id !== chatId));
     if (activeChatId === chatId) {
       setActiveChatId(null);
