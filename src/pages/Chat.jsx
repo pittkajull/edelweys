@@ -30,8 +30,12 @@ export default function Chat() {
         const { data: prof } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
         setProfile(prof);
         setEditForm({ full_name: prof?.full_name || "", username: prof?.username || "" });
-        const { data: chats } = await supabase.from("chat_history").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false }).limit(20);
-        if (chats) setChatHistory(chats.map(c => ({ id: c.id, title: c.title || "Obrolan", messages: c.messages || [], time: new Date(c.created_at).toLocaleDateString("id-ID") })));
+        const { data: chats, error } = await supabase.from("chat_history").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false }).limit(20);
+        if (error) {
+          console.error("Gagal load chat history:", error);
+        } else if (chats) {
+          setChatHistory(chats.map(c => ({ id: c.id, title: c.title || "Obrolan", messages: c.messages || [], time: new Date(c.created_at).toLocaleDateString("id-ID") })));
+        }
       }
     };
     checkAuth();
@@ -43,8 +47,12 @@ export default function Chat() {
     if (messages.length > 1 && userId) {
       const firstUserMsg = messages.find(m => m.role === "user");
       const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) : "Obrolan baru";
-      supabase.from("chat_history").insert({ user_id: userId, title, messages }).then(({ data }) => {
-        if (data) setChatHistory(prev => [{ id: data.id, title, messages: [...messages], time: "Baru saja" }, ...prev]);
+      supabase.from("chat_history").insert({ user_id: userId, title, messages }).then(({ data, error }) => {
+        if (error) {
+          console.error("Gagal simpan chat:", error);
+        } else if (data) {
+          setChatHistory(prev => [{ id: data.id, title, messages: [...messages], time: "Baru saja" }, ...prev]);
+        }
       });
     }
     setMessages([{ role: "assistant", content: "Heyy yoww! Gimana kabarnya? Ada yang bisa Edelweys bantuin hari ini?" }]);

@@ -92,7 +92,10 @@ export default function Dashboard() {
       habits_note: habitsMode === "text" ? habitsNote : null,
     };
     const { error } = await supabase.from("health_logs").upsert(payload, { onConflict: "user_id,date" });
-    if (error) { showToast("Gagal simpan, coba lagi!", "error"); }
+    if (error) {
+      console.error("Gagal simpan:", error);
+      showToast("Gagal simpan: " + error.message, "error");
+    }
     else {
       showToast("Data kesehatan berhasil disimpan!");
       const { data: hlogs } = await supabase.from("health_logs").select("*").eq("user_id", user.id).order("date", { ascending: false }).limit(30);
