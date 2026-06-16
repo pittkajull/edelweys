@@ -16,13 +16,8 @@ export default function Login() {
     e.preventDefault();
     setLoading(true);
     setError("");
-
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
       if (error) throw error;
       navigate("/dashboard");
     } catch (err) {
@@ -34,138 +29,112 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center font-sans relative overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #EEEEE9 0%, #E8EDE5 50%, #E0E8DC 100%)" }}>
+      style={{ background: "linear-gradient(135deg, #E8EDE5 0%, #D4E2D0 50%, #C5D9BF 100%)" }}>
 
-      {/* Animated Background Elements */}
-      <div className="absolute inset-0 pointer-events-none overflow-hidden">
-        <motion.div
-          className="absolute w-[500px] h-[500px] rounded-full opacity-30"
-          style={{ background: "radial-gradient(circle, rgba(107,145,98,0.4) 0%, transparent 70%)", top: "-15%", left: "-10%" }}
-          animate={{ x: [0, 30, 0], y: [0, -20, 0] }}
-          transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute w-[400px] h-[400px] rounded-full opacity-25"
-          style={{ background: "radial-gradient(circle, rgba(168,197,160,0.5) 0%, transparent 70%)", bottom: "-10%", right: "-5%" }}
-          animate={{ x: [0, -25, 0], y: [0, 25, 0] }}
-          transition={{ duration: 18, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute w-[300px] h-[300px] rounded-full opacity-20"
-          style={{ background: "radial-gradient(circle, rgba(212,165,116,0.4) 0%, transparent 70%)", top: "40%", right: "20%" }}
-          animate={{ scale: [1, 1.1, 1], rotate: [0, 10, 0] }}
-          transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
-        />
+      {/* Animated Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(5)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width: `${200 + i * 80}px`,
+              height: `${200 + i * 80}px`,
+              left: `${10 + i * 15}%`,
+              top: `${5 + i * 10}%`,
+              background: `radial-gradient(circle, rgba(107,145,98,${0.15 - i * 0.02}) 0%, transparent 70%)`,
+            }}
+            animate={{
+              x: [0, 30 * (i % 2 === 0 ? 1 : -1), 0],
+              y: [0, 20 * (i % 2 === 0 ? -1 : 1), 0],
+              scale: [1, 1.05, 1],
+            }}
+            transition={{ duration: 15 + i * 3, repeat: Infinity, ease: "easeInOut" }}
+          />
+        ))}
       </div>
 
-      {/* Main Card */}
+      {/* Card */}
       <motion.div
-        className="relative z-10 w-full max-w-[440px] mx-4"
-        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+        className="relative z-10 w-full max-w-[460px] mx-4"
+        initial={{ opacity: 0, y: 50, scale: 0.9 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       >
-        <div className="rounded-3xl p-10 shadow-glass-xl border border-white/40"
-          style={{
-            background: "rgba(255, 255, 255, 0.55)",
-            backdropFilter: "blur(24px)",
-            WebkitBackdropFilter: "blur(24px)",
-          }}>
+        <div className="rounded-[28px] p-10 shadow-2xl border border-white/30"
+          style={{ background: "rgba(255,255,255,0.45)", backdropFilter: "blur(40px)", WebkitBackdropFilter: "blur(40px)" }}>
 
           {/* Logo */}
           <motion.div
             className="text-center mb-8"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.5 }}
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, type: "spring", stiffness: 200 }}
           >
             <motion.img
               src={logo}
               alt="Edelweys"
-              className="h-28 mx-auto mb-5"
-              animate={{ rotate: [0, 3, -3, 0] }}
-              transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+              className="h-24 mx-auto mb-6 drop-shadow-lg"
+              animate={{ rotate: [0, 5, -5, 0] }}
+              transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
             />
-            <h1 className="text-3xl font-extrabold text-edelweys-text m-0 tracking-tight">Edelweys</h1>
-            <p className="text-sm text-edelweys-text-tertiary m-0 mt-1 font-medium">Health Companion</p>
+            <h1 className="text-[32px] font-extrabold tracking-tight m-0" style={{ color: "#1E3319" }}>Edelweys</h1>
+            <p className="text-[15px] mt-2 m-0 font-medium" style={{ color: "#5A6B57" }}>Health Companion</p>
           </motion.div>
 
           {/* Error */}
           <AnimatePresence>
             {error && (
               <motion.div
-                className="bg-red-50/80 backdrop-blur-sm border border-red-200/60 text-red-600 p-4 rounded-2xl text-sm font-medium mb-5 overflow-hidden"
+                className="mb-5 p-4 rounded-2xl text-sm font-medium flex items-center gap-3"
+                style={{ background: "rgba(239,68,68,0.1)", border: "1px solid rgba(239,68,68,0.2)", color: "#DC2626" }}
                 initial={{ opacity: 0, height: 0, marginBottom: 0 }}
                 animate={{ opacity: 1, height: "auto", marginBottom: 20 }}
                 exit={{ opacity: 0, height: 0, marginBottom: 0 }}
               >
-                <div className="flex items-center gap-2">
-                  <svg className="w-4 h-4 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                  </svg>
-                  {error}
-                </div>
+                <svg className="w-5 h-5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" /></svg>
+                {error}
               </motion.div>
             )}
           </AnimatePresence>
 
           {/* Form */}
           <form onSubmit={handleLogin} className="flex flex-col gap-5">
-            <motion.div
-              className="flex flex-col gap-2"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.3, duration: 0.4 }}
-            >
-              <label className="text-sm font-semibold text-edelweys-text">Email</label>
+            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}>
+              <label className="text-[13px] font-semibold mb-2 block" style={{ color: "#1E3319" }}>Email</label>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-edelweys-text-tertiary">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                  </svg>
-                </div>
                 <input
-                  type="email"
-                  placeholder="email@domain.com"
-                  value={email}
+                  type="email" placeholder="email@domain.com" value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   onFocus={() => setFocusedField("email")}
                   onBlur={() => setFocusedField(null)}
-                  className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 text-sm text-edelweys-text outline-none transition-all duration-300 font-sans ${
-                    focusedField === "email"
-                      ? "border-edelweys-sage bg-white/60 shadow-green-sm"
-                      : "border-white/40 bg-white/30"
-                  }`}
+                  className="w-full px-5 py-4 rounded-2xl text-[15px] outline-none transition-all duration-300"
+                  style={{
+                    background: focusedField === "email" ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.3)",
+                    border: `2px solid ${focusedField === "email" ? "#6B9162" : "rgba(255,255,255,0.3)"}`,
+                    color: "#1E3319",
+                    boxShadow: focusedField === "email" ? "0 0 20px rgba(107,145,98,0.2)" : "none",
+                  }}
                   required
                 />
               </div>
             </motion.div>
 
-            <motion.div
-              className="flex flex-col gap-2"
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: 0.4, duration: 0.4 }}
-            >
-              <label className="text-sm font-semibold text-edelweys-text">Password</label>
+            <motion.div initial={{ opacity: 0, x: -30 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
+              <label className="text-[13px] font-semibold mb-2 block" style={{ color: "#1E3319" }}>Password</label>
               <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-edelweys-text-tertiary">
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                  </svg>
-                </div>
                 <input
-                  type="password"
-                  placeholder="Masukkan password"
-                  value={password}
+                  type="password" placeholder="Masukkan password" value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   onFocus={() => setFocusedField("password")}
                   onBlur={() => setFocusedField(null)}
-                  className={`w-full pl-12 pr-4 py-4 rounded-2xl border-2 text-sm text-edelweys-text outline-none transition-all duration-300 font-sans ${
-                    focusedField === "password"
-                      ? "border-edelweys-sage bg-white/60 shadow-green-sm"
-                      : "border-white/40 bg-white/30"
-                  }`}
+                  className="w-full px-5 py-4 rounded-2xl text-[15px] outline-none transition-all duration-300"
+                  style={{
+                    background: focusedField === "password" ? "rgba(255,255,255,0.6)" : "rgba(255,255,255,0.3)",
+                    border: `2px solid ${focusedField === "password" ? "#6B9162" : "rgba(255,255,255,0.3)"}`,
+                    color: "#1E3319",
+                    boxShadow: focusedField === "password" ? "0 0 20px rgba(107,145,98,0.2)" : "none",
+                  }}
                   required
                 />
               </div>
@@ -173,43 +142,30 @@ export default function Login() {
 
             <motion.button
               type="submit"
-              className="py-4 rounded-2xl border-none bg-gradient-to-r from-edelweys-forest to-edelweys-sage text-white text-[15px] font-bold cursor-pointer mt-2 shadow-green transition-all duration-300"
-              whileHover={{ scale: 1.02, boxShadow: "0 12px 40px rgba(107, 145, 98, 0.4)" }}
+              className="w-full py-4 rounded-2xl text-white text-[16px] font-bold cursor-pointer transition-all duration-300 flex items-center justify-center gap-2"
+              style={{ background: "linear-gradient(135deg, #2D4A29 0%, #6B9162 100%)", boxShadow: "0 8px 30px rgba(45,74,41,0.35)" }}
+              whileHover={{ scale: 1.02, boxShadow: "0 12px 40px rgba(45,74,41,0.5)" }}
               whileTap={{ scale: 0.98 }}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5, duration: 0.4 }}
+              transition={{ delay: 0.6 }}
               disabled={loading}
             >
               {loading ? (
-                <span className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
-                  Memproses...
-                </span>
+                <motion.div animate={{ rotate: 360 }} transition={{ duration: 1, repeat: Infinity, ease: "linear" }}>
+                  <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+                </motion.div>
               ) : "Masuk"}
             </motion.button>
           </form>
 
-          <motion.div
-            className="text-center mt-6 space-y-3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
-          >
-            <p className="text-sm text-edelweys-text-secondary m-0">
+          <motion.div className="text-center mt-6 space-y-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.7 }}>
+            <p className="text-[14px] m-0" style={{ color: "#5A6B57" }}>
               Belum punya akun?{" "}
-              <Link to="/register" className="text-edelweys-sage font-bold no-underline hover:underline">
-                Daftar di sini
-              </Link>
+              <Link to="/register" className="font-bold no-underline hover:underline" style={{ color: "#6B9162" }}>Daftar di sini</Link>
             </p>
-            <p className="text-xs text-edelweys-text-tertiary m-0">
-              Atau{" "}
-              <Link to="/chat" className="text-edelweys-sage font-semibold no-underline hover:underline">
-                coba chat tanpa login
-              </Link>
+            <p className="text-[13px] m-0" style={{ color: "#7A8B76" }}>
+              Atau <Link to="/chat" className="font-semibold no-underline hover:underline" style={{ color: "#6B9162" }}>coba chat tanpa login</Link>
             </p>
           </motion.div>
         </div>
