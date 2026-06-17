@@ -23,62 +23,80 @@ export default function Chat() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      // Listen for auth state changes (handles Google OAuth redirect)
-      const { data: { subscription } } = supabase.auth.onAuthStateChange(
-        async (event, session) => {
-          if (session) {
-            setUserId(session.user.id);
-            const { data: prof } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
-            setProfile(prof);
-            setEditForm({ full_name: prof?.full_name || "", username: prof?.username || "" });
-          }
-        }
-      );
+    const loadProfileAndHistory = async (userId) => {
+      // Check if profile exists, if not create one from Google user data
+      let { data: prof } = await supabase.from("profiles").select("*").eq("id", userId).single();
 
-      // Also check current session
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session) {
-        setUserId(session.user.id);
-        const { data: prof } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
-        setProfile(prof);
-        setEditForm({ full_name: prof?.full_name || "", username: prof?.username || "" });
-        // Load chat history - group messages by time
-        const { data: chats, error } = await supabase
-          .from("chat_history")
-          .select("*")
-          .eq("user_id", session.user.id)
-          .order("created_at", { ascending: false })
-          .limit(100);
-        if (error) {
-          console.error("Gagal load chat history:", error);
-        } else if (chats && chats.length > 0) {
-          // Group messages into conversations (30 min gap = new conversation)
-          const conversations = [];
-          let currentChat = { messages: [], startTime: null, title: "" };
-          chats.forEach((chat, i) => {
-            const msgTime = new Date(chat.created_at);
-            if (!currentChat.startTime || (currentChat.startTime - msgTime) > 30 * 60 * 1000) {
-              if (currentChat.messages.length > 0) {
-                conversations.push({ ...currentChat });
-              }
-              currentChat = { messages: [], startTime: msgTime, title: chat.message?.slice(0, 30) || "Obrolan" };
+      if (!prof) {
+        // Get user data from auth
+        const { data: { user } } = await supabase.auth.getUser();
+        const fullName = user?.user_metadata?.full_name || user?.user_metadata?.name || "";
+        const username = user?.user_metadata?.name || user?.email?.split("@")[0] || "user";
+
+        // Create profile
+        const { data: newProf } = await supabase.from("profiles").insert({
+          id: userId,
+          username: username,
+          full_name: fullName,
+        }).select().single();
+        prof = newProf;
+      }
+
+      setUserId(userId);
+      setProfile(prof);
+      setEditForm({ full_name: prof?.full_name || "", username: prof?.username || "" });
+
+      // Load chat history
+      const { data: chats, error } = await supabase
+        .from("chat_history")
+        .select("*")
+        .eq("user_id", userId)
+        .order("created_at", { ascending: false })
+        .limit(100);
+
+      if (error) {
+        console.error("Gagal load chat history:", error);
+      } else if (chats && chats.length > 0) {
+        const conversations = [];
+        let currentChat = { messages: [], startTime: null, title: "" };
+        chats.forEach((chat, i) => {
+          const msgTime = new Date(chat.created_at);
+          if (!currentChat.startTime || (currentChat.startTime - msgTime) > 30 * 60 * 1000) {
+            if (currentChat.messages.length > 0) {
+              conversations.push({ ...currentChat });
             }
-            currentChat.messages.unshift({ role: chat.role, content: chat.message });
-          });
-          if (currentChat.messages.length > 0) {
-            conversations.push({ ...currentChat });
+            currentChat = { messages: [], startTime: msgTime, title: chat.message?.slice(0, 30) || "Obrolan" };
           }
-          setChatHistory(conversations.slice(0, 20).map((c, i) => ({
-            id: i,
-            title: c.title,
-            messages: c.messages,
-            time: c.startTime?.toLocaleDateString("id-ID") || "Baru saja",
-          })));
+          currentChat.messages.unshift({ role: chat.role, content: chat.message });
+        });
+        if (currentChat.messages.length > 0) {
+          conversations.push({ ...currentChat });
         }
+        setChatHistory(conversations.slice(0, 20).map((c, i) => ({
+          id: i,
+          title: c.title,
+          messages: c.messages,
+          time: c.startTime?.toLocaleDateString("id-ID") || "Baru saja",
+        })));
       }
     };
-    checkAuth();
+
+    // Listen for auth state changes (handles Google OAuth redirect)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        if (session) {
+          await loadProfileAndHistory(session.user.id);
+        }
+      }
+    );
+
+    // Also check current session on mount
+    (async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        await loadProfileAndHistory(session.user.id);
+      }
+    })();
 
     return () => subscription?.unsubscribe();
   }, []);
