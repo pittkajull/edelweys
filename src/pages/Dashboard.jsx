@@ -58,8 +58,22 @@ export default function Dashboard() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) { navigate("/login"); return; }
       setUser(session.user);
-      const { data: prof } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+
+      // Check if profile exists, if not create one
+      let { data: prof } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+      if (!prof) {
+        const userMeta = session.user.user_metadata || {};
+        const fullName = userMeta.full_name || userMeta.name || "";
+        const username = userMeta.name || session.user.email?.split("@")[0] || "user";
+        const { data: newProf } = await supabase.from("profiles").insert({
+          id: session.user.id,
+          username: username,
+          full_name: fullName,
+        }).select().single();
+        prof = newProf;
+      }
       setProfile(prof);
+
       const { data: hlogs } = await supabase.from("health_logs").select("*").eq("user_id", session.user.id).order("logged_at", { ascending: false }).limit(30);
       setLogs(hlogs || []);
       setLoading(false);
