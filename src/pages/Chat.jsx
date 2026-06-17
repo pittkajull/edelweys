@@ -139,7 +139,7 @@ export default function Chat() {
     try {
       const history = newMessages.slice(0, -1).map((m) => ({ role: m.role, content: m.content }));
       const apiUrl = import.meta.env.VITE_API_URL || '';
-      const res = await fetch(`${apiUrl}/chat/`, {
+      const res = await fetch(`${apiUrl}/api/chat/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: input, history, user_id: userId }),
