@@ -24,6 +24,19 @@ export default function Chat() {
 
   useEffect(() => {
     const checkAuth = async () => {
+      // Listen for auth state changes (handles Google OAuth redirect)
+      const { data: { subscription } } = supabase.auth.onAuthStateChange(
+        async (event, session) => {
+          if (session) {
+            setUserId(session.user.id);
+            const { data: prof } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+            setProfile(prof);
+            setEditForm({ full_name: prof?.full_name || "", username: prof?.username || "" });
+          }
+        }
+      );
+
+      // Also check current session
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
         setUserId(session.user.id);
@@ -66,6 +79,8 @@ export default function Chat() {
       }
     };
     checkAuth();
+
+    return () => subscription?.unsubscribe();
   }, []);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
