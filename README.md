@@ -184,8 +184,8 @@ User bisa chat tanpa login dengan batasan:
 - [x] Glassmorphism design system
 - [x] Deploy backend (AWS EC2)
 
-### Belum
-- [ ] Deploy frontend (Vercel)
+### Selesai (Lanjutan)
+- [x] Deploy frontend (Vercel) → https://edelweys.tech/
 
 ---
 

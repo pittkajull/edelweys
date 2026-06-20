@@ -9,8 +9,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:5174",
+        "https://edelweys.tech",
         "https://edelweys.vercel.app",
-        "https://edelweys-pittkajulls-projects.vercel.app",
     ],
     allow_credentials=True,
     allow_methods=["*"],
