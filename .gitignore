@@ -119,3 +119,7 @@ config.json
 config.local.json
 Claude.md
 
+
+.env
+.env.*
+*.env
