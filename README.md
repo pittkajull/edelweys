@@ -173,18 +173,19 @@ User bisa chat tanpa login dengan batasan:
 - [x] Setup React.js + routing
 - [x] Setup Supabase (tabel + RLS)
 - [x] Setup FastAPI + xiaomimimo API
-- [x] Auth (register + login + profile edit)
+- [x] Auth (register + login + Google OAuth + profile edit)
 - [x] Landing page dengan CTA
 - [x] Chat dengan sidebar, history, table support
+- [x] Chat history sync (save/load dari Supabase)
 - [x] Dashboard glassmorphism + real-time clock
 - [x] Guest access (chat tanpa login)
+- [x] Reminder & saran personal berdasarkan data
+- [x] Responsive mobile optimization
 - [x] Glassmorphism design system
+- [x] Deploy backend (AWS EC2)
 
 ### Belum
-- [ ] Chat history sync (save/load dari Supabase)
-- [ ] Reminder & saran personal berdasarkan data
-- [ ] Deploy (Vercel + Railway/Render)
-- [ ] Responsive mobile optimization
+- [ ] Deploy frontend (Vercel)
 
 ---
 
