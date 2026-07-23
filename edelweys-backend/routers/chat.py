@@ -27,7 +27,7 @@ key_cycle = itertools.cycle(API_KEYS)
 MODELS = [
     "gemini-2.0-flash",
     "gemini-1.5-flash",
-    "gemini-1.5-pro",
+    "gemini-2.0-flash-lite",
 ]
 
 SYSTEM_PROMPT = """Kamu adalah Edelweys, health companion yang friendly dan asyik banget!
