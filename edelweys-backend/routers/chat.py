@@ -3,7 +3,8 @@ import itertools
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
-import google.generativeai as genai
+from google import genai
+from google.genai import types
 
 load_dotenv()
 
@@ -17,13 +18,12 @@ API_KEYS = [
     os.getenv("GEMINI_API_KEY_4"),
     os.getenv("GEMINI_API_KEY_5"),
 ]
-# Filter out None/empty
 API_KEYS = [k for k in API_KEYS if k]
 
 # Round-robin key rotation
 key_cycle = itertools.cycle(API_KEYS)
 
-# Models to try (in priority order)
+# Models to try
 MODELS = [
     "gemini-2.0-flash",
     "gemini-1.5-flash",
@@ -50,37 +50,42 @@ class ChatRequest(BaseModel):
     history: list = []
     user_id: str | None = None
 
-def build_history(history: list) -> list:
-    gemini_history = []
+def build_contents(history: list, message: str) -> list:
+    contents = []
     for h in history:
         role = "user" if h["role"] == "user" else "model"
-        gemini_history.append({"role": role, "parts": [h["content"]]})
-    return gemini_history
+        contents.append(types.Content(
+            role=role,
+            parts=[types.Part.from_text(text=h["content"])]
+        ))
+    contents.append(types.Content(
+        role="user",
+        parts=[types.Part.from_text(text=message)]
+    ))
+    return contents
 
 async def call_with_fallback(message: str, history: list) -> str:
-    """Try each key + model combination until one succeeds"""
     last_error = None
     
-    # Try each API key
     for key_index in range(len(API_KEYS)):
         api_key = next(key_cycle)
         
-        # For each key, try all models
         for model_name in MODELS:
             try:
-                genai.configure(api_key=api_key)
-                model = genai.GenerativeModel(
-                    model_name=model_name,
-                    system_instruction=SYSTEM_PROMPT,
+                client = genai.Client(api_key=api_key)
+                response = client.models.generate_content(
+                    model=model_name,
+                    contents=build_contents(history, message),
+                    config=types.GenerateContentConfig(
+                        system_instruction=SYSTEM_PROMPT,
+                        max_output_tokens=1024,
+                        temperature=0.7,
+                    )
                 )
-                
-                chat = model.start_chat(history=build_history(history))
-                response = await chat.send_message_async(message)
                 return response.text
                 
             except Exception as e:
                 last_error = e
-                # Only log key index for privacy (not full key)
                 print(f"[Fallback] Key#{key_index+1} + {model_name} failed: {e}")
                 continue
     
