@@ -1,4 +1,5 @@
 import os
+import itertools
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
@@ -8,10 +9,21 @@ load_dotenv()
 
 router = APIRouter()
 
-# Configure Gemini
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+# Load all API keys from env
+API_KEYS = [
+    os.getenv("GEMINI_API_KEY_1"),
+    os.getenv("GEMINI_API_KEY_2"),
+    os.getenv("GEMINI_API_KEY_3"),
+    os.getenv("GEMINI_API_KEY_4"),
+    os.getenv("GEMINI_API_KEY_5"),
+]
+# Filter out None/empty
+API_KEYS = [k for k in API_KEYS if k]
 
-# Model priority list - if one fails, try next
+# Round-robin key rotation
+key_cycle = itertools.cycle(API_KEYS)
+
+# Models to try (in priority order)
 MODELS = [
     "gemini-2.0-flash",
     "gemini-1.5-flash",
@@ -39,7 +51,6 @@ class ChatRequest(BaseModel):
     user_id: str | None = None
 
 def build_history(history: list) -> list:
-    """Convert history to Gemini format"""
     gemini_history = []
     for h in history:
         role = "user" if h["role"] == "user" else "model"
@@ -47,24 +58,31 @@ def build_history(history: list) -> list:
     return gemini_history
 
 async def call_with_fallback(message: str, history: list) -> str:
-    """Try models in order until one succeeds"""
+    """Try each key + model combination until one succeeds"""
     last_error = None
     
-    for model_name in MODELS:
-        try:
-            model = genai.GenerativeModel(
-                model_name=model_name,
-                system_instruction=SYSTEM_PROMPT,
-            )
-            
-            chat = model.start_chat(history=build_history(history))
-            response = await chat.send_message_async(message)
-            return response.text
-            
-        except Exception as e:
-            last_error = e
-            print(f"[Fallback] {model_name} failed: {e}")
-            continue
+    # Try each API key
+    for key_index in range(len(API_KEYS)):
+        api_key = next(key_cycle)
+        
+        # For each key, try all models
+        for model_name in MODELS:
+            try:
+                genai.configure(api_key=api_key)
+                model = genai.GenerativeModel(
+                    model_name=model_name,
+                    system_instruction=SYSTEM_PROMPT,
+                )
+                
+                chat = model.start_chat(history=build_history(history))
+                response = await chat.send_message_async(message)
+                return response.text
+                
+            except Exception as e:
+                last_error = e
+                # Only log key index for privacy (not full key)
+                print(f"[Fallback] Key#{key_index+1} + {model_name} failed: {e}")
+                continue
     
     raise last_error
 
