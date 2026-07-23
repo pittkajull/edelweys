@@ -1,18 +1,22 @@
 import os
-import anthropic
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 from dotenv import load_dotenv
+import google.generativeai as genai
 
 load_dotenv()
 
 router = APIRouter()
 
-# Init client dengan base_url xiaomimimo
-client = anthropic.Anthropic(
-    api_key=os.getenv("ANTHROPIC_API_KEY"),
-    base_url=os.getenv("ANTHROPIC_BASE_URL", "https://api.xiaomimimo.com/anthropic"),
-)
+# Configure Gemini
+genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+
+# Model priority list - if one fails, try next
+MODELS = [
+    "gemini-2.0-flash",
+    "gemini-1.5-flash",
+    "gemini-1.5-pro",
+]
 
 SYSTEM_PROMPT = """Kamu adalah Edelweys, health companion yang friendly dan asyik banget!
 
@@ -31,22 +35,43 @@ Jangan pernah mendiagnosis penyakit serius atau meresepkan obat."""
 
 class ChatRequest(BaseModel):
     message: str
-    history: list = []  # [{"role": "user/assistant", "content": "..."}]
+    history: list = []
     user_id: str | None = None
+
+def build_history(history: list) -> list:
+    """Convert history to Gemini format"""
+    gemini_history = []
+    for h in history:
+        role = "user" if h["role"] == "user" else "model"
+        gemini_history.append({"role": role, "parts": [h["content"]]})
+    return gemini_history
+
+async def call_with_fallback(message: str, history: list) -> str:
+    """Try models in order until one succeeds"""
+    last_error = None
+    
+    for model_name in MODELS:
+        try:
+            model = genai.GenerativeModel(
+                model_name=model_name,
+                system_instruction=SYSTEM_PROMPT,
+            )
+            
+            chat = model.start_chat(history=build_history(history))
+            response = await chat.send_message_async(message)
+            return response.text
+            
+        except Exception as e:
+            last_error = e
+            print(f"[Fallback] {model_name} failed: {e}")
+            continue
+    
+    raise last_error
 
 @router.post("/")
 async def chat(req: ChatRequest):
     try:
-        messages = req.history + [{"role": "user", "content": req.message}]
-        
-        response = client.messages.create(
-            model="mimo-v2.5-pro",
-            max_tokens=1024,
-            system=SYSTEM_PROMPT,
-            messages=messages,
-        )
-        
-        reply = response.content[0].text
+        reply = await call_with_fallback(req.message, req.history)
         return {"reply": reply}
     
     except Exception as e:
