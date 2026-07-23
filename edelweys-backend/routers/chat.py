@@ -23,11 +23,11 @@ API_KEYS = [k for k in API_KEYS if k]
 # Round-robin key rotation
 key_cycle = itertools.cycle(API_KEYS)
 
-# Models to try
+# Models to try (only available models)
 MODELS = [
     "gemini-2.0-flash",
-    "gemini-1.5-flash",
     "gemini-2.0-flash-lite",
+    "gemini-1.5-pro",
 ]
 
 SYSTEM_PROMPT = """Kamu adalah Edelweys, health companion yang friendly dan asyik banget!
