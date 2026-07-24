@@ -18,10 +18,14 @@ export default function Register() {
     setLoading(true);
     setError("");
     try {
-      const { data: authData, error: authError } = await supabase.auth.signUp({ email: form.email, password: form.password });
+      const { error: authError } = await supabase.auth.signUp({
+        email: form.email,
+        password: form.password,
+        options: {
+          data: { full_name: form.full_name, username: form.username },
+        },
+      });
       if (authError) throw authError;
-      const { error: profileError } = await supabase.from("profiles").insert({ id: authData.user.id, username: form.username, full_name: form.full_name });
-      if (profileError) throw profileError;
       navigate("/login");
     } catch (err) {
       setError(err.message || "Registrasi gagal");

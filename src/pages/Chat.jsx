@@ -24,15 +24,14 @@ export default function Chat() {
 
   useEffect(() => {
     const loadProfileAndHistory = async (userId) => {
-      // Check if profile exists, if not create one from Google user data
       let { data: prof } = await supabase.from("profiles").select("*").eq("id", userId).single();
 
-      if (!prof) {
-        // Get user data from auth
-        const { data: { user } } = await supabase.auth.getUser();
-        const fullName = user?.user_metadata?.full_name || user?.user_metadata?.name || "";
-        const username = user?.user_metadata?.name || user?.email?.split("@")[0] || "user";
+      // Get user data from auth
+      const { data: { user } } = await supabase.auth.getUser();
+      const fullName = user?.user_metadata?.full_name || user?.user_metadata?.name || "";
+      const username = user?.user_metadata?.name || user?.email?.split("@")[0] || "user";
 
+      if (!prof) {
         // Create profile
         const { data: newProf } = await supabase.from("profiles").insert({
           id: userId,
@@ -40,6 +39,10 @@ export default function Chat() {
           full_name: fullName,
         }).select().single();
         prof = newProf;
+      } else if (!prof.full_name && fullName) {
+        // Update profile if full_name is empty (e.g. Google user with metadata)
+        const { data: updated } = await supabase.from("profiles").update({ full_name: fullName, username }).eq("id", userId).select().single();
+        if (updated) prof = updated;
       }
 
       setUserId(userId);

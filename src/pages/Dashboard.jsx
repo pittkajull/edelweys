@@ -59,18 +59,21 @@ export default function Dashboard() {
       if (!session) { navigate("/login"); return; }
       setUser(session.user);
 
-      // Check if profile exists, if not create one
       let { data: prof } = await supabase.from("profiles").select("*").eq("id", session.user.id).single();
+      const userMeta = session.user.user_metadata || {};
+      const fullName = userMeta.full_name || userMeta.name || "";
+      const username = userMeta.name || session.user.email?.split("@")[0] || "user";
+
       if (!prof) {
-        const userMeta = session.user.user_metadata || {};
-        const fullName = userMeta.full_name || userMeta.name || "";
-        const username = userMeta.name || session.user.email?.split("@")[0] || "user";
         const { data: newProf } = await supabase.from("profiles").insert({
           id: session.user.id,
           username: username,
           full_name: fullName,
         }).select().single();
         prof = newProf;
+      } else if (!prof.full_name && fullName) {
+        const { data: updated } = await supabase.from("profiles").update({ full_name: fullName, username }).eq("id", session.user.id).select().single();
+        if (updated) prof = updated;
       }
       setProfile(prof);
 
