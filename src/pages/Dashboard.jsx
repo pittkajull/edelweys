@@ -80,7 +80,7 @@ export default function Dashboard() {
       }
       setProfile(prof);
 
-      const { data: hlogs } = await supabase.from("health_logs").select("*").eq("user_id", session.user.id).order("logged_at", { ascending: false }).limit(30);
+      const { data: hlogs } = await supabase.from("health_logs").select("*").eq("user_id", session.user.id).order("created_at", { ascending: false }).limit(30);
       setLogs(hlogs || []);
       setLoading(false);
     };
@@ -102,10 +102,11 @@ export default function Dashboard() {
     // Build payload with only non-null fields
     const payload = {
       user_id: user.id,
-      logged_at: form.date,
+      created_at: form.date,
     };
     if (form.weight) payload.weight = parseFloat(form.weight);
     if (form.height) payload.height = parseFloat(form.height);
+    if (form.systolic && form.diastolic) payload.blood_pressure = `${form.systolic}/${form.diastolic}`;
     if (form.coffee_cups) payload.coffee_cups = parseInt(form.coffee_cups);
     if (form.exercise_minutes) payload.exercise_minutes = parseInt(form.exercise_minutes);
     if (form.water_glasses) payload.water_glasses = parseInt(form.water_glasses);
@@ -113,14 +114,14 @@ export default function Dashboard() {
 
     console.log("Payload:", payload);
 
-    const { error } = await supabase.from("health_logs").upsert(payload, { onConflict: "user_id,logged_at" });
+    const { error } = await supabase.from("health_logs").upsert(payload, { onConflict: "user_id,created_at" });
     if (error) {
       console.error("Gagal simpan:", error);
       showToast("Gagal simpan: " + error.message, "error");
     }
     else {
       showToast("Data kesehatan berhasil disimpan!");
-      const { data: hlogs } = await supabase.from("health_logs").select("*").eq("user_id", user.id).order("logged_at", { ascending: false }).limit(30);
+      const { data: hlogs } = await supabase.from("health_logs").select("*").eq("user_id", user.id).order("created_at", { ascending: false }).limit(30);
       setLogs(hlogs || []);
       setActiveTab("overview");
     }
@@ -132,7 +133,7 @@ export default function Dashboard() {
   const latest = logs[0] || null;
   const latestBMI = latest?.bmi ?? (latest ? calcBMI(latest.weight, latest.height) : null);
   const bmiInfo = bmiCategory(latestBMI);
-  const chartData = [...logs].reverse().slice(-14).map(l => ({ date: fmt(l.logged_at), Berat: l.weight }));
+  const chartData = [...logs].reverse().slice(-14).map(l => ({ date: fmt(l.created_at), Berat: l.weight }));
   const timeStr = currentTime.toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   const dateStr = currentTime.toLocaleDateString("id-ID", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
 
@@ -241,12 +242,12 @@ export default function Dashboard() {
             {latest && (
               <>
                 <section>
-                  <p className="text-[11px] font-medium tracking-wide uppercase m-0 mb-3" style={{ color: "#5A6B57" }}>Data Terakhir — {fmt(latest.logged_at)}</p>
+                  <p className="text-[11px] font-medium tracking-wide uppercase m-0 mb-3" style={{ color: "#5A6B57" }}>Data Terakhir — {fmt(latest.created_at)}</p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <MetricCard label="Berat Badan" value={latest.weight} unit="kg" />
                     <MetricCard label="Tinggi Badan" value={latest.height} unit="cm" />
                     <MetricCard label="BMI" value={latestBMI} sub={bmiInfo.label} color={bmiInfo.color} bg={bmiInfo.bg} />
-                    {(latest.blood_pressure_sytolic || latest.blood_pressure_diastolic) && <MetricCard label="Tekanan Darah" value={`${latest.blood_pressure_sytolic ?? "-"}/${latest.blood_pressure_diastolic ?? "-"}`} unit="mmHg" color="#EF4444" bg="#FEF2F2" />}
+                    {latest.blood_pressure && <MetricCard label="Tekanan Darah" value={latest.blood_pressure} unit="mmHg" color="#EF4444" bg="#FEF2F2" />}
                   </div>
                 </section>
 
@@ -435,14 +436,14 @@ export default function Dashboard() {
               return (
                 <GlassCard key={log.id ?? i}>
                   <div className="flex justify-between items-center mb-3">
-                    <span className="font-medium text-sm" style={{ color: "#1E3319" }}>{fmt(log.logged_at)}</span>
+                    <span className="font-medium text-sm" style={{ color: "#1E3319" }}>{fmt(log.created_at)}</span>
                     {i === 0 && <span className="text-white rounded-lg px-2 py-0.5 text-[11px] font-medium" style={{ background: "#6B9162" }}>Terbaru</span>}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {log.weight && <span className="rounded-lg px-2 py-1 text-xs font-medium" style={{ background: "rgba(107,145,98,0.1)", color: "#6B9162" }}>{log.weight} kg</span>}
                     {log.height && <span className="rounded-lg px-2 py-1 text-xs font-medium" style={{ background: "rgba(107,145,98,0.1)", color: "#6B9162" }}>{log.height} cm</span>}
                     {bmi && <span className="rounded-lg px-2 py-1 text-xs font-medium" style={{ background: bi.bg, color: bi.color }}>BMI {bmi}</span>}
-                    {(log.blood_pressure_sytolic || log.blood_pressure_diastolic) && <span className="rounded-lg px-2 py-1 text-xs font-medium" style={{ background: "rgba(239,68,68,0.1)", color: "#EF4444" }}>{log.blood_pressure_sytolic ?? "-"}/{log.blood_pressure_diastolic ?? "-"} mmHg</span>}
+                    {log.blood_pressure && <span className="rounded-lg px-2 py-1 text-xs font-medium" style={{ background: "rgba(239,68,68,0.1)", color: "#EF4444" }}>{log.blood_pressure} mmHg</span>}
                   </div>
                 </GlassCard>
               );
