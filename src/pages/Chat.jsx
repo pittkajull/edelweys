@@ -209,17 +209,31 @@ export default function Chat() {
   const isHome = messages.length <= 1;
 
   return (
-    <div className="flex h-screen w-screen font-sans overflow-hidden fixed inset-0" style={{ background: "#E8EDE5" }}>
+    <div className="flex h-screen w-screen font-sans overflow-hidden fixed inset-0" style={{ background: "#D9E2D4" }}>
+      {/* Sidebar Overlay */}
+      <AnimatePresence>
+        {sidebarOpen && (
+          <motion.div
+            className="fixed inset-0 z-40"
+            style={{ background: "rgba(0,0,0,0.3)" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
-            className="w-[260px] h-full flex-shrink-0 z-30 flex flex-col"
+            className="w-[260px] h-full flex-shrink-0 z-50 flex flex-col fixed left-0 top-0"
             style={{ background: "#1E3319" }}
             initial={{ x: -260 }}
             animate={{ x: 0 }}
             exit={{ x: -260 }}
-            transition={{ type: "tween", duration: 0.2 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
           >
             <div className="p-4 flex items-center justify-between border-b border-white/10">
               <img src={logo} alt="Edelweys" className="h-7" />
@@ -230,6 +244,10 @@ export default function Chat() {
             <button onClick={startNewChat} className="mx-3 mt-3 px-3 py-2.5 rounded-lg text-white text-sm font-medium cursor-pointer text-left flex items-center gap-2 transition-colors border-none" style={{ background: "rgba(255,255,255,0.08)" }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14m-7-7h14" /></svg>
               Obrolan Baru
+            </button>
+            <button onClick={() => { navigate("/dashboard"); setSidebarOpen(false); }} className="mx-3 mt-2 px-3 py-2.5 rounded-lg text-white/70 text-sm font-medium cursor-pointer text-left flex items-center gap-2 transition-colors border-none hover:text-white hover:bg-white/5" style={{ background: "transparent" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
+              Dashboard
             </button>
             {!userId && (
               <div className="mx-3 mt-3 p-2.5 rounded-lg border border-white/10" style={{ background: "rgba(255,255,255,0.04)" }}>
@@ -268,8 +286,8 @@ export default function Chat() {
       {/* Main Chat */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Header */}
-        <div className="flex items-center px-4 py-3 border-b" style={{ borderColor: "rgba(30,51,25,0.1)", background: "rgba(232,237,229,0.8)", backdropFilter: "blur(12px)" }}>
-          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer transition-colors border-none bg-transparent" style={{ color: "#1E3319" }}>
+        <div className="flex items-center px-4 py-3 border-b" style={{ borderColor: "rgba(30,51,25,0.12)", background: "rgba(217,226,212,0.9)", backdropFilter: "blur(12px)" }}>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer transition-colors border-none bg-transparent hover:bg-black/5" style={{ color: "#1E3319" }}>
             {sidebarOpen ? (
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M15 18l-6-6 6-6" /></svg>
             ) : (
@@ -287,10 +305,10 @@ export default function Chat() {
 
         {/* Guest Banner */}
         {!userId && (
-          <div className="flex items-center gap-2 px-4 py-2.5 border-b" style={{ background: "rgba(107,145,98,0.08)", borderColor: "rgba(107,145,98,0.15)" }}>
-            <p className="m-0 text-xs" style={{ color: "#5A6B57" }}>
+          <div className="flex items-center gap-2 px-4 py-2.5 border-b" style={{ background: "rgba(107,145,98,0.1)", borderColor: "rgba(107,145,98,0.15)" }}>
+            <p className="m-0 text-xs" style={{ color: "#3D5A35" }}>
               Kamu belum login. Riwayat chat tidak akan tersimpan.{" "}
-              <span className="font-semibold cursor-pointer hover:underline" style={{ color: "#6B9162" }} onClick={() => navigate("/login")}>Login sekarang</span>
+              <span className="font-semibold cursor-pointer hover:underline" style={{ color: "#4A7A40" }} onClick={() => navigate("/login")}>Login sekarang</span>
             </p>
           </div>
         )}
@@ -300,20 +318,21 @@ export default function Chat() {
           /* Home screen - centered like Claude */
           <div className="flex-1 flex flex-col items-center justify-center px-6">
             <motion.div
-              className="flex items-center gap-3 mb-8"
+              className="flex items-center gap-4 mb-8"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
             >
-              <img src={logo} alt="Edelweys" className="w-12 h-12" />
-              <h1 className="text-[32px] md:text-[40px] font-bold m-0" style={{ color: "#1E3319" }}>Heyy yoww!</h1>
+              <img src={logo} alt="Edelweys" className="w-14 h-14" />
+              <h1 className="text-[36px] md:text-[44px] font-bold m-0" style={{ color: "#1E3319" }}>Heyy yoww!</h1>
             </motion.div>
             <motion.div
               className="w-full max-w-[600px]"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 }}
+              transition={{ delay: 0.15, duration: 0.4 }}
             >
-              <div className="rounded-2xl border p-4" style={{ background: "rgba(255,255,255,0.5)", borderColor: "rgba(30,51,25,0.12)" }}>
+              <div className="rounded-2xl border p-4" style={{ background: "rgba(255,255,255,0.45)", borderColor: "rgba(30,51,25,0.1)" }}>
                 <textarea
                   ref={inputRef}
                   value={input}
@@ -323,13 +342,13 @@ export default function Chat() {
                   className="w-full min-h-[80px] border-none outline-none resize-none text-[15px] bg-transparent"
                   style={{ color: "#1E3319" }}
                 />
-                <div className="flex items-center justify-between mt-2 pt-2 border-t" style={{ borderColor: "rgba(30,51,25,0.08)" }}>
+                <div className="flex items-center justify-between mt-2 pt-2 border-t" style={{ borderColor: "rgba(30,51,25,0.06)" }}>
                   <div />
                   <motion.button
                     onClick={sendMessage}
                     disabled={loading || !input.trim()}
-                    className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-all border-none"
-                    style={{ background: input.trim() ? "#6B9162" : "rgba(30,51,25,0.1)", color: input.trim() ? "white" : "#5A6B57" }}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer border-none"
+                    style={{ background: input.trim() ? "#4A7A40" : "rgba(30,51,25,0.08)", color: input.trim() ? "white" : "#5A6B57", transition: "all 0.2s" }}
                     whileHover={input.trim() ? { scale: 1.05 } : {}}
                     whileTap={input.trim() ? { scale: 0.95 } : {}}
                   >
