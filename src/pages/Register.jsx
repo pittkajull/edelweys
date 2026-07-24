@@ -55,7 +55,7 @@ export default function Register() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center font-sans relative overflow-hidden"
-      style={{ background: "linear-gradient(135deg, #E8EDE5 0%, #D4E2D0 50%, #C5D9BF 100%)" }}>
+      style={{ background: "linear-gradient(135deg, #D9E2D4 0%, #C8D4C0 50%, #B8C8B0 100%)" }}>
 
       {/* Animated Background */}
       <div className="absolute inset-0 overflow-hidden">

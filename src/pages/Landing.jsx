@@ -12,7 +12,7 @@ export default function Landing() {
   ];
 
   return (
-    <div className="font-sans min-h-screen relative overflow-hidden" style={{ background: "#E8EDE5" }}>
+    <div className="font-sans min-h-screen relative overflow-hidden" style={{ background: "#D9E2D4" }}>
       {/* Background blobs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(3)].map((_, i) => (

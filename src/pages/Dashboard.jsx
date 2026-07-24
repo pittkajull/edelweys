@@ -139,7 +139,7 @@ export default function Dashboard() {
 
   if (loading) return (
     <div className="h-screen w-screen flex items-center justify-center flex-col gap-4 fixed inset-0 font-sans"
-      style={{ background: "linear-gradient(135deg, #EEEEE9 0%, #E8EDE5 100%)" }}>
+      style={{ background: "linear-gradient(135deg, #D9E2D4 0%, #C8D4C0 100%)" }}>
       <motion.div
         className="w-12 h-12 rounded-full border-[3px] border-edelweys-border border-t-edelweys-sage"
         animate={{ rotate: 360 }}
@@ -161,7 +161,7 @@ export default function Dashboard() {
   );
 
   return (
-    <div className="min-h-screen font-sans" style={{ background: "#E8EDE5" }}>
+    <div className="min-h-screen font-sans" style={{ background: "#D9E2D4" }}>
       <AnimatePresence>
         {toast && (
           <motion.div
@@ -185,7 +185,7 @@ export default function Dashboard() {
       </AnimatePresence>
 
       {/* Header */}
-      <div className="px-6 py-4 border-b" style={{ borderColor: "rgba(30,51,25,0.1)", background: "rgba(232,237,229,0.8)", backdropFilter: "blur(12px)" }}>
+      <div className="px-6 py-4 border-b" style={{ borderColor: "rgba(30,51,25,0.12)", background: "rgba(217,226,212,0.9)", backdropFilter: "blur(12px)" }}>
         <div className="max-w-[1000px] mx-auto flex justify-between items-center">
           <div className="flex items-center gap-3">
             <img src={logo} alt="Edelweys" className="w-8 h-8 rounded-lg" />
