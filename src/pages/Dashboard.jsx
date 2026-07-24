@@ -11,22 +11,26 @@ const calcBMI = (weight, height) => {
 };
 
 const bmiCategory = (bmi) => {
-  if (!bmi) return { label: "-", color: "#7A8B76", bg: "#F3F4F6" };
+  if (!bmi) return { label: "-", color: "#8A8279", bg: "#F5EDE3" };
   const b = parseFloat(bmi);
-  if (b < 18.5) return { label: "Kurang", color: "#3B82F6", bg: "#EFF6FF" };
-  if (b < 25) return { label: "Normal", color: "#6B9162", bg: "#F0FDF4" };
-  if (b < 30) return { label: "Berlebih", color: "#F59E0B", bg: "#FFFBEB" };
-  return { label: "Obesitas", color: "#EF4444", bg: "#FEF2F2" };
+  if (b < 18.5) return { label: "Kurang", color: "#5B8DB8", bg: "#EDF4FA" };
+  if (b < 25) return { label: "Normal", color: "#7D9B76", bg: "#F0F5EE" };
+  if (b < 30) return { label: "Berlebih", color: "#C4956A", bg: "#FDF5ED" };
+  return { label: "Obesitas", color: "#C47A6A", bg: "#FDF0ED" };
 };
 
 const fmt = (d) => new Date(d).toLocaleDateString("id-ID", { day: "2-digit", month: "short" });
 
 const GlassCard = ({ children, className = "", dark = false }) => (
-  <div className={`rounded-2xl p-5 border transition-all duration-200 ${
+  <div className={`rounded-soft p-5 border transition-all duration-200 ${
     dark
-      ? "bg-edelweys-deep/90 border-white/10 shadow-glass-lg"
-      : "bg-white/50 border-white/40 shadow-glass"
-  }`} style={{ backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
+      ? "shadow-soft-lg"
+      : "shadow-soft"
+  }`} style={{
+    background: dark ? "linear-gradient(135deg, #2D2A26 0%, #3D3833 100%)" : "rgba(255, 252, 248, 0.7)",
+    borderColor: dark ? "rgba(255,255,255,0.08)" : "rgba(232, 222, 212, 0.6)",
+    backdropFilter: "blur(16px)"
+  }}>
     {children}
   </div>
 );
@@ -135,7 +139,7 @@ export default function Dashboard() {
 
   if (loading) return (
     <div className="h-screen w-screen flex items-center justify-center flex-col gap-4 fixed inset-0 font-sans"
-      style={{ background: "linear-gradient(135deg, #EEEEE9 0%, #E8EDE5 100%)" }}>
+      style={{ background: "linear-gradient(180deg, #FAF5EE 0%, #F5EDE3 100%)" }}>
       <motion.div
         className="w-12 h-12 rounded-full border-[3px] border-edelweys-border border-t-edelweys-sage"
         animate={{ rotate: 360 }}
@@ -145,27 +149,27 @@ export default function Dashboard() {
     </div>
   );
 
-  const MetricCard = ({ label, value, unit, sub, color = "#6B9162", bg = "#F0FDF4" }) => (
+  const MetricCard = ({ label, value, unit, sub, color = "#7D9B76", bg = "#F0F5EE" }) => (
     <GlassCard>
-      <p className="text-[11px] font-bold text-edelweys-text-tertiary tracking-[0.1em] uppercase m-0 mb-2">{label}</p>
+      <p className="text-[11px] font-bold tracking-[0.1em] uppercase m-0 mb-2" style={{ color: "#8A8279" }}>{label}</p>
       <div className="flex items-baseline gap-1">
-        <span className="text-3xl font-extrabold text-edelweys-text tracking-tight">{value ?? "-"}</span>
-        {unit && <span className="text-sm text-edelweys-text-tertiary font-medium">{unit}</span>}
+        <span className="text-3xl font-display text-edelweys-text tracking-tight">{value ?? "-"}</span>
+        {unit && <span className="text-sm font-medium" style={{ color: "#8A8279" }}>{unit}</span>}
       </div>
-      {sub && <span className="inline-block mt-2 px-3 py-1 rounded-full text-xs font-bold" style={{ color, background: bg }}>{sub}</span>}
+      {sub && <span className="inline-block mt-2 px-3 py-1 rounded-pill text-xs font-semibold" style={{ color, background: bg }}>{sub}</span>}
     </GlassCard>
   );
 
   return (
-    <div className="min-h-screen font-sans" style={{ background: "linear-gradient(135deg, #EEEEE9 0%, #E8EDE5 50%, #E0E8DC 100%)" }}>
+    <div className="min-h-screen font-sans" style={{ background: "linear-gradient(180deg, #FAF5EE 0%, #F5EDE3 50%, #EDE4D8 100%)" }}>
       <AnimatePresence>
         {toast && (
           <motion.div
             initial={{ opacity: 0, y: -20, x: 20 }}
             animate={{ opacity: 1, y: 0, x: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className={`fixed top-5 right-5 z-[9999] text-white rounded-2xl px-5 py-3 font-semibold text-sm shadow-glass-lg ${
-              toast.type === "error" ? "bg-gradient-to-r from-red-500 to-red-600" : "bg-gradient-to-r from-edelweys-sage to-edelweys-light"
+            className={`fixed top-5 right-5 z-[9999] text-white rounded-2xl px-5 py-3 font-semibold text-sm shadow-soft-lg ${
+              toast.type === "error" ? "bg-gradient-to-r from-red-400 to-red-500" : "bg-gradient-to-r from-edelweys-forest to-edelweys-sage"
             }`}
           >
             <div className="flex items-center gap-2">
@@ -184,17 +188,17 @@ export default function Dashboard() {
       <div className="px-5 md:px-8 pt-6 pb-4">
         <div className="max-w-[1000px] mx-auto flex justify-between items-start flex-wrap gap-4">
           <div>
-            <p className="text-[11px] font-bold text-edelweys-text-tertiary tracking-[0.12em] uppercase m-0 mb-1">Selamat datang kembali,</p>
-            <h1 className="text-3xl font-extrabold text-edelweys-text m-0 tracking-tight">{profile?.full_name || "User"}</h1>
+            <p className="text-[11px] font-bold tracking-[0.12em] uppercase m-0 mb-1" style={{ color: "#8A8279" }}>Selamat datang kembali,</p>
+            <h1 className="text-3xl font-display text-edelweys-text m-0 tracking-tight">{profile?.full_name || "User"}</h1>
           </div>
           <div className="flex items-center gap-4 flex-wrap">
             <div className="text-right">
-              <p className="text-2xl font-extrabold text-edelweys-text m-0 tabular-nums tracking-tight">{timeStr}</p>
-              <p className="text-xs text-edelweys-text-tertiary m-0">{dateStr}</p>
+              <p className="text-2xl font-semibold text-edelweys-text m-0 tabular-nums tracking-tight">{timeStr}</p>
+              <p className="text-xs m-0" style={{ color: "#8A8279" }}>{dateStr}</p>
             </div>
             <div className="flex gap-2">
-              <button onClick={() => navigate("/chat")} className="px-4 py-2.5 rounded-xl font-semibold text-sm cursor-pointer transition-all duration-200 border border-white/40 bg-white/50 text-edelweys-text hover:bg-white/70" style={{ backdropFilter: "blur(10px)" }}>Chat</button>
-              <button onClick={handleLogout} className="px-4 py-2.5 rounded-xl font-semibold text-sm cursor-pointer transition-all duration-200 border-none bg-red-50 text-red-600 hover:bg-red-100">Logout</button>
+              <button onClick={() => navigate("/chat")} className="px-4 py-2.5 rounded-2xl font-semibold text-sm cursor-pointer transition-all duration-200 border-2 border-edelweys-border bg-edelweys-surface/50 text-edelweys-text hover:bg-edelweys-surface">Chat</button>
+              <button onClick={handleLogout} className="px-4 py-2.5 rounded-2xl font-semibold text-sm cursor-pointer transition-all duration-200 border-none" style={{ background: "rgba(200, 120, 100, 0.1)", color: "#B85A4A" }}>Logout</button>
             </div>
           </div>
         </div>
@@ -203,19 +207,19 @@ export default function Dashboard() {
       {/* Tabs */}
       <div className="px-5 md:px-8">
         <div className="max-w-[1000px] mx-auto">
-          <div className="flex gap-1 p-1.5 rounded-2xl border border-white/40 shadow-glass"
-            style={{ background: "rgba(255,255,255,0.5)", backdropFilter: "blur(20px)" }}>
+          <div className="flex gap-1 p-1.5 rounded-2xl border border-edelweys-border-light shadow-soft"
+            style={{ background: "rgba(255, 252, 248, 0.7)", backdropFilter: "blur(16px)" }}>
             {[
               { id: "overview", label: "Overview" },
               { id: "input", label: "Input Data" },
               { id: "history", label: "Riwayat" },
             ].map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                className={`flex-1 py-3 px-4 rounded-xl border-none text-sm font-bold cursor-pointer transition-all duration-200 ${
+                className={`flex-1 py-3 px-4 rounded-xl border-none text-sm font-semibold cursor-pointer transition-all duration-200 ${
                   activeTab === tab.id
-                    ? "bg-gradient-to-r from-edelweys-forest to-edelweys-sage text-white shadow-green-sm"
-                    : "bg-transparent text-edelweys-text-secondary hover:bg-white/30"
-                }`}>{tab.label}</button>
+                    ? "text-white shadow-sage-sm"
+                    : "bg-transparent text-edelweys-text-secondary hover:bg-edelweys-surface/50"
+                }`} style={activeTab === tab.id ? { background: "linear-gradient(135deg, #4A5D4A 0%, #7D9B76 100%)" } : {}}>{tab.label}</button>
             ))}
           </div>
         </div>
@@ -228,12 +232,12 @@ export default function Dashboard() {
             {!latest && (
               <GlassCard>
                 <div className="text-center py-8">
-                  <div className="w-16 h-16 mx-auto mb-4 rounded-full bg-edelweys-sage/10 flex items-center justify-center">
+                  <div className="w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center" style={{ background: "rgba(125, 155, 118, 0.1)" }}>
                     <svg className="w-8 h-8 text-edelweys-sage" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
                   </div>
-                  <p className="font-bold text-lg text-edelweys-text m-0 mb-2">Belum ada data kesehatan</p>
-                  <p className="text-edelweys-text-tertiary m-0 mb-6 text-sm">Mulai catat data kesehatanmu untuk melihat overview</p>
-                  <button onClick={() => setActiveTab("input")} className="px-6 py-3 rounded-xl border-none bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white text-sm font-bold cursor-pointer shadow-green-sm hover:shadow-green transition-all">Input Data Sekarang</button>
+                  <p className="font-semibold text-lg text-edelweys-text m-0 mb-2">Belum ada data kesehatan</p>
+                  <p className="m-0 mb-6 text-sm" style={{ color: "#8A8279" }}>Mulai catat data kesehatanmu untuk melihat overview</p>
+                  <button onClick={() => setActiveTab("input")} className="px-6 py-3 rounded-2xl border-none text-white text-sm font-semibold cursor-pointer shadow-sage-sm hover:shadow-sage transition-all" style={{ background: "linear-gradient(135deg, #4A5D4A 0%, #7D9B76 100%)" }}>Input Data Sekarang</button>
                 </div>
               </GlassCard>
             )}
@@ -241,17 +245,17 @@ export default function Dashboard() {
             {latest && (
               <>
                 <section>
-                  <p className="text-[11px] font-bold text-edelweys-text-tertiary tracking-[0.1em] uppercase m-0 mb-3">Data Terakhir — {fmt(latest.logged_at)}</p>
+                  <p className="text-[11px] font-bold tracking-[0.1em] uppercase m-0 mb-3" style={{ color: "#8A8279" }}>Data Terakhir — {fmt(latest.logged_at)}</p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     <MetricCard label="Berat Badan" value={latest.weight} unit="kg" />
                     <MetricCard label="Tinggi Badan" value={latest.height} unit="cm" />
                     <MetricCard label="BMI" value={latestBMI} sub={bmiInfo.label} color={bmiInfo.color} bg={bmiInfo.bg} />
-                    {(latest.blood_pressure_sytolic || latest.blood_pressure_diastolic) && <MetricCard label="Tekanan Darah" value={`${latest.blood_pressure_sytolic ?? "-"}/${latest.blood_pressure_diastolic ?? "-"}`} unit="mmHg" color="#EF4444" bg="#FEF2F2" />}
+                    {(latest.blood_pressure_sytolic || latest.blood_pressure_diastolic) && <MetricCard label="Tekanan Darah" value={`${latest.blood_pressure_sytolic ?? "-"}/${latest.blood_pressure_diastolic ?? "-"}`} unit="mmHg" color="#C47A6A" bg="#FDF0ED" />}
                   </div>
                 </section>
 
                 <section>
-                  <p className="text-[11px] font-bold text-edelweys-text-tertiary tracking-[0.1em] uppercase m-0 mb-3">Kebiasaan Harian</p>
+                  <p className="text-[11px] font-bold tracking-[0.1em] uppercase m-0 mb-3" style={{ color: "#8A8279" }}>Kebiasaan Harian</p>
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
                     {[
                       { label: "Air Putih", val: `${latest.water_glasses ?? 0}/8`, ok: (latest.water_glasses ?? 0) >= 8, icon: "💧" },
@@ -262,8 +266,8 @@ export default function Dashboard() {
                       <GlassCard key={item.label}>
                         <div className={`border-l-[3px] pl-3 ${item.ok ? "border-l-edelweys-sage" : "border-l-edelweys-border"}`}>
                           <span className="text-lg">{item.icon}</span>
-                          <p className="text-xs text-edelweys-text-tertiary font-medium m-0 mt-1">{item.label}</p>
-                          <p className={`text-base font-bold m-0 ${item.ok ? "text-edelweys-sage" : "text-edelweys-text-tertiary"}`}>{item.val}</p>
+                          <p className="text-xs font-medium m-0 mt-1" style={{ color: "#8A8279" }}>{item.label}</p>
+                          <p className={`text-base font-semibold m-0 ${item.ok ? "text-edelweys-sage" : ""}`} style={!item.ok ? { color: "#8A8279" } : {}}>{item.val}</p>
                         </div>
                       </GlassCard>
                     ))}
@@ -272,15 +276,15 @@ export default function Dashboard() {
 
                 {chartData.length > 1 && (
                   <section>
-                    <p className="text-[11px] font-bold text-edelweys-text-tertiary tracking-[0.1em] uppercase m-0 mb-3">Tren 14 Hari</p>
+                    <p className="text-[11px] font-bold tracking-[0.1em] uppercase m-0 mb-3" style={{ color: "#8A8279" }}>Tren 14 Hari</p>
                     <GlassCard>
                       <ResponsiveContainer width="100%" height={200}>
                         <LineChart data={chartData} margin={{ top: 5, right: 16, left: -20, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#D5E0D2" />
-                          <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#7A8B76" }} />
-                          <YAxis tick={{ fontSize: 11, fill: "#7A8B76" }} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="#E8DED4" />
+                          <XAxis dataKey="date" tick={{ fontSize: 11, fill: "#8A8279" }} />
+                          <YAxis tick={{ fontSize: 11, fill: "#8A8279" }} />
                           <Tooltip />
-                          <Line type="monotone" dataKey="Berat" stroke="#6B9162" strokeWidth={2.5} dot={{ r: 4, fill: "#6B9162" }} activeDot={{ r: 6 }} />
+                          <Line type="monotone" dataKey="Berat" stroke="#C4956A" strokeWidth={2.5} dot={{ r: 4, fill: "#C4956A" }} activeDot={{ r: 6 }} />
                         </LineChart>
                       </ResponsiveContainer>
                     </GlassCard>
@@ -290,44 +294,44 @@ export default function Dashboard() {
                 {/* Saran Edelweys */}
                 <GlassCard dark>
                   <div className="flex items-center gap-3 mb-4">
-                    <img src={logo} alt="E" className="w-12 h-12 rounded-lg" />
-                    <span className="text-[11px] font-bold text-edelweys-sage tracking-[0.1em] uppercase">Saran Edelweys</span>
+                    <img src={logo} alt="E" className="w-12 h-12 rounded-2xl" />
+                    <span className="text-[11px] font-bold tracking-[0.1em] uppercase text-edelweys-sage">Saran Edelweys</span>
                   </div>
                   <div className="flex flex-col gap-2">
                     {latest.water_glasses < 8 && (
-                      <div className="flex items-start gap-3 p-3 bg-white/[0.06] rounded-xl">
+                      <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)" }}>
                         <span className="text-lg">💧</span>
-                        <p className="text-sm text-edelweys-border-light leading-relaxed m-0">Minum air putih yang cukup! Target 8 gelas sehari. Saat ini baru {latest.water_glasses ?? 0} gelas.</p>
+                        <p className="text-sm leading-relaxed m-0" style={{ color: "rgba(232, 222, 212, 0.8)" }}>Minum air putih yang cukup! Target 8 gelas sehari. Saat ini baru {latest.water_glasses ?? 0} gelas.</p>
                       </div>
                     )}
                     {latest.exercise_minutes < 30 && (
-                      <div className="flex items-start gap-3 p-3 bg-white/[0.06] rounded-xl">
+                      <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)" }}>
                         <span className="text-lg">🏃</span>
-                        <p className="text-sm text-edelweys-border-light leading-relaxed m-0">Coba tambah waktu olahraga minimal 30 menit sehari. Saat ini baru {latest.exercise_minutes ?? 0} menit.</p>
+                        <p className="text-sm leading-relaxed m-0" style={{ color: "rgba(232, 222, 212, 0.8)" }}>Coba tambah waktu olahraga minimal 30 menit sehari. Saat ini baru {latest.exercise_minutes ?? 0} menit.</p>
                       </div>
                     )}
                     {latest.sleep_hours < 7 && (
-                      <div className="flex items-start gap-3 p-3 bg-white/[0.06] rounded-xl">
+                      <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)" }}>
                         <span className="text-lg">😴</span>
-                        <p className="text-sm text-edelweys-border-light leading-relaxed m-0">Tidurmu kurang! Target 7-8 jam sehari. Saat ini baru {latest.sleep_hours ?? 0} jam.</p>
+                        <p className="text-sm leading-relaxed m-0" style={{ color: "rgba(232, 222, 212, 0.8)" }}>Tidurmu kurang! Target 7-8 jam sehari. Saat ini baru {latest.sleep_hours ?? 0} jam.</p>
                       </div>
                     )}
                     {latest.coffee_cups > 3 && (
-                      <div className="flex items-start gap-3 p-3 bg-white/[0.06] rounded-xl">
+                      <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)" }}>
                         <span className="text-lg">☕</span>
-                        <p className="text-sm text-edelweys-border-light leading-relaxed m-0">Kopimu kebanyakan! Batasi max 3 cangkir sehari. Saat ini {latest.coffee_cups ?? 0} cangkir.</p>
+                        <p className="text-sm leading-relaxed m-0" style={{ color: "rgba(232, 222, 212, 0.8)" }}>Kopimu kebanyakan! Batasi max 3 cangkir sehari. Saat ini {latest.coffee_cups ?? 0} cangkir.</p>
                       </div>
                     )}
                     {latest.water_glasses >= 8 && latest.exercise_minutes >= 30 && latest.sleep_hours >= 7 && latest.coffee_cups <= 3 && (
-                      <div className="flex items-start gap-3 p-3 bg-white/[0.06] rounded-xl">
+                      <div className="flex items-start gap-3 p-3 rounded-2xl" style={{ background: "rgba(255,255,255,0.06)" }}>
                         <span className="text-lg">💪</span>
-                        <p className="text-sm text-edelweys-border-light leading-relaxed m-0">Kamu udah doing great! Pertahankan pola hidup sehatmu!</p>
+                        <p className="text-sm leading-relaxed m-0" style={{ color: "rgba(232, 222, 212, 0.8)" }}>Kamu udah doing great! Pertahankan pola hidup sehatmu!</p>
                       </div>
                     )}
                   </div>
                 </GlassCard>
 
-                <button onClick={() => setActiveTab("input")} className="py-4 rounded-xl border-none bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white text-sm font-bold cursor-pointer w-full shadow-green-sm hover:shadow-green transition-all">Update Data Hari Ini</button>
+                <button onClick={() => setActiveTab("input")} className="py-4 rounded-2xl border-none text-white text-sm font-semibold cursor-pointer w-full shadow-sage-sm hover:shadow-sage transition-all" style={{ background: "linear-gradient(135deg, #4A5D4A 0%, #7D9B76 100%)" }}>Update Data Hari Ini</button>
               </>
             )}
           </motion.div>
@@ -336,23 +340,23 @@ export default function Dashboard() {
         {activeTab === "input" && (
           <motion.div className="flex flex-col gap-5" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <GlassCard>
-              <div className="flex items-center gap-3 p-3 rounded-xl bg-edelweys-sage/10 border border-edelweys-sage/20">
+              <div className="flex items-center gap-3 p-3 rounded-2xl border" style={{ background: "rgba(125, 155, 118, 0.08)", borderColor: "rgba(125, 155, 118, 0.15)" }}>
                 <svg className="w-5 h-5 text-edelweys-sage flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
                 <div>
                   <p className="m-0 font-semibold text-edelweys-text text-sm">Catat kondisi kesehatanmu hari ini</p>
-                  <p className="mt-0.5 text-xs text-edelweys-text-tertiary m-0">Data yang kamu isi membantu Edelweys memberikan saran personal</p>
+                  <p className="mt-0.5 text-xs m-0" style={{ color: "#8A8279" }}>Data yang kamu isi membantu Edelweys memberikan saran personal</p>
                 </div>
               </div>
             </GlassCard>
 
             <GlassCard>
-              <label className="text-xs font-bold text-edelweys-text-tertiary tracking-wide uppercase mb-2 block">Tanggal</label>
+              <label className="text-xs font-semibold text-edelweys-text mb-2 block">Tanggal</label>
               <input type="date" name="date" value={form.date} onChange={handleChange}
-                className="w-full border-2 border-edelweys-border rounded-xl px-4 py-3 text-sm text-edelweys-text bg-white/40 font-sans" style={{ backdropFilter: "blur(10px)" }} />
+                className="w-full border-2 border-edelweys-border rounded-2xl px-4 py-3 text-sm text-edelweys-text bg-edelweys-surface/50 font-sans" />
             </GlassCard>
 
             <GlassCard>
-              <p className="text-[11px] font-bold text-edelweys-text-tertiary tracking-[0.1em] uppercase m-0 mb-4">1. Data Tubuh</p>
+              <p className="text-[11px] font-bold tracking-[0.1em] uppercase m-0 mb-4" style={{ color: "#8A8279" }}>1. Data Tubuh</p>
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { label: "Berat Badan (kg)", name: "weight", placeholder: "65" },
@@ -361,14 +365,14 @@ export default function Dashboard() {
                   <div key={f.name}>
                     <label className="text-xs font-semibold text-edelweys-text mb-2 block">{f.label}</label>
                     <input type="number" name={f.name} value={form[f.name]} onChange={handleChange} placeholder={f.placeholder}
-                      className="w-full border-2 border-edelweys-border rounded-xl px-4 py-3 text-sm font-medium text-edelweys-text bg-white/40 font-sans" style={{ backdropFilter: "blur(10px)" }} />
+                      className="w-full border-2 border-edelweys-border rounded-2xl px-4 py-3 text-sm font-medium text-edelweys-text bg-edelweys-surface/50 font-sans" />
                   </div>
                 ))}
               </div>
             </GlassCard>
 
             <GlassCard>
-              <p className="text-[11px] font-bold text-edelweys-text-tertiary tracking-[0.1em] uppercase m-0 mb-4">2. Tekanan Darah <span className="font-normal">(opsional)</span></p>
+              <p className="text-[11px] font-bold tracking-[0.1em] uppercase m-0 mb-4" style={{ color: "#8A8279" }}>2. Tekanan Darah <span className="font-normal">(opsional)</span></p>
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { label: "Sistolik", name: "systolic", placeholder: "120" },
@@ -377,17 +381,17 @@ export default function Dashboard() {
                   <div key={f.name}>
                     <label className="text-xs font-semibold text-edelweys-text mb-2 block">{f.label}</label>
                     <input type="number" name={f.name} value={form[f.name]} onChange={handleChange} placeholder={f.placeholder}
-                      className="w-full border-2 border-edelweys-border rounded-xl px-4 py-3 text-sm font-medium text-edelweys-text bg-white/40 font-sans" style={{ backdropFilter: "blur(10px)" }} />
+                      className="w-full border-2 border-edelweys-border rounded-2xl px-4 py-3 text-sm font-medium text-edelweys-text bg-edelweys-surface/50 font-sans" />
                   </div>
                 ))}
               </div>
             </GlassCard>
 
             <GlassCard>
-              <p className="text-[11px] font-bold text-edelweys-text-tertiary tracking-[0.1em] uppercase m-0 mb-4">3. Kebiasaan Harian</p>
-              <div className="flex gap-1 p-1 bg-white/30 rounded-xl mb-4 border border-white/40" style={{ backdropFilter: "blur(10px)" }}>
-                <button onClick={() => setHabitsMode("number")} className={`flex-1 py-2.5 px-4 rounded-lg border-none text-sm font-bold cursor-pointer transition-all ${habitsMode === "number" ? "bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white shadow-green-sm" : "bg-transparent text-edelweys-text-secondary hover:bg-white/30"}`}>Angka</button>
-                <button onClick={() => setHabitsMode("text")} className={`flex-1 py-2.5 px-4 rounded-lg border-none text-sm font-bold cursor-pointer transition-all ${habitsMode === "text" ? "bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white shadow-green-sm" : "bg-transparent text-edelweys-text-secondary hover:bg-white/30"}`}>Catatan</button>
+              <p className="text-[11px] font-bold tracking-[0.1em] uppercase m-0 mb-4" style={{ color: "#8A8279" }}>3. Kebiasaan Harian</p>
+              <div className="flex gap-1 p-1 rounded-xl mb-4 border border-edelweys-border-light" style={{ background: "rgba(255, 252, 248, 0.5)" }}>
+                <button onClick={() => setHabitsMode("number")} className={`flex-1 py-2.5 px-4 rounded-lg border-none text-sm font-semibold cursor-pointer transition-all ${habitsMode === "number" ? "text-white shadow-sage-sm" : "bg-transparent text-edelweys-text-secondary hover:bg-edelweys-surface/50"}`} style={habitsMode === "number" ? { background: "linear-gradient(135deg, #4A5D4A 0%, #7D9B76 100%)" } : {}}>Angka</button>
+                <button onClick={() => setHabitsMode("text")} className={`flex-1 py-2.5 px-4 rounded-lg border-none text-sm font-semibold cursor-pointer transition-all ${habitsMode === "text" ? "text-white shadow-sage-sm" : "bg-transparent text-edelweys-text-secondary hover:bg-edelweys-surface/50"}`} style={habitsMode === "text" ? { background: "linear-gradient(135deg, #4A5D4A 0%, #7D9B76 100%)" } : {}}>Catatan</button>
               </div>
               {habitsMode === "number" ? (
                 <div className="grid grid-cols-2 gap-4">
@@ -400,28 +404,28 @@ export default function Dashboard() {
                     <div key={f.name}>
                       <label className="text-xs font-semibold text-edelweys-text mb-2 block">{f.label}</label>
                       <input type="number" name={f.name} value={form[f.name]} onChange={handleChange} placeholder={f.placeholder}
-                        className="w-full border-2 border-edelweys-border rounded-xl px-4 py-3 text-sm font-medium text-edelweys-text bg-white/40 font-sans" style={{ backdropFilter: "blur(10px)" }} />
+                        className="w-full border-2 border-edelweys-border rounded-2xl px-4 py-3 text-sm font-medium text-edelweys-text bg-edelweys-surface/50 font-sans" />
                     </div>
                   ))}
                 </div>
               ) : (
                 <textarea value={habitsNote} onChange={(e) => setHabitsNote(e.target.value)}
                   placeholder="Tulis catatan kebiasaan harianmu hari ini..."
-                  className="w-full min-h-[120px] border-2 border-edelweys-border rounded-xl p-4 text-sm font-sans resize-y bg-white/40 text-edelweys-text outline-none" style={{ backdropFilter: "blur(10px)" }} />
+                  className="w-full min-h-[120px] border-2 border-edelweys-border rounded-2xl p-4 text-sm font-sans resize-y bg-edelweys-surface/50 text-edelweys-text outline-none" />
               )}
             </GlassCard>
 
-            <button onClick={handleSubmit} disabled={saving} className="py-4 rounded-xl border-none bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white text-sm font-bold cursor-pointer w-full shadow-green-sm hover:shadow-green transition-all">{saving ? "Menyimpan..." : "Simpan Data Kesehatan"}</button>
-            <button onClick={() => { setForm(emptyForm); setHabitsNote(""); }} className="bg-transparent border-none text-edelweys-text-tertiary font-medium text-[13px] cursor-pointer underline hover:text-edelweys-text transition-colors">Reset form</button>
+            <button onClick={handleSubmit} disabled={saving} className="py-4 rounded-2xl border-none text-white text-sm font-semibold cursor-pointer w-full shadow-sage-sm hover:shadow-sage transition-all" style={{ background: "linear-gradient(135deg, #4A5D4A 0%, #7D9B76 100%)" }}>{saving ? "Menyimpan..." : "Simpan Data Kesehatan"}</button>
+            <button onClick={() => { setForm(emptyForm); setHabitsNote(""); }} className="bg-transparent border-none font-medium text-[13px] cursor-pointer underline hover:text-edelweys-text transition-colors" style={{ color: "#8A8279" }}>Reset form</button>
           </motion.div>
         )}
 
         {activeTab === "history" && (
           <motion.div className="flex flex-col gap-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <p className="text-[11px] font-bold text-edelweys-text-tertiary tracking-[0.1em] uppercase m-0 mb-1">Riwayat Kesehatan ({logs.length} catatan)</p>
+            <p className="text-[11px] font-bold tracking-[0.1em] uppercase m-0 mb-1" style={{ color: "#8A8279" }}>Riwayat Kesehatan ({logs.length} catatan)</p>
             {logs.length === 0 && (
               <GlassCard>
-                <p className="text-edelweys-text-tertiary text-center py-8">Belum ada riwayat.</p>
+                <p className="text-center py-8" style={{ color: "#8A8279" }}>Belum ada riwayat.</p>
               </GlassCard>
             )}
             {logs.map((log, i) => {
@@ -430,14 +434,14 @@ export default function Dashboard() {
               return (
                 <GlassCard key={log.id ?? i}>
                   <div className="flex justify-between items-center mb-3">
-                    <span className="font-bold text-edelweys-text text-sm">{fmt(log.logged_at)}</span>
-                    {i === 0 && <span className="bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white rounded-full px-3 py-1 text-[11px] font-bold">Terbaru</span>}
+                    <span className="font-semibold text-edelweys-text text-sm">{fmt(log.logged_at)}</span>
+                    {i === 0 && <span className="text-white rounded-full px-3 py-1 text-[11px] font-semibold" style={{ background: "linear-gradient(135deg, #C4956A 0%, #D4A574 100%)" }}>Terbaru</span>}
                   </div>
                   <div className="flex flex-wrap gap-2">
-                    {log.weight && <span className="bg-edelweys-sage/10 text-edelweys-sage rounded-full px-3 py-1 text-xs font-semibold">{log.weight} kg</span>}
-                    {log.height && <span className="bg-edelweys-sage/10 text-edelweys-sage rounded-full px-3 py-1 text-xs font-semibold">{log.height} cm</span>}
+                    {log.weight && <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "rgba(125, 155, 118, 0.1)", color: "#7D9B76" }}>{log.weight} kg</span>}
+                    {log.height && <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "rgba(125, 155, 118, 0.1)", color: "#7D9B76" }}>{log.height} cm</span>}
                     {bmi && <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: bi.bg, color: bi.color }}>BMI {bmi}</span>}
-                    {(log.blood_pressure_sytolic || log.blood_pressure_diastolic) && <span className="bg-red-50 text-red-500 rounded-full px-3 py-1 text-xs font-semibold">{log.blood_pressure_sytolic ?? "-"}/{log.blood_pressure_diastolic ?? "-"} mmHg</span>}
+                    {(log.blood_pressure_sytolic || log.blood_pressure_diastolic) && <span className="rounded-full px-3 py-1 text-xs font-semibold" style={{ background: "rgba(196, 122, 106, 0.1)", color: "#C47A6A" }}>{log.blood_pressure_sytolic ?? "-"}/{log.blood_pressure_diastolic ?? "-"} mmHg</span>}
                   </div>
                 </GlassCard>
               );

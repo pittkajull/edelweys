@@ -5,6 +5,7 @@
 @layer base {
   html, body {
     @apply m-0 p-0 w-full overflow-x-hidden;
+    background: #FAF5EE;
   }
 
   #root {
@@ -18,39 +19,27 @@
 
 @layer components {
   .glass {
-    @apply bg-white/70 backdrop-blur-glass border border-white/50 shadow-glass;
+    @apply bg-edelweys-surface/80 backdrop-blur-soft border border-edelweys-border-light shadow-soft;
   }
 
   .glass-strong {
-    @apply bg-white/80 backdrop-blur-glass-lg border border-white/60 shadow-glass-lg;
+    @apply bg-edelweys-surface/90 backdrop-blur-soft-lg border border-edelweys-border shadow-soft-md;
   }
 
   .glass-card {
-    @apply bg-white/60 backdrop-blur-glass border border-white/40 shadow-glass rounded-glass;
-  }
-
-  .glass-dark {
-    @apply bg-edelweys-deep/90 backdrop-blur-glass border border-white/10 shadow-glass-lg;
-  }
-
-  .glass-input {
-    @apply bg-white/50 backdrop-blur-sm border-2 border-edelweys-border-light rounded-xl px-4 py-3 text-sm text-edelweys-text outline-none transition-all duration-200 font-sans;
-  }
-
-  .glass-input:focus {
-    @apply border-edelweys-sage shadow-green-sm;
+    @apply bg-edelweys-surface/70 backdrop-blur-soft border border-edelweys-border-light shadow-soft rounded-soft;
   }
 
   .btn-primary {
-    @apply px-6 py-3 rounded-pill bg-edelweys-forest text-white font-semibold cursor-pointer shadow-green-sm transition-all duration-200;
+    @apply px-6 py-3 rounded-pill bg-edelweys-forest text-white font-semibold cursor-pointer shadow-sage-sm transition-all duration-300;
   }
 
   .btn-primary:hover {
-    @apply shadow-green-lg scale-105;
+    @apply shadow-sage-lg scale-105;
   }
 
   .btn-secondary {
-    @apply px-6 py-3 rounded-pill border-2 border-edelweys-sage bg-white text-edelweys-sage font-semibold cursor-pointer transition-all duration-200;
+    @apply px-6 py-3 rounded-pill border-2 border-edelweys-sage bg-transparent text-edelweys-sage font-semibold cursor-pointer transition-all duration-300;
   }
 
   .btn-secondary:hover {
@@ -58,7 +47,7 @@
   }
 
   .section-title {
-    @apply text-3xl md:text-5xl font-extrabold text-edelweys-text tracking-tight;
+    @apply text-3xl md:text-5xl font-display text-edelweys-text tracking-tight;
   }
 
   .section-subtitle {
@@ -70,7 +59,7 @@
 button:focus-visible,
 input:focus-visible,
 textarea:focus-visible {
-  outline: 2px solid #6B9162;
+  outline: 2px solid #7D9B76;
   outline-offset: 2px;
 }
 
@@ -81,18 +70,18 @@ html {
 
 /* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(107, 145, 98, 0.3);
-  border-radius: 4px;
+  background: rgba(196, 149, 106, 0.3);
+  border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(107, 145, 98, 0.5);
+  background: rgba(196, 149, 106, 0.5);
 }
