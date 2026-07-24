@@ -18,6 +18,7 @@ export default function Chat() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [editForm, setEditForm] = useState({ full_name: "", username: "" });
+  const [savedMsgCount, setSavedMsgCount] = useState(0);
   const bottomRef = useRef(null);
   const inputRef = useRef(null);
   const navigate = useNavigate();
@@ -98,30 +99,117 @@ export default function Chat() {
     return () => subscription?.unsubscribe();
   }, []);
 
+  // Save current messages to chat_history
+  const saveCurrentConversation = async (msgs) => {
+    if (!userId || !msgs || msgs.length <= 1) return;
+    const unsaved = msgs.slice(savedMsgCount);
+    if (unsaved.length === 0) return;
+
+    // Add small offset to each message so they get different created_at timestamps
+    const now = Date.now();
+    const messagesToSave = unsaved.map((m, i) => ({
+      user_id: userId,
+      role: m.role,
+      message: m.content,
+      created_at: new Date(now - (unsaved.length - 1 - i) * 1000).toISOString(),
+    }));
+
+    const { error } = await supabase.from("chat_history").insert(messagesToSave);
+    if (!error) {
+      setSavedMsgCount(msgs.length);
+    }
+    return !error;
+  };
+
+  // Save on browser close or tab switch
+  useEffect(() => {
+    const handleBeforeUnload = () => {
+      if (messages.length > 1 && userId) {
+        // Save to localStorage as backup
+        try {
+          localStorage.setItem("edelweys_pending_chat", JSON.stringify({
+            userId,
+            messages,
+            timestamp: Date.now(),
+          }));
+        } catch (e) {}
+      }
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden" && messages.length > 1 && userId && messages.length > savedMsgCount) {
+        saveCurrentConversation(messages);
+      }
+    };
+
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => {
+      window.removeEventListener("beforeunload", handleBeforeUnload);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
+  }, [messages, userId, savedMsgCount]);
+
+  // Restore pending chat from localStorage on load
+  useEffect(() => {
+    if (!userId) return;
+    try {
+      const pending = JSON.parse(localStorage.getItem("edelweys_pending_chat") || "null");
+      if (pending && pending.userId === userId && pending.messages?.length > 1) {
+        const age = Date.now() - pending.timestamp;
+        if (age < 24 * 60 * 60 * 1000) { // Less than 24h old
+          // Save pending messages to Supabase
+          const now = Date.now();
+          const toSave = pending.messages.filter(m => m.role !== "assistant" || m.content !== pending.messages[0]?.content).map((m, i) => ({
+            user_id: userId,
+            role: m.role,
+            message: m.content,
+            created_at: new Date(now - (pending.messages.length - 1 - i) * 1000).toISOString(),
+          }));
+          supabase.from("chat_history").insert(toSave).then(({ error }) => {
+            if (!error) {
+              setChatHistory(prev => [{
+                id: Date.now(),
+                title: pending.messages.find(m => m.role === "user")?.content?.slice(0, 30) || "Obrolan",
+                messages: pending.messages,
+                time: "Baru saja",
+              }, ...prev]);
+            }
+          });
+        }
+        localStorage.removeItem("edelweys_pending_chat");
+      }
+    } catch (e) {
+      localStorage.removeItem("edelweys_pending_chat");
+    }
+  }, [userId]);
+
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
-  const startNewChat = () => {
+  const startNewChat = async () => {
     if (messages.length > 1 && userId) {
       const messagesToSave = messages.map(m => ({
         user_id: userId,
         role: m.role,
         message: m.content,
       }));
-      supabase.from("chat_history").insert(messagesToSave).then(({ error }) => {
-        if (!error) {
-          const firstUserMsg = messages.find(m => m.role === "user");
-          const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) : "Obrolan baru";
-          setChatHistory(prev => [{
-            id: Date.now(),
-            title: title,
-            messages: [...messages],
-            time: "Baru saja",
-          }, ...prev]);
-        }
-      });
+      const { error } = await supabase.from("chat_history").insert(messagesToSave);
+      if (!error) {
+        const firstUserMsg = messages.find(m => m.role === "user");
+        const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) : "Obrolan baru";
+        setChatHistory(prev => [{
+          id: Date.now(),
+          title: title,
+          messages: [...messages],
+          time: "Baru saja",
+        }, ...prev]);
+      } else {
+        console.error("Gagal save chat:", error);
+      }
     }
     setMessages([{ role: "assistant", content: "Heyy yoww! Gimana kabarnya? Ada yang bisa Edelweys bantuin hari ini?" }]);
     setActiveChatId(null);
+    setSavedMsgCount(0);
   };
 
   const loadChat = (chat) => { setMessages(chat.messages); setActiveChatId(chat.id); setSidebarOpen(false); };
@@ -153,7 +241,19 @@ export default function Chat() {
       });
       const data = await res.json();
       setIsTyping(false);
-      setMessages([...newMessages, { role: "assistant", content: data.reply }]);
+      const finalMessages = [...newMessages, { role: "assistant", content: data.reply }];
+      setMessages(finalMessages);
+
+      // Save both user + assistant messages to chat_history immediately
+      if (userId) {
+        const now = Date.now();
+        const toSave = [
+          { user_id: userId, role: "user", message: input, created_at: new Date(now - 1000).toISOString() },
+          { user_id: userId, role: "assistant", message: data.reply, created_at: new Date(now).toISOString() },
+        ];
+        const { error } = await supabase.from("chat_history").insert(toSave);
+        if (!error) setSavedMsgCount(finalMessages.length);
+      }
     } catch (err) {
       setIsTyping(false);
       setMessages([...newMessages, { role: "assistant", content: "Aduh, Edelweys lagi error nih. Coba lagi ya!" }]);
