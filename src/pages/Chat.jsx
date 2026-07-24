@@ -323,8 +323,8 @@ export default function Chat() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4 }}
             >
-              <img src={logo} alt="Edelweys" className="w-14 h-14" />
-              <h1 className="text-[36px] md:text-[44px] font-bold m-0" style={{ color: "#1E3319" }}>Heyy yoww!</h1>
+              <img src={logo} alt="Edelweys" className="w-[52px] h-[52px]" />
+              <h1 className="text-[28px] md:text-[32px] font-bold m-0" style={{ color: "#1E3319" }}>Heyy yoww!</h1>
             </motion.div>
             <motion.div
               className="w-full max-w-[600px]"
