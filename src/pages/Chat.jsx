@@ -15,7 +15,7 @@ export default function Chat() {
   const [profile, setProfile] = useState(null);
   const [chatHistory, setChatHistory] = useState([]);
   const [activeChatId, setActiveChatId] = useState(null);
-  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [showProfileEdit, setShowProfileEdit] = useState(false);
   const [editForm, setEditForm] = useState({ full_name: "", username: "" });
   const bottomRef = useRef(null);
@@ -26,13 +26,11 @@ export default function Chat() {
     const loadProfileAndHistory = async (userId) => {
       let { data: prof } = await supabase.from("profiles").select("*").eq("id", userId).single();
 
-      // Get user data from auth
       const { data: { user } } = await supabase.auth.getUser();
       const fullName = user?.user_metadata?.full_name || user?.user_metadata?.name || "";
       const username = user?.user_metadata?.name || user?.email?.split("@")[0] || "user";
 
       if (!prof) {
-        // Create profile
         const { data: newProf } = await supabase.from("profiles").insert({
           id: userId,
           username: username,
@@ -40,7 +38,6 @@ export default function Chat() {
         }).select().single();
         prof = newProf;
       } else if (!prof.full_name && fullName) {
-        // Update profile if full_name is empty (e.g. Google user with metadata)
         const { data: updated } = await supabase.from("profiles").update({ full_name: fullName, username }).eq("id", userId).select().single();
         if (updated) prof = updated;
       }
@@ -49,7 +46,6 @@ export default function Chat() {
       setProfile(prof);
       setEditForm({ full_name: prof?.full_name || "", username: prof?.username || "" });
 
-      // Load chat history
       const { data: chats, error } = await supabase
         .from("chat_history")
         .select("*")
@@ -62,7 +58,7 @@ export default function Chat() {
       } else if (chats && chats.length > 0) {
         const conversations = [];
         let currentChat = { messages: [], startTime: null, title: "" };
-        chats.forEach((chat, i) => {
+        chats.forEach((chat) => {
           const msgTime = new Date(chat.created_at);
           if (!currentChat.startTime || (currentChat.startTime - msgTime) > 30 * 60 * 1000) {
             if (currentChat.messages.length > 0) {
@@ -84,7 +80,6 @@ export default function Chat() {
       }
     };
 
-    // Listen for auth state changes (handles Google OAuth redirect)
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (session) {
@@ -93,7 +88,6 @@ export default function Chat() {
       }
     );
 
-    // Also check current session on mount
     (async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
@@ -108,19 +102,13 @@ export default function Chat() {
 
   const startNewChat = () => {
     if (messages.length > 1 && userId) {
-      // Save each message individually to chat_history
       const messagesToSave = messages.map(m => ({
         user_id: userId,
         role: m.role,
         message: m.content,
       }));
-      console.log("Menyimpan chat:", { user_id: userId, messagesCount: messagesToSave.length });
-      supabase.from("chat_history").insert(messagesToSave).then(({ data, error }) => {
-        if (error) {
-          console.error("Gagal simpan chat:", error);
-        } else {
-          console.log("Chat tersimpan");
-          // Add to local history
+      supabase.from("chat_history").insert(messagesToSave).then(({ error }) => {
+        if (!error) {
           const firstUserMsg = messages.find(m => m.role === "user");
           const title = firstUserMsg ? firstUserMsg.content.slice(0, 30) : "Obrolan baru";
           setChatHistory(prev => [{
@@ -136,12 +124,10 @@ export default function Chat() {
     setActiveChatId(null);
   };
 
-  const loadChat = (chat) => { setMessages(chat.messages); setActiveChatId(chat.id); };
+  const loadChat = (chat) => { setMessages(chat.messages); setActiveChatId(chat.id); setSidebarOpen(false); };
 
   const deleteChat = async (chatId, e) => {
     e.stopPropagation();
-    if (!userId) return;
-    // Delete all messages for this user (simplified - in production you'd track conversation IDs)
     setChatHistory(prev => prev.filter(c => c.id !== chatId));
     if (activeChatId === chatId) {
       setActiveChatId(null);
@@ -220,63 +206,60 @@ export default function Chat() {
     });
   };
 
+  const isHome = messages.length <= 1;
+
   return (
-    <div className="flex h-screen w-screen font-sans overflow-hidden fixed inset-0" style={{ background: "linear-gradient(135deg, #EEEEE9 0%, #E8EDE5 100%)" }}>
+    <div className="flex h-screen w-screen font-sans overflow-hidden fixed inset-0" style={{ background: "#E8EDE5" }}>
       {/* Sidebar */}
       <AnimatePresence>
         {sidebarOpen && (
           <motion.div
-            className="w-[280px] h-full flex-shrink-0 z-20"
-            style={{ background: "linear-gradient(180deg, #1E3319 0%, #2D4A29 100%)" }}
-            initial={{ x: -280, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -280, opacity: 0 }}
-            transition={{ type: "tween", duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
+            className="w-[260px] h-full flex-shrink-0 z-30 flex flex-col"
+            style={{ background: "#1E3319" }}
+            initial={{ x: -260 }}
+            animate={{ x: 0 }}
+            exit={{ x: -260 }}
+            transition={{ type: "tween", duration: 0.2 }}
           >
-            <div className="w-[280px] h-full flex flex-col">
-              <div className="p-5 border-b border-white/10">
-                <img src={logo} alt="Edelweys" className="h-12" />
-              </div>
-              <button onClick={startNewChat} className="mx-4 my-4 px-4 py-3 bg-gradient-to-r from-edelweys-sage to-edelweys-light border-none rounded-xl text-white text-sm font-bold cursor-pointer text-left shadow-green-sm hover:shadow-green transition-all flex items-center gap-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" /></svg>
-                Obrolan Baru
+            <div className="p-4 flex items-center justify-between border-b border-white/10">
+              <img src={logo} alt="Edelweys" className="h-7" />
+              <button onClick={() => setSidebarOpen(false)} className="w-8 h-8 rounded-lg flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 transition-colors cursor-pointer border-none bg-transparent">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6" /></svg>
               </button>
-              {!userId && (
-                <div className="mx-4 mb-3 p-3 bg-yellow-500/10 rounded-xl border border-yellow-500/20">
-                  <p className="m-0 text-xs text-yellow-300 font-medium">Login untuk menyimpan riwayat chat</p>
-                </div>
-              )}
-              {userId && chatHistory.length > 0 && (
-                <div className="flex-1 overflow-y-auto px-3">
-                  <p className="text-[10px] font-bold text-white/40 tracking-widest uppercase py-2 px-2 m-0">Riwayat</p>
-                  {chatHistory.map((chat) => (
-                    <div key={chat.id} onClick={() => loadChat(chat)}
-                      className={`p-3 rounded-xl cursor-pointer mb-1 transition-all duration-200 hover:bg-white/5 ${activeChatId === chat.id ? "bg-white/10" : ""}`}>
-                      <div className="flex justify-between items-center">
-                        <p className="text-[13px] font-medium text-white/90 m-0 truncate flex-1">{chat.title}</p>
-                        <button onClick={(e) => deleteChat(chat.id, e)} className="bg-transparent border-none text-white/30 text-lg cursor-pointer px-1 opacity-0 group-hover:opacity-100 hover:text-red-400 transition-all">×</button>
-                      </div>
-                      <p className="text-[11px] text-white/40 m-0 mt-1">{chat.time}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-              <div className="p-4 border-t border-white/10">
-                <div onClick={() => userId && setShowProfileEdit(true)} className="flex items-center gap-3 p-3 rounded-xl cursor-pointer mb-3 hover:bg-white/5 transition-all">
-                  <div className="w-10 h-10 bg-gradient-to-br from-edelweys-sage to-edelweys-light rounded-xl flex items-center justify-center shadow-green-sm">
-                    <span className="text-sm font-bold text-white">{profile?.full_name?.charAt(0) || "U"}</span>
-                  </div>
-                  <div className="flex-1 overflow-hidden">
-                    <p className="text-[13px] font-semibold text-white m-0">{profile?.full_name || "Guest"}</p>
-                    {userId && <p className="text-[11px] text-white/40 m-0 mt-0.5">Klik untuk edit</p>}
-                  </div>
-                </div>
-                {userId ? (
-                  <button onClick={handleLogout} className="w-full py-2.5 bg-red-500/10 border border-red-500/20 rounded-xl text-red-300 text-[13px] font-medium cursor-pointer hover:bg-red-500/20 transition-all">Logout</button>
-                ) : (
-                  <button onClick={() => navigate("/login")} className="w-full py-2.5 bg-gradient-to-r from-edelweys-sage to-edelweys-light border-none rounded-xl text-white text-[13px] font-bold cursor-pointer shadow-green-sm hover:shadow-green transition-all">Login</button>
-                )}
+            </div>
+            <button onClick={startNewChat} className="mx-3 mt-3 px-3 py-2.5 rounded-lg text-white text-sm font-medium cursor-pointer text-left flex items-center gap-2 transition-colors border-none" style={{ background: "rgba(255,255,255,0.08)" }}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14m-7-7h14" /></svg>
+              Obrolan Baru
+            </button>
+            {!userId && (
+              <div className="mx-3 mt-3 p-2.5 rounded-lg border border-white/10" style={{ background: "rgba(255,255,255,0.04)" }}>
+                <p className="m-0 text-xs text-white/50">Login untuk menyimpan riwayat</p>
               </div>
+            )}
+            {userId && chatHistory.length > 0 && (
+              <div className="flex-1 overflow-y-auto px-3 mt-3">
+                <p className="text-[10px] font-medium text-white/30 uppercase tracking-wider px-2 m-0 mb-2">Riwayat</p>
+                {chatHistory.map((chat) => (
+                  <div key={chat.id} onClick={() => loadChat(chat)}
+                    className={`px-3 py-2 rounded-lg cursor-pointer mb-0.5 transition-colors text-white/70 hover:text-white hover:bg-white/5 ${activeChatId === chat.id ? "bg-white/10 text-white" : ""}`}>
+                    <p className="text-[13px] m-0 truncate">{chat.title}</p>
+                    <p className="text-[11px] text-white/30 m-0 mt-0.5">{chat.time}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+            <div className="p-3 border-t border-white/10 mt-auto">
+              <div onClick={() => userId && setShowProfileEdit(true)} className="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer hover:bg-white/5 transition-colors">
+                <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ background: "#6B9162" }}>
+                  <span className="text-xs font-medium text-white">{profile?.full_name?.charAt(0) || "U"}</span>
+                </div>
+                <p className="text-[13px] text-white/80 m-0 truncate flex-1">{profile?.full_name || "Guest"}</p>
+              </div>
+              {userId ? (
+                <button onClick={handleLogout} className="w-full mt-2 py-2 rounded-lg text-xs text-white/50 hover:text-white/70 hover:bg-white/5 cursor-pointer transition-colors border-none bg-transparent">Logout</button>
+              ) : (
+                <button onClick={() => navigate("/login")} className="w-full mt-2 py-2 rounded-lg text-white text-xs font-medium cursor-pointer transition-colors border-none" style={{ background: "rgba(255,255,255,0.08)" }}>Login</button>
+              )}
             </div>
           </motion.div>
         )}
@@ -285,123 +268,187 @@ export default function Chat() {
       {/* Main Chat */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Header */}
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/30"
-          style={{ background: "rgba(255, 255, 255, 0.6)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)" }}>
-          <div className="flex items-center gap-3">
-            <button onClick={() => setSidebarOpen(!sidebarOpen)} className="w-10 h-10 rounded-xl border border-white/40 bg-white/40 text-edelweys-text cursor-pointer flex items-center justify-center hover:bg-white/60 transition-all">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12h18M3 6h18M3 18h18" /></svg>
-            </button>
-            <img src={logo} alt="Edelweys" className="w-14 h-14 rounded-xl shadow-green-sm" />
-            <div>
-              <p className="m-0 font-bold text-edelweys-text text-base">Edelweys</p>
-              <p className="m-0 text-xs text-edelweys-sage font-medium flex items-center gap-1">
-                <span className="w-1.5 h-1.5 rounded-full bg-edelweys-sage animate-pulse" /> Online
-              </p>
+        <div className="flex items-center px-4 py-3 border-b" style={{ borderColor: "rgba(30,51,25,0.1)", background: "rgba(232,237,229,0.8)", backdropFilter: "blur(12px)" }}>
+          <button onClick={() => setSidebarOpen(!sidebarOpen)} className="w-9 h-9 rounded-lg flex items-center justify-center cursor-pointer transition-colors border-none bg-transparent" style={{ color: "#1E3319" }}>
+            {sidebarOpen ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M15 18l-6-6 6-6" /></svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" /></svg>
+            )}
+          </button>
+          {!isHome && (
+            <div className="flex-1 text-center">
+              <p className="m-0 text-sm font-medium" style={{ color: "#1E3319" }}>Edelweys</p>
             </div>
-          </div>
-          <button onClick={() => navigate("/dashboard")} className="px-4 py-2.5 rounded-xl border border-white/40 bg-white/40 text-edelweys-text cursor-pointer text-[13px] font-semibold hover:bg-white/60 transition-all" style={{ backdropFilter: "blur(10px)" }}>Dashboard</button>
+          )}
+          {isHome && <div className="flex-1" />}
+          <button onClick={() => navigate("/dashboard")} className="px-3 py-1.5 rounded-lg text-xs font-medium cursor-pointer transition-colors border" style={{ borderColor: "rgba(30,51,25,0.15)", color: "#1E3319", background: "transparent" }}>Dashboard</button>
         </div>
 
         {/* Guest Banner */}
         {!userId && (
-          <div className="flex items-center gap-2 px-5 py-3 bg-yellow-500/10 border-b border-yellow-500/20">
-            <svg className="w-4 h-4 text-yellow-600 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-            <p className="m-0 text-[13px] text-edelweys-text-secondary">
+          <div className="flex items-center gap-2 px-4 py-2.5 border-b" style={{ background: "rgba(107,145,98,0.08)", borderColor: "rgba(107,145,98,0.15)" }}>
+            <p className="m-0 text-xs" style={{ color: "#5A6B57" }}>
               Kamu belum login. Riwayat chat tidak akan tersimpan.{" "}
-              <span className="text-edelweys-sage font-bold cursor-pointer hover:underline" onClick={() => navigate("/login")}>Login sekarang</span>
+              <span className="font-semibold cursor-pointer hover:underline" style={{ color: "#6B9162" }} onClick={() => navigate("/login")}>Login sekarang</span>
             </p>
           </div>
         )}
 
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6 flex flex-col gap-4">
-          <AnimatePresence>
-            {messages.map((msg, i) => (
-              <motion.div
-                key={i}
-                className={`flex items-end gap-3 max-w-[75%] ${msg.role === "user" ? "justify-end" : "justify-start"}`}
-                initial={{ opacity: 0, y: 15, scale: 0.95 }}
-                animate={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.3, ease: "easeOut" }}
-              >
-                {msg.role === "assistant" && <img src={logo} alt="Edelweys" className="w-12 h-12 rounded-xl flex-shrink-0 shadow-green-sm" />}
-                <div className={`px-5 py-3.5 text-[14px] leading-relaxed break-words ${
-                  msg.role === "user"
-                    ? "bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white rounded-2xl rounded-br-md"
-                    : "border border-white/40 shadow-glass text-edelweys-text rounded-2xl rounded-bl-md"
-                }`} style={msg.role === "bot" ? { background: "rgba(255,255,255,0.6)", backdropFilter: "blur(20px)" } : msg.role === "assistant" ? { background: "rgba(255,255,255,0.6)", backdropFilter: "blur(20px)" } : {}}>
-                  {formatMessage(msg.content)}
+        {/* Messages or Home */}
+        {isHome ? (
+          /* Home screen - centered like Claude */
+          <div className="flex-1 flex flex-col items-center justify-center px-6">
+            <motion.div
+              className="flex items-center gap-3 mb-8"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <img src={logo} alt="Edelweys" className="w-12 h-12" />
+              <h1 className="text-[32px] md:text-[40px] font-bold m-0" style={{ color: "#1E3319" }}>Heyy yoww!</h1>
+            </motion.div>
+            <motion.div
+              className="w-full max-w-[600px]"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 }}
+            >
+              <div className="rounded-2xl border p-4" style={{ background: "rgba(255,255,255,0.5)", borderColor: "rgba(30,51,25,0.12)" }}>
+                <textarea
+                  ref={inputRef}
+                  value={input}
+                  onChange={(e) => setInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Ketik pesanmu di sini..."
+                  className="w-full min-h-[80px] border-none outline-none resize-none text-[15px] bg-transparent"
+                  style={{ color: "#1E3319" }}
+                />
+                <div className="flex items-center justify-between mt-2 pt-2 border-t" style={{ borderColor: "rgba(30,51,25,0.08)" }}>
+                  <div />
+                  <motion.button
+                    onClick={sendMessage}
+                    disabled={loading || !input.trim()}
+                    className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-all border-none"
+                    style={{ background: input.trim() ? "#6B9162" : "rgba(30,51,25,0.1)", color: input.trim() ? "white" : "#5A6B57" }}
+                    whileHover={input.trim() ? { scale: 1.05 } : {}}
+                    whileTap={input.trim() ? { scale: 0.95 } : {}}
+                  >
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+                  </motion.button>
                 </div>
-                {msg.role === "user" && <div className="w-9 h-9 bg-edelweys-deep rounded-xl flex items-center justify-center flex-shrink-0 text-xs font-bold text-white shadow-lg">U</div>}
-              </motion.div>
-            ))}
-          </AnimatePresence>
+              </div>
+            </motion.div>
+          </div>
+        ) : (
+          /* Chat messages */
+          <>
+            <div className="flex-1 overflow-y-auto px-4 py-6">
+              <div className="max-w-[700px] mx-auto flex flex-col gap-4">
+                <AnimatePresence>
+                  {messages.map((msg, i) => (
+                    <motion.div
+                      key={i}
+                      className={`flex gap-3 ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {msg.role === "assistant" && (
+                        <img src={logo} alt="E" className="w-8 h-8 rounded-lg flex-shrink-0 mt-1" />
+                      )}
+                      <div className={`max-w-[85%] px-4 py-3 rounded-2xl text-[14px] leading-relaxed ${
+                        msg.role === "user"
+                          ? "text-white rounded-br-md"
+                          : "rounded-bl-md"
+                      }`} style={msg.role === "user" 
+                        ? { background: "linear-gradient(135deg, #2D4A29, #6B9162)" }
+                        : { background: "rgba(255,255,255,0.5)", border: "1px solid rgba(30,51,25,0.08)", color: "#1E3319" }
+                      }>
+                        {formatMessage(msg.content)}
+                      </div>
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
 
-          {/* Typing Indicator */}
-          <AnimatePresence>
-            {isTyping && (
-              <motion.div className="flex items-end gap-3 justify-start"
-                initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                <img src={logo} alt="Edelweys" className="w-12 h-12 rounded-xl shadow-green-sm" />
-                <div className="px-5 py-4 rounded-2xl rounded-bl-md border border-white/40 shadow-glass" style={{ background: "rgba(255,255,255,0.6)", backdropFilter: "blur(20px)" }}>
-                  <div className="flex gap-1.5">
-                    <motion.div className="w-2.5 h-2.5 rounded-full bg-edelweys-sage" animate={{ y: [0, -8, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0 }} />
-                    <motion.div className="w-2.5 h-2.5 rounded-full bg-edelweys-sage" animate={{ y: [0, -8, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0.2 }} />
-                    <motion.div className="w-2.5 h-2.5 rounded-full bg-edelweys-sage" animate={{ y: [0, -8, 0] }} transition={{ duration: 0.6, repeat: Infinity, delay: 0.4 }} />
+                {isTyping && (
+                  <motion.div className="flex gap-3" initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+                    <img src={logo} alt="E" className="w-8 h-8 rounded-lg" />
+                    <div className="px-4 py-3 rounded-2xl rounded-bl-md" style={{ background: "rgba(255,255,255,0.5)", border: "1px solid rgba(30,51,25,0.08)" }}>
+                      <div className="flex gap-1.5">
+                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: "#6B9162", animationDelay: "0ms" }} />
+                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: "#6B9162", animationDelay: "150ms" }} />
+                        <div className="w-2 h-2 rounded-full animate-bounce" style={{ background: "#6B9162", animationDelay: "300ms" }} />
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+                <div ref={bottomRef} />
+              </div>
+            </div>
+
+            {/* Input */}
+            <div className="px-4 pb-4">
+              <div className="max-w-[700px] mx-auto">
+                <div className="rounded-2xl border p-3" style={{ background: "rgba(255,255,255,0.5)", borderColor: "rgba(30,51,25,0.12)" }}>
+                  <textarea
+                    ref={inputRef}
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown}
+                    placeholder="Ketik pesanmu di sini..."
+                    className="w-full px-2 py-1 border-none outline-none resize-none text-[14px] bg-transparent min-h-[40px] max-h-[120px]"
+                    style={{ color: "#1E3319" }}
+                    rows={1}
+                  />
+                  <div className="flex items-center justify-end mt-2 pt-2 border-t" style={{ borderColor: "rgba(30,51,25,0.08)" }}>
+                    <motion.button
+                      onClick={sendMessage}
+                      disabled={loading || !input.trim()}
+                      className="w-9 h-9 rounded-xl flex items-center justify-center cursor-pointer transition-all border-none"
+                      style={{ background: input.trim() ? "#6B9162" : "rgba(30,51,25,0.1)", color: input.trim() ? "white" : "#5A6B57" }}
+                      whileHover={input.trim() ? { scale: 1.05 } : {}}
+                      whileTap={input.trim() ? { scale: 0.95 } : {}}
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
+                    </motion.button>
                   </div>
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
-          <div ref={bottomRef} />
-        </div>
-
-        {/* Input Area */}
-        <div className="px-6 py-4 border-t border-white/30" style={{ background: "rgba(255, 255, 255, 0.6)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)" }}>
-          <div className="flex gap-3 items-end">
-            <textarea ref={inputRef} value={input} onChange={(e) => setInput(e.target.value)} onKeyDown={handleKeyDown}
-              placeholder="Ketik pesanmu di sini..."
-              className="flex-1 px-5 py-4 rounded-2xl border-2 border-edelweys-border bg-white/40 text-[14px] text-edelweys-text resize-none outline-none font-sans transition-all duration-200 focus:border-edelweys-sage focus:bg-white/60 focus:shadow-green-sm" style={{ backdropFilter: "blur(10px)", minHeight: "52px", maxHeight: "120px" }} />
-            <motion.button
-              onClick={sendMessage}
-              disabled={loading || !input.trim()}
-              className={`w-12 h-12 rounded-2xl border-none bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white cursor-pointer flex items-center justify-center flex-shrink-0 transition-all duration-200 ${input.trim() ? "shadow-green-sm hover:shadow-green opacity-100" : "opacity-40"}`}
-              whileHover={input.trim() ? { scale: 1.1 } : {}}
-              whileTap={input.trim() ? { scale: 0.9 } : {}}
-            >
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z" /></svg>
-            </motion.button>
-          </div>
-        </div>
+              </div>
+            </div>
+          </>
+        )}
       </div>
 
       {/* Profile Edit Modal */}
       <AnimatePresence>
         {showProfileEdit && (
-          <motion.div className="fixed inset-0 bg-black/40 flex items-center justify-center z-[1000]"
-            style={{ backdropFilter: "blur(8px)" }}
+          <motion.div className="fixed inset-0 flex items-center justify-center z-[1000]"
+            style={{ background: "rgba(30,51,25,0.3)", backdropFilter: "blur(4px)" }}
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} onClick={() => setShowProfileEdit(false)}>
-            <motion.div className="w-full max-w-[400px] mx-4 rounded-3xl p-8 border border-white/40 shadow-glass-xl"
-              style={{ background: "rgba(255, 255, 255, 0.7)", backdropFilter: "blur(24px)", WebkitBackdropFilter: "blur(24px)" }}
-              initial={{ opacity: 0, scale: 0.9, y: 30 }}
+            <motion.div className="w-full max-w-[400px] mx-4 rounded-2xl p-6 border"
+              style={{ background: "#E8EDE5", borderColor: "rgba(30,51,25,0.12)" }}
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 30 }}
-              transition={{ type: "spring", damping: 25, stiffness: 300 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}>
-              <h3 className="text-xl font-bold text-edelweys-text m-0 mb-6">Edit Profile</h3>
+              <h3 className="text-lg font-bold m-0 mb-5" style={{ color: "#1E3319" }}>Edit Profile</h3>
               <div className="mb-4">
-                <label className="text-xs font-bold text-edelweys-text-tertiary tracking-wide uppercase mb-2 block">Nama Lengkap</label>
+                <label className="text-xs font-semibold mb-2 block" style={{ color: "#5A6B57" }}>Nama Lengkap</label>
                 <input type="text" value={editForm.full_name} onChange={(e) => setEditForm({ ...editForm, full_name: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-edelweys-border bg-white/40 text-sm text-edelweys-text outline-none font-sans transition-all focus:border-edelweys-sage focus:bg-white/60" style={{ backdropFilter: "blur(10px)" }} />
+                  className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-colors focus:border-[#6B9162]"
+                  style={{ borderColor: "rgba(30,51,25,0.15)", background: "rgba(255,255,255,0.5)", color: "#1E3319" }} />
               </div>
-              <div className="mb-6">
-                <label className="text-xs font-bold text-edelweys-text-tertiary tracking-wide uppercase mb-2 block">Username</label>
+              <div className="mb-5">
+                <label className="text-xs font-semibold mb-2 block" style={{ color: "#5A6B57" }}>Username</label>
                 <input type="text" value={editForm.username} onChange={(e) => setEditForm({ ...editForm, username: e.target.value })}
-                  className="w-full px-4 py-3 rounded-xl border-2 border-edelweys-border bg-white/40 text-sm text-edelweys-text outline-none font-sans transition-all focus:border-edelweys-sage focus:bg-white/60" style={{ backdropFilter: "blur(10px)" }} />
+                  className="w-full px-4 py-3 rounded-xl border text-sm outline-none transition-colors focus:border-[#6B9162]"
+                  style={{ borderColor: "rgba(30,51,25,0.15)", background: "rgba(255,255,255,0.5)", color: "#1E3319" }} />
               </div>
               <div className="flex gap-3 justify-end">
-                <button onClick={() => setShowProfileEdit(false)} className="px-5 py-2.5 rounded-xl border border-edelweys-border bg-white/40 text-edelweys-text-secondary text-sm font-semibold cursor-pointer hover:bg-white/60 transition-all" style={{ backdropFilter: "blur(10px)" }}>Batal</button>
-                <button onClick={handleSaveProfile} className="px-5 py-2.5 rounded-xl border-none bg-gradient-to-r from-edelweys-sage to-edelweys-light text-white text-sm font-bold cursor-pointer shadow-green-sm hover:shadow-green transition-all">Simpan</button>
+                <button onClick={() => setShowProfileEdit(false)} className="px-4 py-2 rounded-xl text-sm font-medium cursor-pointer border transition-colors"
+                  style={{ borderColor: "rgba(30,51,25,0.15)", color: "#5A6B57", background: "transparent" }}>Batal</button>
+                <button onClick={handleSaveProfile} className="px-4 py-2 rounded-xl text-white text-sm font-medium cursor-pointer border-none"
+                  style={{ background: "#6B9162" }}>Simpan</button>
               </div>
             </motion.div>
           </motion.div>
