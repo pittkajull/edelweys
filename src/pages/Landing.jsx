@@ -13,30 +13,8 @@ export default function Landing() {
 
   return (
     <div className="font-sans" style={{ background: "#E8EDE5" }}>
-      {/* Navbar */}
-      <motion.nav
-        className="sticky top-0 z-50 border-b"
-        style={{ background: "rgba(232,237,229,0.8)", backdropFilter: "blur(30px)", WebkitBackdropFilter: "blur(30px)", borderColor: "rgba(255,255,255,0.3)" }}
-        initial={{ y: -100 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <div className="max-w-[1200px] mx-auto px-6 py-4 flex items-center justify-between">
-          <img src={logo} alt="Edelweys" className="h-10" />
-          <motion.button
-            onClick={() => navigate("/register")}
-            className="px-6 py-2.5 rounded-full text-white text-[14px] font-semibold cursor-pointer"
-            style={{ background: "linear-gradient(135deg, #2D4A29 0%, #6B9162 100%)", boxShadow: "0 4px 15px rgba(45,74,41,0.3)" }}
-            whileHover={{ scale: 1.05, boxShadow: "0 6px 20px rgba(45,74,41,0.4)" }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Mulai Gratis
-          </motion.button>
-        </div>
-      </motion.nav>
-
       {/* Hero */}
-      <section className="px-6 py-20 md:py-32 text-center relative overflow-hidden">
+      <section className="min-h-screen px-6 py-20 text-center relative overflow-hidden flex flex-col items-center justify-center">
         <div className="absolute inset-0 overflow-hidden pointer-events-none">
           {[...Array(3)].map((_, i) => (
             <motion.div
@@ -56,16 +34,19 @@ export default function Landing() {
         </div>
 
         <div className="max-w-[800px] mx-auto relative z-10">
-          <motion.div
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full mb-8"
-            style={{ background: "rgba(255,255,255,0.5)", backdropFilter: "blur(10px)", border: "1px solid rgba(255,255,255,0.4)" }}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-          >
-            <motion.div className="w-2 h-2 rounded-full" style={{ background: "#6B9162" }} animate={{ scale: [1, 1.3, 1] }} transition={{ duration: 2, repeat: Infinity }} />
-            <span className="text-[12px] font-semibold tracking-wider uppercase" style={{ color: "#5A6B57" }}>AI Health Companion</span>
-          </motion.div>
+          {/* Top bar: Logo + CTA */}
+          <div className="flex items-center justify-between mb-12">
+            <img src={logo} alt="Edelweys" className="h-10" />
+            <motion.button
+              onClick={() => navigate("/register")}
+              className="px-5 py-2.5 rounded-full text-white text-[14px] font-semibold cursor-pointer"
+              style={{ background: "linear-gradient(135deg, #2D4A29 0%, #6B9162 100%)", boxShadow: "0 4px 15px rgba(45,74,41,0.3)" }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              Mulai Gratis
+            </motion.button>
+          </div>
 
           <motion.h1
             className="text-[48px] md:text-[72px] font-extrabold leading-[1.05] m-0 mb-6 tracking-tight"
