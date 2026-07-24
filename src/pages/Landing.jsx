@@ -12,42 +12,43 @@ export default function Landing() {
   ];
 
   return (
-    <div className="font-sans" style={{ background: "#E8EDE5" }}>
-      {/* Hero */}
-      <section className="min-h-screen px-6 py-20 text-center relative overflow-hidden flex flex-col items-center justify-center">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-          {[...Array(3)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute rounded-full"
-              style={{
-                width: `${300 + i * 100}px`,
-                height: `${300 + i * 100}px`,
-                left: `${20 + i * 20}%`,
-                top: `${10 + i * 15}%`,
-                background: `radial-gradient(circle, rgba(107,145,98,${0.12 - i * 0.03}) 0%, transparent 70%)`,
-              }}
-              animate={{ x: [0, 20, 0], y: [0, -15, 0], scale: [1, 1.05, 1] }}
-              transition={{ duration: 12 + i * 4, repeat: Infinity, ease: "easeInOut" }}
-            />
-          ))}
-        </div>
+    <div className="font-sans min-h-screen relative overflow-hidden" style={{ background: "#E8EDE5" }}>
+      {/* Background blobs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(3)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute rounded-full"
+            style={{
+              width: `${300 + i * 100}px`,
+              height: `${300 + i * 100}px`,
+              left: `${20 + i * 20}%`,
+              top: `${10 + i * 15}%`,
+              background: `radial-gradient(circle, rgba(107,145,98,${0.12 - i * 0.03}) 0%, transparent 70%)`,
+            }}
+            animate={{ x: [0, 20, 0], y: [0, -15, 0], scale: [1, 1.05, 1] }}
+            transition={{ duration: 12 + i * 4, repeat: Infinity, ease: "easeInOut" }}
+          />
+        ))}
+      </div>
 
-        <div className="max-w-[800px] mx-auto relative z-10">
-          {/* Top bar: Logo + CTA */}
-          <div className="flex items-center justify-between mb-12">
-            <img src={logo} alt="Edelweys" className="h-10" />
-            <motion.button
-              onClick={() => navigate("/register")}
-              className="px-5 py-2.5 rounded-full text-white text-[14px] font-semibold cursor-pointer"
-              style={{ background: "linear-gradient(135deg, #2D4A29 0%, #6B9162 100%)", boxShadow: "0 4px 15px rgba(45,74,41,0.3)" }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              Mulai Gratis
-            </motion.button>
-          </div>
+      {/* Top bar: Logo left, Button right */}
+      <div className="relative z-10 px-6 py-5 flex items-center justify-between">
+        <img src={logo} alt="Edelweys" className="h-10" />
+        <motion.button
+          onClick={() => navigate("/register")}
+          className="px-5 py-2.5 rounded-full text-white text-[14px] font-semibold cursor-pointer"
+          style={{ background: "linear-gradient(135deg, #2D4A29 0%, #6B9162 100%)", boxShadow: "0 4px 15px rgba(45,74,41,0.3)" }}
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          Mulai Gratis
+        </motion.button>
+      </div>
 
+      {/* Hero Content */}
+      <section className="relative z-10 flex flex-col items-center justify-center text-center" style={{ minHeight: "calc(100vh - 80px)" }}>
+        <div className="max-w-[800px] mx-auto px-6">
           <motion.h1
             className="text-[48px] md:text-[72px] font-extrabold leading-[1.05] m-0 mb-6 tracking-tight"
             style={{ color: "#1E3319" }}
