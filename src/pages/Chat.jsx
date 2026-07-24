@@ -187,11 +187,15 @@ export default function Chat() {
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages]);
 
   const startNewChat = async () => {
-    if (messages.length > 1 && userId) {
-      const messagesToSave = messages.map(m => ({
+    if (messages.length > 1 && userId && messages.length > savedMsgCount) {
+      // Only save messages that haven't been saved yet
+      const unsaved = messages.slice(savedMsgCount);
+      const now = Date.now();
+      const messagesToSave = unsaved.map((m, i) => ({
         user_id: userId,
         role: m.role,
         message: m.content,
+        created_at: new Date(now - (unsaved.length - 1 - i) * 1000).toISOString(),
       }));
       const { error } = await supabase.from("chat_history").insert(messagesToSave);
       if (!error) {
@@ -212,7 +216,7 @@ export default function Chat() {
     setSavedMsgCount(0);
   };
 
-  const loadChat = (chat) => { setMessages(chat.messages); setActiveChatId(chat.id); setSidebarOpen(false); };
+  const loadChat = (chat) => { setMessages(chat.messages); setActiveChatId(chat.id); setSavedMsgCount(chat.messages.length); setSidebarOpen(false); };
 
   const deleteChat = async (chatId, e) => {
     e.stopPropagation();
